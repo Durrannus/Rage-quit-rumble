@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rage Quit Rumble</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-column scoreboard. Header carries the game and season switch; tabbed panels below. */
+:root{
+  --bg:#eceff5; --surface:#ffffff; --sunk:#e2e6ef; --ink:#131a2d; --muted:#596282; --line:#d3d8e5;
+  --accent:#2c4fe0; --accent-ink:#ffffff; --accent-soft:#e1e7ff;
+  --win:#0f7a49; --win-soft:#dcf2e6; --loss:#bf2d39; --loss-soft:#fbe3e5; --gold:#9a6608; --gold-soft:#fbefd5;
+  --display:"Chakra Petch","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1020; --surface:#151a2d; --sunk:#1c2238; --ink:#e7eaf5; --muted:#97a0bf; --line:#283051;
+  --accent:#7290ff; --accent-ink:#0c1020; --accent-soft:#222c55;
+  --win:#43cf8f; --win-soft:#123326; --loss:#ff6d77; --loss-soft:#3a1a20; --gold:#f2b84f; --gold-soft:#3a2c10;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1020; --surface:#151a2d; --sunk:#1c2238; --ink:#e7eaf5; --muted:#97a0bf; --line:#283051;
+  --accent:#7290ff; --accent-ink:#0c1020; --accent-soft:#222c55;
+  --win:#43cf8f; --win-soft:#123326; --loss:#ff6d77; --loss-soft:#3a1a20; --gold:#f2b84f; --gold-soft:#3a2c10;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.btn.discord{background:#5865f2;border-color:#5865f2;color:#fff;display:inline-flex;gap:8px;align-items:center}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:20px 64px;display:grid;gap:20px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.1}
+h2{font-size:1.25rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* header */
+header.top{display:grid;gap:14px}
+.brand{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.brand h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:700;letter-spacing:-.01em;text-transform:uppercase}
+.brand h1 .slash{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:0 .22em;transform:skewX(-12deg);margin-left:.08em}
+.brand h1 .slash span{display:inline-block;transform:skewX(12deg)}
+.who{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 .85rem var(--display);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.season{display:flex;align-items:center;gap:8px}
+nav.tabs{display:flex;gap:2px;border-bottom:2px solid var(--line);overflow-x:auto}
+nav.tabs button{font:600 .95rem var(--display);letter-spacing:.02em;background:none;border:0;color:var(--muted);padding:10px 14px;cursor:pointer;position:relative;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink)}
+nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;left:8px;right:8px;bottom:-2px;height:3px;background:var(--accent);transform:skewX(-20deg)}
+
+/* controls */
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 9px;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn{font:600 .9rem var(--display);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:var(--r);cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--loss);border-color:var(--loss)}
+.btn.small{padding:4px 10px;font-size:.8rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:600}
+
+/* surfaces */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:14px;min-width:0}
+.panel>*,.grid2>*,.wrap>*{min-width:0}
+.panel-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.banner{background:var(--accent-soft);border-radius:var(--r);padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.empty{padding:28px 12px;text-align:center;color:var(--muted);display:grid;gap:10px;justify-items:center}
+.grid2{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin-inline:-4px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th.l,td.l{text-align:left}
+tr:last-child td{border-bottom:0}
+td.rank{font-family:var(--display);font-weight:700;color:var(--muted);width:2.2em;text-align:left}
+tr.lead td.rank{color:var(--gold)}
+td.pts{font-family:var(--display);font-weight:700;font-size:1.05rem}
+.pl{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.pl button{all:unset;cursor:pointer}
+.pl button:hover{color:var(--accent)}
+.av{width:26px;height:26px;border-radius:50%;flex:none;object-fit:cover}
+.av-txt{display:inline-grid;place-items:center;background:var(--sunk);color:var(--muted);font:700 .8rem var(--display)}
+.form{display:inline-flex;gap:3px}
+.pip{width:16px;height:16px;border-radius:3px;font:700 .62rem/16px var(--display);text-align:center}
+.pip.w{background:var(--win-soft);color:var(--win)}
+.pip.l{background:var(--loss-soft);color:var(--loss)}
+.tag{display:inline-block;font:700 .7rem var(--display);letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+.tag.mvp{background:var(--gold-soft);color:var(--gold)}
+.tag.win{background:var(--win-soft);color:var(--win)}
+.tag.loss{background:var(--loss-soft);color:var(--loss)}
+.tag.you{background:var(--accent-soft);color:var(--accent)}
+
+/* records */
+.records{display:grid;gap:10px}
+.rec{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.rec:last-child{border-bottom:0}
+.rec .big{font:700 1.5rem var(--display)}
+.rec.shame .big{color:var(--loss)}
+.rec .what{display:grid;min-width:0}
+.rec .what b{font-family:var(--display);font-weight:600}
+.rec .what span{font-size:.85rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* matches */
+.match{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:10px}
+.match-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}
+.sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.side{display:grid;gap:4px;min-width:0}
+.side h3{display:flex;gap:8px;align-items:center}
+.line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;font-size:.92rem;padding:3px 0}
+.line .who2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.line .pick{color:var(--muted)}
+
+/* log form */
+.logform{display:grid;gap:14px}
+.row-fields{display:flex;flex-wrap:wrap;gap:12px}
+.field{display:grid;gap:4px;min-width:0}
+.field input,.field select{width:100%}
+.roster{display:grid;gap:6px}
+.roster-row{display:grid;gap:6px;align-items:center}
+.roster-row input,.roster-row select{width:100%}
+.roster-head{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.team-block{display:grid;gap:8px;border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.team-block.won{border-color:var(--win);background:var(--win-soft)}
+.radio{display:inline-flex;gap:6px;align-items:center;font-weight:600;cursor:pointer}
+.err{color:var(--loss);font-weight:600}
+
+/* player page */
+.roster-list{display:flex;flex-wrap:wrap;gap:8px}
+.pcard{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;background:var(--surface);cursor:pointer;font-weight:600}
+.pcard[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.tile{background:var(--sunk);border-radius:var(--r);padding:10px 12px;display:grid;gap:2px}
+.tile .v{font:700 1.45rem var(--display);font-variant-numeric:tabular-nums}
+.ph{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ph .av{width:48px;height:48px;font-size:1.2rem}
+.ph h2{font-size:1.6rem}
+
+.gamecard{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:6px}
+.kv{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.9rem}
+.kv b{font-weight:600}
+
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:var(--r);font-weight:600;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion:no-preference){.match,.panel{animation:rise .25s ease both}@keyframes rise{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <div class="brand"><h1>Rage Quit <span class="slash"><span>Rumble</span></span></h1></div>
+    <p class="muted">Loading the tournament…</p>
+  </header>
+</div>
+<div id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</body>
+</html>
+<script src="config.js"></script>
+<script>
+const TEMPLATES = {
+  lol: { name:"League of Legends", short:"LoL", format:"teams", teamSize:5, pickLabel:"Champion",
+    stats:[{key:"k",label:"Kills"},{key:"d",label:"Deaths"},{key:"a",label:"Assists"},{key:"cs",label:"CS"}],
+    kda:{k:"k",d:"d",a:"a"}, shameStat:"d", mvpStat:"kda", points:{win:3,loss:0,mvp:1} },
+  valorant: { name:"Valorant", short:"Valorant", format:"teams", teamSize:5, pickLabel:"Agent",
+    stats:[{key:"k",label:"Kills"},{key:"d",label:"Deaths"},{key:"a",label:"Assists"},{key:"acs",label:"ACS"}],
+    kda:{k:"k",d:"d",a:"a"}, shameStat:"d", mvpStat:"acs", points:{win:3,loss:0,mvp:1} },
+  rocketleague: { name:"Rocket League", short:"RL", format:"teams", teamSize:3, pickLabel:"Car",
+    stats:[{key:"goals",label:"Goals"},{key:"saves",label:"Saves"},{key:"assists",label:"Assists"},{key:"score",label:"Score"}],
+    kda:null, shameStat:null, mvpStat:"score", points:{win:3,loss:0,mvp:1} },
+  mariokart: { name:"Mario Kart", short:"MK", format:"ffa", teamSize:12, pickLabel:"Character",
+    stats:[{key:"falls",label:"Falls"}], kda:null, shameStat:"falls", mvpStat:null,
+    points:{placements:[10,7,5,3,2,1],mvp:0} }
+};
+const DISCORD_ICON = '<svg width="18" height="14" viewBox="0 0 71 55" aria-hidden="true"><path fill="currentColor" d="M60.1 4.9A58.5 58.5 0 0 0 45.6.4a40 40 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A39 39 0 0 0 25.8.4 58.4 58.4 0 0 0 11.2 4.9C2 18.7-.5 32.2.7 45.5a58.8 58.8 0 0 0 18 9.1 43 43 0 0 0 3.8-6.2 38 38 0 0 1-6-2.9l1.5-1.1a42 42 0 0 0 35.9 0l1.5 1.1a38 38 0 0 1-6 2.9 43 43 0 0 0 3.8 6.2 58.6 58.6 0 0 0 18-9.1c1.5-15.4-2.5-28.8-10.6-40.6ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.5 3.3 6.4 7.2c0 4-2.8 7.2-6.4 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.5 3.3 6.4 7.2c0 4-2.8 7.2-6.4 7.2Z"/></svg>';
+const TABS = [["standings","Standings"],["matches","Matches"],["players","Players"],["games","Games"]];
+const YEAR = String(new Date().getFullYear());
+const S = {
+  sb:null, me:null, isAdmin:false, canWrite:false, authReady:false, ready:false, noDb:false,
+  games:{}, players:{}, matches:[], loaded:{games:false,players:false,matches:false},
+  profiles:{}, gameId:null, season:YEAR, tab:"standings", viewPlayer:null,
+  form:null, formErr:"", confirmDel:null, busy:false,
+  join:{tag:""}, addp:{tag:""}, editTag:null,
+  ng:{name:"",format:"teams",teamSize:"5",pickLabel:"",stats:"",shame:"",mvp:"",win:"3",loss:"0",mvpPts:"1",placements:"10,7,5,3,2,1"}
+};
+try{ const h=location.hash.slice(1); if(TABS.some(t=>t[0]===h)) S.tab=h; }catch(e){}
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today = () => { const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+const fmt1 = n => (Math.round(n*10)/10).toFixed(1);
+const pct = (a,b) => b ? Math.round(100*a/b)+"%" : "–";
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40) || "x";
+const fmtDate = iso => { try{ return new Date(iso).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}); }catch(e){ return iso; } };
+
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
+function writeError(e){
+  if(e && (e.code==="42501" || /row-level security|permission/i.test(e.message||""))) return "You can't change this yet. Ask the organiser to approve you on the Players tab.";
+  if(e && e.code==="23505") return "That already exists.";
+  return "Couldn't save just now. Check your connection and try again.";
+}
+
+/* ---------- scoring ---------- */
+const G = () => S.games[S.gameId];
+function kdaVal(g, s){ if(!g.kda) return 0; const k=+s[g.kda.k]||0, d=+s[g.kda.d]||0, a=+s[g.kda.a]||0; return (k+a)/Math.max(1,d); }
+function isWin(g,m,e){ return g.format==="ffa" ? (+e.place===1) : e.team===m.winner; }
+function mvpOf(g,m){
+  if(!g.mvpStat) return null; let best=null, bv=-Infinity;
+  for(const e of m.entries||[]){ const s=e.stats||{}; const v = g.mvpStat==="kda" ? kdaVal(g,s) : (+s[g.mvpStat]||0); if(v>bv){bv=v;best=e.pid;} }
+  return best;
+}
+function entryPoints(g,m,e,mvp){
+  const p=g.points||{}; let pts;
+  if(g.format==="ffa") pts=(p.placements||[])[(+e.place||0)-1]||0;
+  else pts = e.team===m.winner ? (p.win??3) : (p.loss??0);
+  if(mvp && mvp===e.pid) pts += (p.mvp??0);
+  return pts;
+}
+function filtered(){ return S.matches.filter(m=>m.game===S.gameId && (S.season==="all"||m.season===S.season)); }
+function aggregate(g, ms){
+  const T={};
+  const row = pid => T[pid] ??= {pid,games:0,wins:0,losses:0,pts:0,mvps:0,sums:{},picks:{},form:[],placeSum:0};
+  for(const m of ms){
+    const mvp=mvpOf(g,m);
+    for(const e of m.entries||[]){
+      const r=row(e.pid), w=isWin(g,m,e);
+      r.games++; w ? r.wins++ : r.losses++;
+      r.pts += entryPoints(g,m,e,mvp); if(mvp===e.pid) r.mvps++;
+      for(const st of g.stats||[]) r.sums[st.key]=(r.sums[st.key]||0)+(+(e.stats||{})[st.key]||0);
+      if(e.pick){ const k=e.pick.trim().toLowerCase(); const pk=r.picks[k] ??= {name:e.pick.trim(),games:0,wins:0,pts:0}; pk.games++; if(w) pk.wins++; }
+      if(r.form.length<5) r.form.push(w);
+      if(g.format==="ffa") r.placeSum += +e.place||0;
+    }
+  }
+  const list=Object.values(T);
+  for(const r of list) r.kda = g.kda ? kdaVal(g, r.sums) : 0;
+  list.sort((a,b)=> b.pts-a.pts || (b.wins/b.games)-(a.wins/a.games) || b.kda-a.kda || b.games-a.games);
+  return list;
+}
+function records(g, ms){
+  const out=[];
+  for(const st of g.stats||[]){
+    let best=null;
+    for(const m of ms) for(const e of m.entries||[]){ const v=+(e.stats||{})[st.key]||0; if(!best||v>best.v) best={v,pid:e.pid,m,pick:e.pick}; }
+    if(best && best.v>0){
+      const shame = st.key===g.shameStat;
+      out.push({...best, shame, title: shame ? "Rage quit award" : "Most "+lc(st.label), sub: shame ? `Most ${lc(st.label)} in one game` : "In one game", value:String(best.v)});
+    }
+  }
+  if(g.kda){
+    let best=null;
+    for(const m of ms) for(const e of m.entries||[]){ const v=kdaVal(g,e.stats||{}); if(!best||v>best.v) best={v,pid:e.pid,m,pick:e.pick}; }
+    if(best && best.v>0) out.unshift({...best, title:"Best KDA", sub:"In one game", value:fmt1(best.v)});
+  }
+  const shame=out.filter(r=>r.shame); return out.filter(r=>!r.shame).concat(shame);
+}
+
+/* ---------- people ---------- */
+function myPlayer(){ if(!S.me?.id) return null; return Object.entries(S.players).find(([,p])=>p.uid===S.me.id)?.[0] || null; }
+function pName(pid){ return S.players[pid]?.tag || "Removed player"; }
+function avatar(pid, cls="av"){
+  const p=S.players[pid];
+  if(p?.avatar && /^https:\/\/cdn\.discordapp\.com\//.test(p.avatar)) return `<img class="${cls}" src="${esc(p.avatar)}" alt="">`;
+  const t=((p?.tag||"?").trim()[0]||"?").toUpperCase();
+  return `<span class="${cls} av-txt">${esc(t)}</span>`;
+}
+function plLink(pid){ return `<span class="pl">${avatar(pid)}<button data-act="view-player" data-pid="${esc(pid)}">${esc(pName(pid))}</button>${pid===myPlayer()?' <span class="tag you">You</span>':""}</span>`; }
+function computeAccess(){
+  const mine=myPlayer();
+  S.canWrite = S.isAdmin || !!(mine && S.players[mine].approved);
+}
+
+/* ---------- render ---------- */
+function render(){
+  const app=$("#app"); if(!app) return;
+  const a=document.activeElement, aid=a&&a.id, sel=(a&&"selectionStart" in a)?[a.selectionStart,a.selectionEnd]:null;
+  app.innerHTML = header() + body();
+  if(aid){ const el=document.getElementById(aid); if(el){ el.focus({preventScroll:true}); if(sel && el.setSelectionRange){ try{ el.setSelectionRange(sel[0],sel[1]); }catch(e){} } } }
+}
+function header(){
+  const g=G();
+  const gameChips = Object.entries(S.games).sort((a,b)=>(a[1].order||0)-(b[1].order||0))
+    .map(([id,x])=>`<button class="chip" data-act="game" data-id="${esc(id)}" aria-pressed="${id===S.gameId}">${esc(x.name)}</button>`).join("");
+  const seasons=new Set([YEAR]); S.matches.forEach(m=>{ if(m.game===S.gameId && m.season) seasons.add(m.season); });
+  const seasonOpts=[...seasons].sort().reverse().map(s=>`<option value="${esc(s)}"${s===S.season?" selected":""}>${esc(s)}</option>`).join("")+`<option value="all"${S.season==="all"?" selected":""}>All time</option>`;
+  const who = !S.authReady ? "" : S.me?.id
+    ? `<span class="who">${S.me.avatar?`<img class="av" src="${esc(S.me.avatar)}" alt="">`:""}${esc(S.me.name||"Signed in")}${S.isAdmin?' <span class="tag you">Organiser</span>':""} <button class="link" data-act="logout">Log out</button></span>`
+    : `<button class="btn discord" data-act="login">${DISCORD_ICON}Log in with Discord</button>`;
+  return `<header class="top">
+    <div class="brand"><h1>Rage Quit <span class="slash"><span>Rumble</span></span></h1>${who}</div>
+    ${S.ready && Object.keys(S.games).length ? `<div class="controls"><div class="chips" role="group" aria-label="Game">${gameChips}</div>
+      <label class="season"><span class="label">Tournament</span><select id="season" data-act="season">${seasonOpts}</select></label></div>` : ""}
+    <nav class="tabs" role="tablist">${TABS.map(([id,l])=>`<button role="tab" data-act="tab" data-id="${id}" aria-selected="${S.tab===id}">${l}</button>`).join("")}</nav>
+  </header>`;
+}
+function body(){
+  if(S.noDb) return `<div class="panel empty"><h2>The scoreboard isn't connected yet</h2><p>Fill in config.js with your Supabase project URL and anon key. The README has the steps.</p></div>`;
+  if(!S.ready) return `<div class="panel empty"><p>Loading scores…</p></div>`;
+  let banner="";
+  const mine=myPlayer();
+  if(S.authReady && !S.me?.id) banner=`<div class="banner"><span>Log in with Discord to join the roster and log matches.</span><button class="btn discord small" data-act="login">${DISCORD_ICON}Log in with Discord</button></div>`;
+  else if(S.me?.id && !mine && !S.isAdmin && S.tab!=="players") banner=`<div class="banner"><span>You're not on the roster yet. Add your gamer tag so your matches count.</span><button class="btn primary small" data-act="tab" data-id="players">Join the roster</button></div>`;
+  else if(mine && !S.players[mine].approved && !S.isAdmin) banner=`<div class="banner"><span>You're on the roster. The organiser needs to approve you before you can log matches.</span></div>`;
+  else if(S.isAdmin){ const n=Object.values(S.players).filter(p=>p.uid&&!p.approved).length; if(n && S.tab!=="players") banner=`<div class="banner"><span>${n} player${n===1?" is":"s are"} waiting for your approval.</span><button class="btn primary small" data-act="tab" data-id="players">Review</button></div>`; }
+  const g=G();
+  if(!g && S.tab!=="games") return banner+`<div class="panel empty"><h2>No games set up yet</h2><p>Add the first game for this year's tournament.</p>${S.isAdmin?`<button class="btn primary" data-act="tpl" data-id="lol">Add League of Legends</button>`:""}</div>`;
+  return banner + ({standings,matches:matchesTab,players:playersTab,games:gamesTab}[S.tab])();
+}
+
+function standings(){
+  const g=G(), ms=filtered(), rows=aggregate(g,ms);
+  const seasonTxt = S.season==="all" ? "all tournaments" : S.season+" tournament";
+  if(!rows.length) return `<div class="panel empty"><h2>No ${esc(g.name)} matches in the ${esc(seasonTxt)} yet</h2><p>Log the first match and the standings fill in.</p>${S.canWrite?`<button class="btn primary" data-act="new-match">Log a match</button>`:""}</div>`;
+  const ffa=g.format==="ffa";
+  const table = `<div class="tbl-wrap"><table><thead><tr><th class="l">#</th><th class="l">Player</th><th>Played</th><th>W</th><th>L</th><th>Win %</th>${g.kda?"<th>KDA</th>":""}${ffa?"<th>Avg place</th>":""}${g.mvpStat?"<th>MVP</th>":""}<th>Points</th><th class="l">Last 5</th></tr></thead><tbody>
+    ${rows.map((r,i)=>`<tr class="${i===0?"lead":""}"><td class="rank">${i+1}</td><td class="l">${plLink(r.pid)}</td><td>${r.games}</td><td>${r.wins}</td><td>${r.losses}</td><td>${pct(r.wins,r.games)}</td>${g.kda?`<td>${fmt1(r.kda)}</td>`:""}${ffa?`<td>${fmt1(r.placeSum/r.games)}</td>`:""}${g.mvpStat?`<td>${r.mvps}</td>`:""}<td class="pts">${r.pts}</td><td class="l"><span class="form">${r.form.map(w=>`<span class="pip ${w?"w":"l"}">${w?"W":"L"}</span>`).join("")}</span></td></tr>`).join("")}
+  </tbody></table></div>`;
+  const recs=records(g,ms);
+  const p=g.points||{};
+  const rules = ffa ? `Points by finishing place: ${(p.placements||[]).map((v,i)=>`${i+1}${["st","nd","rd"][i]||"th"} ${v}`).join(", ")}.` : `Win ${p.win??3} pts, loss ${p.loss??0}.`;
+  const mvpRule = g.mvpStat && p.mvp ? ` MVP (highest ${g.mvpStat==="kda"?"KDA":esc(statLabel(g,g.mvpStat))} in the match) gets +${p.mvp}.` : "";
+  return `<div class="grid2">
+    <section class="panel"><div class="panel-head"><h2>${esc(g.name)} standings</h2><span class="muted num">${ms.length} match${ms.length===1?"":"es"} · ${esc(seasonTxt)}</span></div>${table}<p class="muted" style="margin:0;font-size:.85rem">${rules}${mvpRule}</p></section>
+    <section class="panel"><h2>Records</h2><div class="records">${recs.length?recs.map(r=>`<div class="rec${r.shame?" shame":""}"><span class="big num">${esc(r.value)}</span><span class="what"><b>${esc(r.title)}</b><span>${esc(pName(r.pid))}${r.pick?" · "+esc(r.pick):""} · ${esc(fmtDate(r.m.playedAt))}</span></span>${avatar(r.pid)}</div>`).join(""):`<p class="muted">Records appear once matches have stats.</p>`}</div></section>
+  </div>`;
+}
+const lc = l => l===l.toUpperCase() ? l : l.toLowerCase();
+function statLabel(g,key){ return (g.stats||[]).find(s=>s.key===key)?.label || key; }
+function statLine(g,s){
+  s=s||{};
+  if(g.kda) { const rest=(g.stats||[]).filter(st=>![g.kda.k,g.kda.d,g.kda.a].includes(st.key)); return `${+s[g.kda.k]||0}/${+s[g.kda.d]||0}/${+s[g.kda.a]||0}`+rest.map(st=>` · ${+s[st.key]||0} ${esc(st.label)}`).join(""); }
+  return (g.stats||[]).map(st=>`${+s[st.key]||0} ${esc(st.label)}`).join(" · ");
+}
+
+function matchesTab(){
+  const g=G(), ms=filtered();
+  const form = S.form ? logForm() : "";
+  const list = ms.length ? ms.map(m=>matchCard(g,m)).join("") : `<div class="empty"><p>No matches logged for this tournament yet.</p></div>`;
+  return `${form}<section class="panel"><div class="panel-head"><h2>Match history</h2>${S.canWrite&&!S.form?`<button class="btn primary" data-act="new-match">Log a match</button>`:""}</div>${list}</section>`;
+}
+function matchCard(g,m){
+  const mvp=mvpOf(g,m);
+  const entry = e => `<div class="line"><span class="who2">${plLink(e.pid)} ${e.pick?`<span class="pick">${esc(e.pick)}</span>`:""} ${mvp===e.pid&&g.mvpStat?'<span class="tag mvp">MVP</span>':""}</span><span class="num muted">${statLine(g,e.stats)}</span></div>`;
+  let sides;
+  if(g.format==="ffa"){
+    const es=[...(m.entries||[])].sort((a,b)=>(+a.place||99)-(+b.place||99));
+    sides = `<div class="side">${es.map(e=>`<div class="line"><span class="who2"><b class="num">${+e.place||"–"}.</b> ${plLink(e.pid)} ${e.pick?`<span class="pick">${esc(e.pick)}</span>`:""}</span><span class="num muted">${statLine(g,e.stats)}</span></div>`).join("")}</div>`;
+  } else {
+    sides = `<div class="sides">${["A","B"].map(t=>`<div class="side"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>${(m.entries||[]).filter(e=>e.team===t).map(entry).join("")}</div>`).join("")}</div>`;
+  }
+  const del = S.canWrite ? (S.confirmDel===m.id ? `<span><button class="btn danger small" data-act="del-match" data-id="${esc(m.id)}">Delete match</button> <button class="btn small" data-act="cancel-del">Keep</button></span>` : `<button class="link" data-act="ask-del" data-id="${esc(m.id)}">Delete</button>`) : "";
+  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${sides}</article>`;
+}
+
+/* ---------- log form ---------- */
+function newForm(){
+  const g=G(), n=Math.max(1,Math.min(20,+g.teamSize||5));
+  const rows=[];
+  if(g.format==="ffa") for(let i=0;i<Math.min(n,8);i++) rows.push({side:"",pid:"",pick:"",place:String(i+1),stats:{}});
+  else for(const side of ["A","B"]) for(let i=0;i<n;i++) rows.push({side,pid:"",pick:"",place:"",stats:{}});
+  const me=myPlayer(); if(me) rows[0].pid=me;
+  return {game:S.gameId, season:S.season==="all"?YEAR:S.season, date:today(), winner:"A", note:"", rows};
+}
+function logForm(){
+  const g=S.games[S.form.game]||G(), f=S.form;
+  const opts = sel => `<option value="">Choose player…</option>`+Object.entries(S.players).sort((a,b)=>a[1].tag.localeCompare(b[1].tag)).map(([id,p])=>`<option value="${esc(id)}"${id===sel?" selected":""}>${esc(p.tag)}</option>`).join("");
+  const cols = `minmax(130px,1.6fr) ${g.pickLabel?"minmax(100px,1.2fr) ":""}${g.format==="ffa"?"64px ":""}${(g.stats||[]).map(()=>"minmax(54px,.6fr)").join(" ")}`;
+  const head = `<div class="roster-row roster-head" style="grid-template-columns:${cols}"><span>Player</span>${g.pickLabel?`<span>${esc(g.pickLabel)}</span>`:""}${g.format==="ffa"?"<span>Place</span>":""}${(g.stats||[]).map(s=>`<span>${esc(s.label)}</span>`).join("")}</div>`;
+  const rowHtml = (r,i) => `<div class="roster-row" style="grid-template-columns:${cols}">
+      <select id="f-${i}-pid" data-bind="form.rows.${i}.pid" aria-label="Player">${opts(r.pid)}</select>
+      ${g.pickLabel?`<input id="f-${i}-pick" data-bind="form.rows.${i}.pick" value="${esc(r.pick)}" placeholder="${esc(g.pickLabel)}" aria-label="${esc(g.pickLabel)}">`:""}
+      ${g.format==="ffa"?`<input id="f-${i}-place" type="number" min="1" inputmode="numeric" data-bind="form.rows.${i}.place" value="${esc(r.place)}" aria-label="Place">`:""}
+      ${(g.stats||[]).map(s=>`<input id="f-${i}-${esc(s.key)}" type="number" min="0" inputmode="numeric" data-bind="form.rows.${i}.stats.${esc(s.key)}" value="${esc(r.stats[s.key]??"")}" placeholder="0" aria-label="${esc(s.label)}">`).join("")}
+    </div>`;
+  const rosterScroll = inner => `<div class="tbl-wrap"><div class="roster" style="min-width:${(g.pickLabel?240:130)+(g.format==="ffa"?70:0)+(g.stats||[]).length*62}px">${inner}</div></div>`;
+  let roster;
+  if(g.format==="ffa"){
+    roster = `<div class="team-block">${rosterScroll(head+f.rows.map(rowHtml).join(""))}<div><button class="btn small" data-act="add-row" data-side="">Add player</button></div></div>`;
+  } else {
+    roster = ["A","B"].map(t=>`<div class="team-block${f.winner===t?" won":""}"><div class="panel-head"><h3>Team ${t}</h3><label class="radio"><input type="radio" name="winner" id="f-win-${t}" data-act="winner" value="${t}"${f.winner===t?" checked":""}> Won this match</label></div>
+      ${rosterScroll(head+f.rows.map((r,i)=>r.side===t?rowHtml(r,i):"").join(""))}<div><button class="btn small" data-act="add-row" data-side="${t}">Add player</button></div></div>`).join("");
+  }
+  return `<section class="panel logform"><div class="panel-head"><h2>Log a ${esc(g.name)} match</h2><button class="btn small" data-act="cancel-form">Cancel</button></div>
+    <div class="row-fields">
+      <label class="field"><span class="label">Date played</span><input id="f-date" type="date" data-bind="form.date" value="${esc(f.date)}"></label>
+      <label class="field"><span class="label">Tournament</span><input id="f-season" data-bind="form.season" value="${esc(f.season)}" style="width:7em"></label>
+      <label class="field" style="flex:1 1 220px"><span class="label">Note (optional)</span><input id="f-note" data-bind="form.note" value="${esc(f.note)}" placeholder="e.g. Semi-final, game 2"></label>
+    </div>
+    ${Object.keys(S.players).length<2?`<p class="banner" style="margin:0">Add at least two players on the Players tab before logging a match.</p>`:""}
+    ${roster}
+    <p class="muted" style="margin:0;font-size:.85rem">Leave unused rows blank. ${g.kda?"KDA and MVP are worked out from the stats.":""}</p>
+    ${S.formErr?`<p class="err" role="alert" style="margin:0">${esc(S.formErr)}</p>`:""}
+    <div><button class="btn primary" data-act="save-match"${S.busy?" disabled":""}>Save match</button></div>
+  </section>`;
+}
+function buildMatch(){
+  const f=S.form, g=S.games[f.game];
+  const rows=f.rows.filter(r=>r.pid);
+  if(rows.length<2) return "Pick at least two players.";
+  const ids=rows.map(r=>r.pid); if(new Set(ids).size!==ids.length) return "Each player can only appear once in a match.";
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(f.date)) return "Choose the date the match was played.";
+  if(!f.season.trim()) return "Fill in which tournament this match belongs to, for example "+YEAR+".";
+  if(g.format==="ffa"){ if(rows.some(r=>!(+r.place>=1))) return "Give every player a finishing place."; }
+  else { if(!rows.some(r=>r.side==="A")||!rows.some(r=>r.side==="B")) return "Both teams need at least one player."; }
+  const entries=rows.map(r=>{
+    const e={pid:r.pid, stats:{}};
+    if(g.format==="ffa") e.place=+r.place; else e.team=r.side;
+    if(r.pick && r.pick.trim()) e.pick=r.pick.trim().slice(0,40);
+    for(const s of g.stats||[]) e.stats[s.key]=Math.max(0,Math.round(+r.stats[s.key]||0));
+    return e;
+  });
+  const doc={game:f.game, season:f.season.trim().slice(0,20), playedAt:f.date+new Date().toISOString().slice(10), entries, loggedBy:S.me?.id||null, createdAt:new Date().toISOString()};
+  if(g.format!=="ffa") doc.winner=f.winner;
+  if(f.note.trim()) doc.note=f.note.trim().slice(0,80);
+  return doc;
+}
+
+/* ---------- players ---------- */
+function playersTab(){
+  const g=G(), mine=myPlayer();
+  const ids=Object.keys(S.players).sort((a,b)=>S.players[a].tag.localeCompare(S.players[b].tag));
+  if(!S.viewPlayer || !S.players[S.viewPlayer]) S.viewPlayer = mine || ids[0] || null;
+  let join="";
+  if(S.me?.id && !mine){
+    const unclaimed=ids.filter(id=>!S.players[id].uid);
+    join = `<section class="panel"><h2>Join the roster</h2><p class="muted" style="margin:0">Use the name your friends know you by in game.</p>
+      <div class="row-fields"><input id="join-tag" data-bind="join.tag" value="${esc(S.join.tag)}" placeholder="Your gamer tag" style="flex:1 1 200px"><button class="btn primary" data-act="join">Join as this player</button></div>
+      ${unclaimed.length?`<p style="margin:0" class="muted">Already added by someone else? Claim your name: ${unclaimed.map(id=>`<button class="btn small" data-act="claim" data-pid="${esc(id)}">I'm ${esc(S.players[id].tag)}</button>`).join(" ")}</p>`:""}
+    </section>`;
+  }
+  const pending = S.isAdmin ? ids.filter(id=>S.players[id].uid && !S.players[id].approved) : [];
+  const approvals = pending.length ? `<section class="panel"><h2>Waiting for approval</h2><p class="muted" style="margin:0">Approved players can log and delete matches.</p>${pending.map(id=>`<div class="row-fields" style="align-items:center">${avatar(id)}<b style="flex:1 1 140px">${esc(S.players[id].tag)}</b><button class="btn small primary" data-act="approve" data-pid="${esc(id)}">Approve</button><button class="btn small danger" data-act="reject" data-pid="${esc(id)}">Remove</button></div>`).join("")}</section>` : "";
+  const roster = `<section class="panel"><div class="panel-head"><h2>Roster</h2><span class="muted num">${ids.length} player${ids.length===1?"":"s"}</span></div>
+    ${ids.length?`<div class="roster-list">${ids.map(id=>`<button class="pcard" data-act="view-player" data-pid="${esc(id)}" aria-pressed="${id===S.viewPlayer}">${avatar(id)}${esc(S.players[id].tag)}</button>`).join("")}</div>`:`<p class="muted">Nobody on the roster yet.</p>`}
+    ${S.canWrite?`<div class="row-fields"><input id="addp-tag" data-bind="addp.tag" value="${esc(S.addp.tag)}" placeholder="Friend's gamer tag" style="flex:1 1 200px"><button class="btn" data-act="add-player">Add a friend</button></div><p class="muted" style="margin:0;font-size:.85rem">Friends you add can claim their name when they log in with Discord.</p>`:""}
+  </section>`;
+  return approvals + join + (g && S.viewPlayer ? playerDetail(g, S.viewPlayer) : "") + roster;
+}
+function playerDetail(g,pid){
+  const ms=filtered().filter(m=>(m.entries||[]).some(e=>e.pid===pid));
+  const r=aggregate(g,ms).find(x=>x.pid===pid);
+  const all=aggregate(g,filtered()); const rank=all.findIndex(x=>x.pid===pid)+1;
+  const p=S.players[pid], isMe=pid===myPlayer();
+  const editing = S.editTag!==null && isMe;
+  const head = `<div class="ph">${avatar(pid)}<div><h2>${esc(p.tag)}</h2><span class="muted">${p.uid?(isMe?"This is you":(p.approved?"Discord player":"Waiting for approval")):"Not claimed yet"}${rank?` · Rank ${rank} in ${esc(g.name)}`:""}</span></div>
+    ${isMe&&S.canWrite?(editing?`<span class="row-fields"><input id="edit-tag" data-bind="editTag" value="${esc(S.editTag)}"><button class="btn small primary" data-act="save-tag">Save</button><button class="btn small" data-act="cancel-tag">Cancel</button></span>`:`<button class="link" data-act="edit-tag">Change gamer tag</button>`):""}</div>`;
+  if(!r) return `<section class="panel">${head}<p class="muted" style="margin:0">No ${esc(g.name)} matches ${S.season==="all"?"yet":"in the "+esc(S.season)+" tournament"}.</p></section>`;
+  const tiles=[["Points",r.pts],["Record",`${r.wins}–${r.losses}`],["Win rate",pct(r.wins,r.games)]];
+  if(g.kda) tiles.push(["KDA",fmt1(r.kda)]);
+  if(g.format==="ffa") tiles.push(["Avg place",fmt1(r.placeSum/r.games)]);
+  if(g.mvpStat) tiles.push(["MVPs",r.mvps]);
+  for(const st of g.stats||[]) tiles.push(["Avg "+lc(st.label), fmt1(r.sums[st.key]/r.games)]);
+  const picks=Object.values(r.picks).sort((a,b)=>b.games-a.games||b.wins-a.wins);
+  const picksTbl = g.pickLabel && picks.length ? `<div><h3 style="margin-bottom:6px">${esc(g.pickLabel)} pool</h3><div class="tbl-wrap"><table><thead><tr><th class="l">${esc(g.pickLabel)}</th><th>Played</th><th>W</th><th>Win %</th></tr></thead><tbody>${picks.map(k=>`<tr><td class="l">${esc(k.name)}</td><td>${k.games}</td><td>${k.wins}</td><td>${pct(k.wins,k.games)}</td></tr>`).join("")}</tbody></table></div></div>` : "";
+  const hist = `<div><h3 style="margin-bottom:6px">Recent matches</h3><div class="tbl-wrap"><table><thead><tr><th class="l">Date</th><th class="l">Result</th>${g.pickLabel?`<th class="l">${esc(g.pickLabel)}</th>`:""}<th>Stats</th><th>Pts</th></tr></thead><tbody>${ms.slice(0,10).map(m=>{const e=m.entries.find(x=>x.pid===pid); const mvp=mvpOf(g,m); const w=isWin(g,m,e); return `<tr><td class="l">${esc(fmtDate(m.playedAt))}</td><td class="l"><span class="tag ${w?"win":"loss"}">${g.format==="ffa"?"#"+(+e.place||"–"):(w?"Win":"Loss")}</span>${mvp===pid&&g.mvpStat?' <span class="tag mvp">MVP</span>':""}</td>${g.pickLabel?`<td class="l">${esc(e.pick||"")}</td>`:""}<td>${statLine(g,e.stats)}</td><td>${entryPoints(g,m,e,mvp)}</td></tr>`;}).join("")}</tbody></table></div></div>`;
+  return `<section class="panel">${head}<div class="tiles">${tiles.map(([l,v])=>`<div class="tile"><span class="label">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>${picksTbl}${hist}</section>`;
+}
+
+/* ---------- games ---------- */
+function gamesTab(){
+  const list=Object.entries(S.games).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+  const cards = list.length ? list.map(([id,g])=>{const p=g.points||{}; return `<div class="gamecard"><div class="panel-head"><h3>${esc(g.name)}</h3><span class="muted">${S.matches.filter(m=>m.game===id).length} matches logged</span></div>
+    <div class="kv"><span><b>Format:</b> ${g.format==="ffa"?`Free-for-all, up to ${+g.teamSize||8} players`:`Two teams of ${+g.teamSize||5}`}</span>${g.pickLabel?`<span><b>Pick:</b> ${esc(g.pickLabel)}</span>`:""}<span><b>Stats:</b> ${(g.stats||[]).map(s=>esc(s.label)).join(", ")||"none"}</span>
+    <span><b>Points:</b> ${g.format==="ffa"?esc((p.placements||[]).join(" / "))+" by place":`win ${p.win??3}, loss ${p.loss??0}`}${g.mvpStat&&p.mvp?`, MVP +${p.mvp} (${g.mvpStat==="kda"?"KDA":esc(statLabel(g,g.mvpStat))})`:""}</span>${g.shameStat?`<span><b>Rage quit award:</b> most ${esc(statLabel(g,g.shameStat).toLowerCase())}</span>`:""}</div></div>`;}).join("") : `<p class="muted">No games yet.</p>`;
+  const missing=Object.entries(TEMPLATES).filter(([id,t])=>!Object.values(S.games).some(g=>g.name===t.name));
+  const n=S.ng;
+  const addForm = S.isAdmin ? `<section class="panel"><h2>Add another game</h2>
+    ${missing.length?`<div class="row-fields" style="align-items:center"><span class="label">Quick add</span>${missing.map(([id,t])=>`<button class="btn small" data-act="tpl" data-id="${id}">${esc(t.name)}</button>`).join("")}</div>`:""}
+    <p class="muted" style="margin:0">Or set one up yourself. Stats named Kills, Deaths and Assists also get a KDA column.</p>
+    <div class="row-fields">
+      <label class="field" style="flex:2 1 200px"><span class="label">Game name</span><input id="ng-name" data-bind="ng.name" value="${esc(n.name)}" placeholder="e.g. Counter-Strike 2"></label>
+      <label class="field" style="flex:1 1 150px"><span class="label">Format</span><select id="ng-format" data-bind="ng.format" data-rerender="1"><option value="teams"${n.format==="teams"?" selected":""}>Two teams</option><option value="ffa"${n.format==="ffa"?" selected":""}>Free-for-all</option></select></label>
+      <label class="field" style="flex:1 1 110px"><span class="label">${n.format==="ffa"?"Max players":"Players per team"}</span><input id="ng-size" type="number" min="1" max="20" data-bind="ng.teamSize" value="${esc(n.teamSize)}"></label>
+      <label class="field" style="flex:1 1 150px"><span class="label">Pick name (optional)</span><input id="ng-pick" data-bind="ng.pickLabel" value="${esc(n.pickLabel)}" placeholder="e.g. Agent"></label>
+    </div>
+    <div class="row-fields">
+      <label class="field" style="flex:2 1 260px"><span class="label">Stats to track, comma separated</span><input id="ng-stats" data-bind="ng.stats" value="${esc(n.stats)}" placeholder="Kills, Deaths, Assists, Headshots"></label>
+      <label class="field" style="flex:1 1 150px"><span class="label">Rage quit stat (optional)</span><input id="ng-shame" data-bind="ng.shame" value="${esc(n.shame)}" placeholder="Deaths"></label>
+      <label class="field" style="flex:1 1 150px"><span class="label">MVP decided by (optional)</span><input id="ng-mvp" data-bind="ng.mvp" value="${esc(n.mvp)}" placeholder="KDA"></label>
+    </div>
+    <div class="row-fields">
+      ${n.format==="ffa"?`<label class="field" style="flex:2 1 220px"><span class="label">Points for 1st, 2nd, 3rd…</span><input id="ng-place" data-bind="ng.placements" value="${esc(n.placements)}"></label>`:`<label class="field" style="width:100px"><span class="label">Win points</span><input id="ng-win" type="number" data-bind="ng.win" value="${esc(n.win)}"></label><label class="field" style="width:100px"><span class="label">Loss points</span><input id="ng-loss" type="number" data-bind="ng.loss" value="${esc(n.loss)}"></label>`}
+      <label class="field" style="width:100px"><span class="label">MVP bonus</span><input id="ng-mvppts" type="number" data-bind="ng.mvpPts" value="${esc(n.mvpPts)}"></label>
+    </div>
+    <div><button class="btn primary" data-act="add-game">Add game</button></div>
+  </section>` : "";
+  return `<section class="panel"><h2>Games in the tournament</h2>${cards}</section>${addForm}`;
+}
+function gameFromForm(){
+  const n=S.ng; const name=n.name.trim(); if(!name) return "Give the game a name.";
+  const labels=n.stats.split(",").map(s=>s.trim()).filter(Boolean).slice(0,10);
+  const stats=[]; const used=new Set();
+  for(const l of labels){ let k=slug(l).replace(/-/g,"_"); while(used.has(k)) k+="_"; used.add(k); stats.push({key:k,label:l.slice(0,24)}); }
+  const find = l => stats.find(s=>s.label.toLowerCase()===l.trim().toLowerCase())?.key;
+  const kk=find("kills"), dk=find("deaths"), ak=find("assists");
+  const kda = kk&&dk&&ak ? {k:kk,d:dk,a:ak} : null;
+  const mvpIn=n.mvp.trim(); let mvpStat=null;
+  if(mvpIn){ if(mvpIn.toLowerCase()==="kda"){ if(!kda) return "MVP by KDA needs stats called Kills, Deaths and Assists."; mvpStat="kda"; } else { mvpStat=find(mvpIn); if(!mvpStat) return `"${mvpIn}" isn't one of the stats you listed.`; } }
+  let shameStat=null; if(n.shame.trim()){ shameStat=find(n.shame); if(!shameStat) return `"${n.shame.trim()}" isn't one of the stats you listed.`; }
+  const points = n.format==="ffa" ? {placements:n.placements.split(",").map(x=>+x.trim()||0).slice(0,20), mvp:+n.mvpPts||0} : {win:+n.win||0, loss:+n.loss||0, mvp:+n.mvpPts||0};
+  return {name:name.slice(0,40), format:n.format, teamSize:Math.max(1,Math.min(20,+n.teamSize||5)), pickLabel:n.pickLabel.trim().slice(0,20)||null, stats, kda, shameStat, mvpStat, points};
+}
+async function addGame(def){
+  let id=slug(def.name), i=2; while(S.games[id]) id=slug(def.name)+"-"+(i++);
+  const order=Math.max(0,...Object.values(S.games).map(g=>g.order||0))+1;
+  try{ const {error}=await S.sb.from("games").insert({id, config:{...def, order}}); if(error) throw error; S.gameId=id; await loadAll(); toast(def.name+" added"); return true; }
+  catch(e){ toast(writeError(e)); return false; }
+}
+
+/* ---------- events ---------- */
+function setPath(path, val){
+  const parts=path.split("."); let o=S;
+  for(let i=0;i<parts.length-1;i++){ o=o[parts[i]]; if(o==null) return; }
+  o[parts[parts.length-1]]=val;
+}
+document.addEventListener("input", e=>{ const b=e.target.dataset?.bind; if(b) setPath(b, e.target.value); });
+document.addEventListener("change", e=>{
+  const t=e.target, b=t.dataset?.bind;
+  if(b){ setPath(b,t.value); if(t.dataset.rerender) render(); }
+  if(t.dataset?.act==="season"){ S.season=t.value; render(); }
+  if(t.dataset?.act==="winner"){ S.form.winner=t.value; render(); }
+});
+document.addEventListener("click", async e=>{
+  const el=e.target.closest("[data-act]"); if(!el || el.tagName==="SELECT" || (el.tagName==="INPUT")) return;
+  const act=el.dataset.act, id=el.dataset.id;
+  switch(act){
+    case "tab": S.tab=id; try{ history.replaceState(null,"","#"+id); }catch(_){} render(); break;
+    case "game": S.gameId=id; S.form=null; render(); break;
+    case "view-player": S.viewPlayer=el.dataset.pid; S.tab="players"; S.editTag=null; render(); window.scrollTo({top:0,behavior:"smooth"}); break;
+    case "new-match": S.form=newForm(); S.formErr=""; S.tab="matches"; render(); break;
+    case "cancel-form": S.form=null; S.formErr=""; render(); break;
+    case "add-row": { const g=S.games[S.form.game]; const side=el.dataset.side; const r={side,pid:"",pick:"",place:g.format==="ffa"?String(S.form.rows.length+1):"",stats:{}};
+      let at=S.form.rows.length; if(side){ for(let i=S.form.rows.length-1;i>=0;i--) if(S.form.rows[i].side===side){ at=i+1; break; } }
+      S.form.rows.splice(at,0,r); render(); break; }
+    case "save-match": {
+      const doc=buildMatch(); if(typeof doc==="string"){ S.formErr=doc; render(); break; }
+      S.busy=true; S.formErr=""; render();
+      try{ const {error}=await S.sb.from("matches").insert({game:doc.game, season:doc.season, played_at:doc.playedAt, winner:doc.winner||null, note:doc.note||null, entries:doc.entries, logged_by:S.me.id}); if(error) throw error; S.form=null; await loadAll(); toast("Match saved"); }
+      catch(err){ S.formErr=writeError(err); }
+      S.busy=false; render(); break; }
+    case "ask-del": S.confirmDel=id; render(); break;
+    case "cancel-del": S.confirmDel=null; render(); break;
+    case "del-match": try{ const {error}=await S.sb.from("matches").delete().eq("id",id); if(error) throw error; await loadAll(); toast("Match deleted"); }catch(err){ toast(writeError(err)); } S.confirmDel=null; render(); break;
+    case "join": { const tag=S.join.tag.trim(); if(!tag){ toast("Type your gamer tag first."); break; }
+      try{ const {data,error}=await S.sb.from("players").insert({tag:tag.slice(0,32), user_id:S.me.id, avatar:S.me.avatar||null}).select("id").single(); if(error) throw error; S.viewPlayer=data.id; S.join.tag=""; await loadAll(); toast("Welcome to the roster, "+tag); }catch(err){ toast(writeError(err)); } break; }
+    case "claim": try{ const {error}=await S.sb.from("players").update({user_id:S.me.id, avatar:S.me.avatar||null}).eq("id",el.dataset.pid); if(error) throw error; S.viewPlayer=el.dataset.pid; await loadAll(); toast("Name claimed"); }catch(err){ toast(writeError(err)); } break;
+    case "approve": try{ const {error}=await S.sb.from("players").update({approved:true}).eq("id",el.dataset.pid); if(error) throw error; await loadAll(); toast(pName(el.dataset.pid)+" approved"); }catch(err){ toast(writeError(err)); } break;
+    case "reject": try{ const {error}=await S.sb.from("players").update({user_id:null, avatar:null}).eq("id",el.dataset.pid); if(error) throw error; await loadAll(); toast("Removed from the approval list"); }catch(err){ toast(writeError(err)); } break;
+    case "login": { const {error}=await S.sb.auth.signInWithOAuth({provider:"discord", options:{redirectTo:location.origin+location.pathname}}); if(error) toast("Couldn't start Discord login: "+error.message); break; }
+    case "logout": await S.sb.auth.signOut(); break;
+    case "add-player": { const tag=S.addp.tag.trim(); if(!tag){ toast("Type your friend's gamer tag first."); break; }
+      if(Object.values(S.players).some(p=>p.tag.toLowerCase()===tag.toLowerCase())){ toast(tag+" is already on the roster."); break; }
+      try{ const {error}=await S.sb.from("players").insert({tag:tag.slice(0,32), user_id:null}); if(error) throw error; S.addp.tag=""; await loadAll(); toast(tag+" added"); }catch(err){ toast(writeError(err)); } break; }
+    case "edit-tag": S.editTag=S.players[myPlayer()].tag; render(); break;
+    case "cancel-tag": S.editTag=null; render(); break;
+    case "save-tag": { const t=(S.editTag||"").trim(); if(!t) break; try{ const {error}=await S.sb.from("players").update({tag:t.slice(0,32)}).eq("id",myPlayer()); if(error) throw error; S.editTag=null; await loadAll(); toast("Gamer tag updated"); }catch(err){ toast(writeError(err)); } break; }
+    case "tpl": if(await addGame(TEMPLATES[id])){ S.tab = S.tab==="games"?"games":"standings"; render(); } break;
+    case "add-game": { const def=gameFromForm(); if(typeof def==="string"){ toast(def); break; } if(await addGame(def)){ S.ng={...S.ng,name:"",stats:"",shame:"",mvp:"",pickLabel:""}; render(); } break; }
+  }
+});
+
+/* ---------- boot ---------- */
+async function loadAll(){
+  const [g,p,m] = await Promise.all([
+    S.sb.from("games").select("id,config"),
+    S.sb.from("players").select("id,tag,user_id,approved,avatar"),
+    S.sb.from("matches").select("id,game,season,played_at,winner,note,entries").order("played_at",{ascending:false}).limit(5000)
+  ]);
+  const err=g.error||p.error||m.error;
+  if(err){ toast("Couldn't load the scoreboard. Reload the page."); console.error(err); return; }
+  S.games=Object.fromEntries(g.data.map(r=>[r.id,r.config||{}]));
+  S.players=Object.fromEntries(p.data.map(r=>[r.id,{tag:r.tag,uid:r.user_id,approved:r.approved,avatar:r.avatar}]));
+  S.matches=m.data.map(r=>({id:r.id,game:r.game,season:r.season,playedAt:r.played_at,winner:r.winner,note:r.note,entries:r.entries||[]}));
+  if(!S.gameId || !S.games[S.gameId]){ const first=Object.entries(S.games).sort((a,b)=>(a[1].order||0)-(b[1].order||0))[0]; S.gameId=first?first[0]:null; }
+  S.ready=true; computeAccess(); render();
+}
+async function onAuth(session){
+  const u=session?.user;
+  if(u){
+    const md=u.user_metadata||{};
+    S.me={id:u.id, name:md.custom_claims?.global_name||md.full_name||md.name||"Discord user", avatar:md.avatar_url||null};
+    const {data}=await S.sb.rpc("is_admin"); S.isAdmin=data===true;
+  } else { S.me=null; S.isAdmin=false; }
+  S.authReady=true; computeAccess(); render();
+  const mine=myPlayer();
+  if(mine && S.me.avatar && S.players[mine].avatar!==S.me.avatar) S.sb.from("players").update({avatar:S.me.avatar}).eq("id",mine).then(()=>{});
+}
+render();
+(async ()=>{
+  const cfg=window.RUMBLE_CONFIG||{};
+  if(!window.supabase || !cfg.supabaseUrl || !cfg.supabaseAnonKey || /YOUR-/.test(cfg.supabaseUrl)){ S.noDb=true; render(); return; }
+  S.sb=window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  await loadAll();
+  const {data:{session}}=await S.sb.auth.getSession();
+  await onAuth(session);
+  S.sb.auth.onAuthStateChange((ev,session)=>{ if(ev==="SIGNED_IN"||ev==="SIGNED_OUT") onAuth(session).then(loadAll); });
+  let t; const refresh=()=>{ clearTimeout(t); t=setTimeout(loadAll,300); };
+  S.sb.channel("scoreboard")
+    .on("postgres_changes",{event:"*",schema:"public",table:"games"},refresh)
+    .on("postgres_changes",{event:"*",schema:"public",table:"players"},refresh)
+    .on("postgres_changes",{event:"*",schema:"public",table:"matches"},refresh)
+    .subscribe();
+})();
+</script>
+</body>
+</html>
