@@ -63,6 +63,17 @@ input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-vis
 .btn.small{padding:4px 10px;font-size:.8rem}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.roasts{display:grid;gap:6px;margin-top:12px;padding:12px 14px;border-radius:var(--r);background:linear-gradient(100deg,rgba(255,92,122,.10),rgba(155,123,255,.08));border:1px solid rgba(255,92,122,.25)}
+.roasts h4{margin:0;font:700 .75rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--loss)}
+.roast{display:flex;gap:10px;align-items:baseline;font-size:.92rem;min-width:0;flex-wrap:wrap}
+.roast .award{font:700 .72rem var(--display);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:rgba(255,92,122,.16);color:#ff9fb2;white-space:nowrap}
+.headline{margin:4px 0 0;font-style:italic;color:var(--muted)}
+.shame-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.shame-card{display:grid;gap:6px;padding:14px;border-radius:var(--r);background:var(--sunk);border:1px solid var(--line);min-width:0}
+.shame-card .t{font:700 .78rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:#ff9fb2}
+.shame-card .who2{display:flex;gap:8px;align-items:center;min-width:0}
+.shame-card .q{font-size:.88rem;color:var(--muted)}
+
 label.btn{display:inline-block}
 .link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:600}
 
@@ -459,7 +470,7 @@ function standings(){
   return `<div class="grid2">
     <section class="panel"><div class="panel-head"><h2>${esc(g.name)} standings</h2><span class="muted num">${ms.length} match${ms.length===1?"":"es"} · ${esc(seasonTxt)}</span></div>${podium}${table}<p class="muted" style="margin:0;font-size:.85rem">${rules}${mvpRule}</p></section>
     <section class="panel"><h2>Records</h2><div class="records">${recs.length?recs.map(r=>`<div class="rec${r.shame?" shame":""}"><span class="big num">${esc(r.value)}</span><span class="what"><b>${esc(r.title)}</b><span>${esc(pName(r.pid))}${r.pick&&!r.noDate?" · "+esc(r.pick):""}${r.noDate?" · "+esc(r.sub):" · "+esc(fmtDate(r.m.playedAt))}</span></span>${avatar(r.pid)}</div>`).join(""):`<p class="muted">Records appear once matches have stats.</p>`}</div></section>
-  </div>${hof||augPanel?`<div class="grid2" style="margin-top:20px">${augPanel||"<div></div>"}${hof}</div>`:""}`;
+  </div>${hof||augPanel?`<div class="grid2" style="margin-top:20px">${augPanel||"<div></div>"}${hof}</div>`:""}${shamePanel(ms)}`;
 }
 const lc = l => l===l.toUpperCase() ? l : l.toLowerCase();
 function statLabel(g,key){ return (g.stats||[]).find(s=>s.key===key)?.label || key; }
@@ -487,7 +498,7 @@ function matchCard(g,m){
     sides = `<div class="sides">${["A","B"].map(t=>`<div class="side"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>${(m.entries||[]).filter(e=>e.team===t).map(entry).join("")}</div>`).join("")}</div>`;
   }
   const del = S.canWrite ? (S.confirmDel===m.id ? `<span><button class="btn danger small" data-act="del-match" data-id="${esc(m.id)}">Delete match</button> <button class="btn small" data-act="cancel-del">Keep</button></span>` : `<button class="link" data-act="ask-del" data-id="${esc(m.id)}">Delete</button>`) : "";
-  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${sides}${talk(m)}</article>`;
+  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${headline(m)}${sides}${roastBox(m)}${talk(m)}</article>`;
 }
 function talkAuthor(uid){ const pid=Object.keys(S.players).find(id=>S.players[id].uid===uid); return pid; }
 function talk(m){
@@ -558,6 +569,7 @@ function buildMatch(){
     if(g.format==="ffa") e.place=+r.place; else e.team=r.side;
     if(r.pick && r.pick.trim()) e.pick=r.pick.trim().slice(0,40);
     if(r.riot) e.riot=String(r.riot).slice(0,40);
+    if(r.fun){ const fu={}; for(const k of FUN_KEYS) fu[k]=Math.max(0,Math.round(+r.fun[k]||0)); e.fun=fu; }
     for(const s of g.stats||[]) e.stats[s.key]=Math.max(0,Math.round(+r.stats[s.key]||0));
     if(g.multikills){ const mu={}; for(const [k] of MULTI){ const v=Math.max(0,Math.round(+(r.multi||{})[k]||0)); if(v) mu[k]=v; } if(Object.keys(mu).length) e.multi=mu; }
     if(g.augments && r.augments){ const a=r.augments.split(",").map(x=>x.trim().slice(0,40)).filter(Boolean).slice(0,6); if(a.length) e.augments=a; }
@@ -569,6 +581,80 @@ function buildMatch(){
   return doc;
 }
 
+
+
+/* ---------- roasts (from replay stats) ---------- */
+const FUN_KEYS=["time","dead","alive","tower","reroll","pings","unspent","mitig","flash","cc","dc","snow","spells","left","ff"];
+const mmss=s=>{ s=Math.round(+s||0); const m=Math.floor(s/60); return m?`${m}m ${String(s%60).padStart(2,"0")}s`:`${s}s`; };
+const nf=v=>Math.round(+v||0).toLocaleString("en-GB");
+// pick: "max" or "min"; ok: is it roast-worthy; say: the line under the award
+const ROASTS=[
+  {key:"left", title:"Rage Quitter", pick:"max", ok:v=>v>0, say:()=>`left the game. Living up to the tournament name.`},
+  {key:"dc", title:"Wi-Fi Warrior", pick:"max", ok:v=>v>=5, say:v=>`disconnected for ${mmss(v)}. Router problems, or tactical?`},
+  {key:"deadPct", title:"Grey Screen Enjoyer", pick:"max", ok:v=>v>=.25, say:(v,f)=>`spent ${Math.round(v*100)}% of the game dead. That's ${mmss(f.dead)} of staring at a grey screen.`},
+  {key:"alive", title:"Mayfly", pick:"min", ok:v=>v>0&&v<=85, say:v=>`never stayed alive longer than ${mmss(v)}. Blink and you'd miss it.`},
+  {key:"tower", title:"Tower Hugger", pick:"max", ok:v=>v>=1500, say:v=>`took ${nf(v)} damage from towers. They do hurt, it turns out.`},
+  {key:"reroll", title:"Commitment Issues", pick:"max", ok:v=>v>=10, say:v=>`rerolled augments ${v} times and still wasn't happy.`},
+  {key:"pings", title:"Keyboard Warrior", pick:"max", ok:v=>v>=35, say:v=>`pinged ${v} times. We heard you the first time.`},
+  {key:"unspent", title:"Scrooge", pick:"max", ok:v=>v>=1500, say:v=>`finished with ${nf(v)} gold unspent. Saving up for something?`},
+  {key:"mitig", title:"Human Punching Bag", pick:"max", ok:v=>v>=40000, say:v=>`soaked up ${nf(v)} damage so everyone else didn't have to.`},
+  {key:"cc", title:"The Jailer", pick:"max", ok:v=>v>=30, say:v=>`kept enemies stunned and rooted for ${mmss(v)} in total.`},
+  {key:"flashPm", title:"Flash Addict", pick:"max", ok:v=>v>=1, say:(v,f)=>`used summoner spells ${f.flash} times. Nobody needs that many.`},
+  {key:"snow", title:"Snowball Sniper", pick:"max", ok:v=>v>=8, say:v=>`landed ${v} snowballs. Hexgate to the face.`},
+  {key:"spellsPm", title:"Button Masher", pick:"max", ok:v=>v>=14, say:(v,f)=>`cast ${nf(f.spells)} spells. The keyboard is begging for mercy.`},
+];
+function funVal(key,f){
+  const mins=Math.max(1,(f.time||0)/60);
+  if(key==="deadPct") return f.time?f.dead/f.time:0;
+  if(key==="flashPm") return f.flash/mins;
+  if(key==="spellsPm") return f.spells/mins;
+  return +f[key]||0;
+}
+function roastsFor(m, max=4){
+  const es=(m.entries||[]).filter(e=>e.fun); if(!es.length) return [];
+  const out=[], used=new Map();
+  for(const r of ROASTS){
+    const vals=es.map(e=>({e,v:funVal(r.key,e.fun)})).filter(x=>r.ok(x.v)); if(!vals.length) continue;
+    vals.sort((a,b)=>r.pick==="min"?a.v-b.v:b.v-a.v);
+    const best=vals.find(x=>(used.get(x.e.pid)||0)<1) || vals[0];
+    out.push({r, e:best.e, v:best.v}); used.set(best.e.pid,(used.get(best.e.pid)||0)+1);
+  }
+  // spread awards around: one per player first, then repeats
+  out.sort((a,b)=>(used.get(a.e.pid)>1)-(used.get(b.e.pid)>1));
+  return out.slice(0,max);
+}
+function roastBox(m){
+  const rs=roastsFor(m); if(!rs.length) return "";
+  return `<div class="roasts"><h4>Post-match roast</h4>${rs.map(x=>`<div class="roast"><span class="award">${esc(x.r.title)}</span><span>${plLink(x.e.pid)} ${esc(x.r.say(x.v, x.e.fun))}</span></div>`).join("")}</div>`;
+}
+function headline(m){
+  const es=(m.entries||[]).filter(e=>e.fun); if(!es.length) return "";
+  const t=Math.max(...es.map(e=>e.fun.time||0)), ff=es.find(e=>e.fun.ff);
+  const loser=m.winner==="A"?"B":m.winner==="B"?"A":"";
+  const mins=Math.round(t/60);
+  let line;
+  if(ff) line = mins<=15 ? `Team ${ff.team||loser} typed /ff after ${mins} minutes. Tactical retreat.` : `Team ${ff.team||loser} surrendered after ${mins} minutes.`;
+  else if(mins && mins<=14) line=`Over in ${mins} minutes. That was a stomp.`;
+  else if(mins>=25) line=`A ${mins}-minute marathon. Nobody wanted to lose this one.`;
+  else return "";
+  return `<p class="headline">${esc(line)}</p>`;
+}
+const SHAME=[
+  {title:"Grey Screen Champion", calc:f=>f.dead, show:v=>mmss(v)+" spent dead", q:"Total time dead this tournament"},
+  {title:"Keyboard Warrior", calc:f=>f.pings, show:v=>nf(v)+" pings", q:"Most pings sent"},
+  {title:"Tower Hugger", calc:f=>f.tower, show:v=>nf(v)+" tower damage taken", q:"Kept walking under towers"},
+  {title:"Commitment Issues", calc:f=>f.reroll, show:v=>nf(v)+" augment rerolls", q:"Never happy with an augment"},
+  {title:"Scrooge", calc:f=>f.unspent, show:v=>nf(v)+" gold never spent", q:"Taking it to the grave"},
+  {title:"Human Punching Bag", calc:f=>f.mitig, show:v=>nf(v)+" damage soaked", q:"Took one for the team, repeatedly"},
+];
+function shamePanel(ms){
+  const tot={};
+  for(const m of ms) for(const e of m.entries||[]) if(e.fun){ const t=(tot[e.pid] ??= {}); for(const k of FUN_KEYS) t[k]=(t[k]||0)+(+e.fun[k]||0); }
+  const ids=Object.keys(tot); if(!ids.length) return "";
+  const cards=SHAME.map(c=>{ const best=ids.map(id=>({id,v:c.calc(tot[id])})).sort((a,b)=>b.v-a.v)[0]; return best&&best.v>0?{c,...best}:null; }).filter(Boolean);
+  if(!cards.length) return "";
+  return `<section class="panel" style="margin-top:20px"><div class="panel-head"><h2>Hall of Shame</h2><span class="muted" style="font-size:.85rem">From uploaded replays</span></div><div class="shame-grid">${cards.map(x=>`<div class="shame-card"><span class="t">${esc(x.c.title)}</span><span class="who2">${plLink(x.id)}</span><b class="num">${esc(x.c.show(x.v))}</b><span class="q">${esc(x.c.q)}</span></div>`).join("")}</div></section>`;
+}
 
 /* ---------- replay import (.rofl) ---------- */
 const REPLAY_BTN = `<label class="btn" title="Fill the match in from a League of Legends .rofl replay">Upload replay<input type="file" accept=".rofl" data-act="rofl" hidden></label>`;
@@ -628,7 +714,12 @@ async function importReplay(file){
     const stats={}; for(const k in all) if(keys.has(k)) stats[k]=String(num(all[k]));
     const multi={triple:p.TRIPLE_KILLS, quadra:p.QUADRA_KILLS, penta:p.PENTA_KILLS}; for(const k in multi) multi[k]=num(multi[k])?String(num(multi[k])):"";
     const augs=[1,2,3,4,5,6].map(i=>String(p["PLAYER_AUGMENT_"+i]||"0")).filter(x=>x!=="0").map(x=>names[x]||"Augment #"+x);
-    return {side, pid, riot, pick:String(p.SKIN||""), place:"", stats, multi, augments:augs.join(", ")};
+    const n=k=>num(p[k]), pings=Object.keys(p).filter(k=>/_PINGS$/.test(k)).reduce((t,k)=>t+n(k),0)+n("PING");
+    const fun={time:n("TIME_PLAYED"), dead:n("TOTAL_TIME_SPENT_DEAD"), alive:n("LONGEST_TIME_SPENT_LIVING"), tower:n("TOTAL_DAMAGE_TAKEN_FROM_BUILDINGS"),
+      reroll:n("2026_S2A2_Kiwi_AugmentRerolls"), pings, unspent:Math.max(0,n("GOLD_EARNED")-n("GOLD_SPENT")), mitig:n("TOTAL_DAMAGE_SELF_MITIGATED"),
+      flash:n("SUMMON_SPELL1_CAST")+n("SUMMON_SPELL2_CAST"), cc:n("TIME_CCING_OTHERS"), dc:n("TIME_SPENT_DISCONNECTED"), snow:n("Missions_SnowballsHit"),
+      spells:n("SPELL1_CAST")+n("SPELL2_CAST")+n("SPELL3_CAST")+n("SPELL4_CAST"), left:(p.WAS_LEAVER==="1"||p.WAS_AFK==="1")?1:0, ff:p.GAME_ENDED_IN_SURRENDER==="1"&&p.WIN!=="Win"?1:0};
+    return {side, pid, riot, pick:String(p.SKIN||""), place:"", stats, multi, augments:augs.join(", "), fun};
   });
   rows.sort((a,b)=>a.side.localeCompare(b.side));
   const left=rep.players.filter(p=>p.WAS_LEAVER==="1"||p.WAS_AFK==="1").map(p=>p.RIOT_ID_GAME_NAME).filter(Boolean);
