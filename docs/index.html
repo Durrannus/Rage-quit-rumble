@@ -63,16 +63,76 @@ input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-vis
 .btn.small{padding:4px 10px;font-size:.8rem}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.roasts{display:grid;gap:6px;margin-top:12px;padding:12px 14px;border-radius:var(--r);background:linear-gradient(100deg,rgba(255,92,122,.10),rgba(155,123,255,.08));border:1px solid rgba(255,92,122,.25)}
-.roasts h4{margin:0;font:700 .75rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--loss)}
-.roast{display:flex;gap:10px;align-items:baseline;font-size:.92rem;min-width:0;flex-wrap:wrap}
-.roast .award{font:700 .72rem var(--display);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:rgba(255,92,122,.16);color:#ff9fb2;white-space:nowrap}
-.headline{margin:4px 0 0;font-style:italic;color:var(--muted)}
-.shame-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.shame-card{display:grid;gap:6px;padding:14px;border-radius:var(--r);background:var(--sunk);border:1px solid var(--line);min-width:0}
-.shame-card .t{font:700 .78rem var(--display);letter-spacing:.08em;text-transform:uppercase;color:#ff9fb2}
-.shame-card .who2{display:flex;gap:8px;align-items:center;min-width:0}
-.shame-card .q{font-size:.88rem;color:var(--muted)}
+.headline{margin:2px 0 0;font:600 1rem var(--display);color:var(--ink);opacity:.9}
+.headline:before{content:"“";color:var(--accent);margin-right:2px}
+.headline:after{content:"”";color:var(--accent);margin-left:2px}
+/* quirk chips */
+.quirks{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 8px}
+.quirk{font:600 .74rem var(--display);letter-spacing:.02em;padding:3px 9px;border-radius:999px;background:rgba(155,123,255,.14);border:1px solid rgba(155,123,255,.35);color:#cdbdff;white-space:nowrap}
+.quirk small{color:var(--muted);font-weight:500}
+/* award cards */
+.awards{margin-top:14px;display:grid;gap:10px}
+.awards-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.awards-head h4{margin:0;font:700 .78rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:#ff9fb2}
+.strip{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory}
+.acard{--edge:linear-gradient(160deg,#ff6b7d,#9b7bff 55%,#ff6b7d);position:relative;flex:0 0 190px;height:270px;border-radius:14px;overflow:hidden;scroll-snap-align:start;isolation:isolate;
+  background:radial-gradient(120% 80% at 50% 0%,#3a1838,#140d24 70%);box-shadow:0 10px 30px rgba(0,0,0,.45);transition:transform .25s ease, box-shadow .25s ease}
+.acard:before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;background:var(--edge);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:4;pointer-events:none}
+.acard.glory{--edge:linear-gradient(160deg,#fff1b8,#ffc857 40%,#b8862b 75%,#ffe39a);background:radial-gradient(120% 80% at 50% 0%,#3d3010,#15110a 70%)}
+.acard:hover{transform:translateY(-4px) rotate(-.6deg);box-shadow:0 16px 40px rgba(0,0,0,.55),0 0 24px rgba(255,107,125,.25)}
+.acard.glory:hover{box-shadow:0 16px 40px rgba(0,0,0,.55),0 0 28px rgba(255,200,87,.35)}
+.acard .art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 15%;z-index:0;filter:saturate(1.1)}
+.acard .shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,12,24,.55) 0%,rgba(8,12,24,0) 28%,rgba(8,12,24,.2) 48%,rgba(8,12,24,.92) 72%,#080c18 100%)}
+.acard .shine{position:absolute;inset:-50%;z-index:2;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%);transform:translateX(-60%);transition:transform .8s ease;pointer-events:none}
+.acard:hover .shine{transform:translateX(60%)}
+.acard .top{position:absolute;top:10px;left:10px;right:10px;z-index:3;display:flex;gap:8px;align-items:center}
+.acard .ico{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:50%;font-size:1.15rem;background:rgba(8,12,24,.75);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(4px)}
+.acard .ttl{font:700 .78rem/1.15 var(--display);letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.acard .bot{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;display:grid;gap:4px}
+.acard .val{font:700 2.1rem/1 var(--display);color:#ff9fb2;text-shadow:0 2px 14px rgba(255,107,125,.45)}
+.acard.glory .val{color:var(--gold);text-shadow:0 2px 14px rgba(255,200,87,.45)}
+.acard .unit{font:600 .72rem var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.acard .who{display:flex;gap:6px;align-items:center;min-width:0;margin-top:4px}
+.acard .who b{font-family:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acard .who .av{width:22px;height:22px;font-size:.7rem}
+.acard .quip{margin:0;font-size:.8rem;line-height:1.3;color:#d5dbf2}
+.shame-grid{display:flex;gap:14px;flex-wrap:wrap}
+@media (max-width:560px){ .shame-grid{flex-wrap:nowrap;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory} }
+/* ceremony */
+.stage{position:fixed;inset:0;z-index:50;display:grid;grid-template-rows:auto 1fr auto;background:radial-gradient(60% 55% at 50% 42%,rgba(155,123,255,.22),rgba(8,12,24,.97) 70%),#080c18;color:var(--ink);overflow:hidden}
+.stage:before{content:"";position:absolute;left:50%;top:-20%;width:70vmin;height:120%;transform:translateX(-50%);background:conic-gradient(from 180deg at 50% 0%,transparent 160deg,rgba(255,255,255,.07) 175deg,rgba(255,255,255,.12) 180deg,rgba(255,255,255,.07) 185deg,transparent 200deg);pointer-events:none}
+.stage-top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;position:relative;z-index:2}
+.stage-top .btn{white-space:nowrap}
+.stage-top .kicker{font:700 .78rem var(--display);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.stage-body{display:grid;place-items:center;padding:8px 16px;position:relative;z-index:2;min-height:0;overflow:auto}
+.stage-foot{display:flex;justify-content:center;align-items:center;gap:14px;padding:14px 16px 22px;position:relative;z-index:2}
+.dots{display:flex;gap:6px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.acard.big{flex:none;width:min(330px,78vw);height:min(470px,62vh);border-radius:20px}
+.acard.big .val{font-size:3.6rem}
+.acard.big .ttl{font-size:1rem}
+.acard.big .ico{width:46px;height:46px;flex-basis:46px;font-size:1.5rem}
+.acard.big .quip{font-size:.98rem}
+.acard.big .who .av{width:28px;height:28px}
+.acard.big .who b{font-size:1.1rem}
+.reveal{animation:reveal .75s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes reveal{0%{opacity:0;transform:perspective(900px) rotateY(95deg) scale(.6)}60%{opacity:1}100%{transform:perspective(900px) rotateY(0) scale(1)}}
+.title-slide{text-align:center;display:grid;gap:14px;justify-items:center;max-width:640px}
+.title-slide .big-t{font:700 clamp(2.4rem,9vw,4.6rem)/.95 var(--display);text-transform:uppercase;letter-spacing:.02em;background:linear-gradient(100deg,#fff,var(--accent) 45%,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;animation:pop .7s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:scale(1)}}
+.title-slide .result{font:700 1.3rem var(--display)}
+.title-slide .result b{color:var(--win)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:min(760px,100%)}
+.vs .col{background:rgba(17,24,49,.8);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:10px;align-content:start;animation:pop .6s both}
+.vs .col:nth-child(2){animation-delay:.15s}
+.vs .col.won{border-color:var(--win);box-shadow:0 0 30px rgba(62,224,154,.15)}
+.vs h3{display:flex;justify-content:space-between;align-items:center}
+.vs .qrow{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--sunk)}
+.vs .qrow .qi{font-size:1.4rem}.vs .qrow b{font-family:var(--display);display:block}.vs .qrow span{font-size:.85rem;color:var(--muted)}
+@media (max-width:560px){ .vs{grid-template-columns:1fr} }
+.confetti{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){ .reveal,.title-slide .big-t,.vs .col{animation:none} .confetti{display:none} .acard,.acard .shine{transition:none} }
 
 label.btn{display:inline-block}
 .link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:600}
@@ -411,7 +471,8 @@ function render(){
   const app=$("#app"); if(!app) return;
   const a=document.activeElement, aid=a&&a.id, sel=(a&&"selectionStart" in a)?[a.selectionStart,a.selectionEnd]:null;
   S._trophies = S.ready ? trophies() : {};
-  app.innerHTML = header() + body();
+  app.innerHTML = header() + body() + ceremony();
+  afterRender();
   if(aid){ const el=document.getElementById(aid); if(el){ el.focus({preventScroll:true}); if(sel && el.setSelectionRange){ try{ el.setSelectionRange(sel[0],sel[1]); }catch(e){} } } }
 }
 function header(){
@@ -495,10 +556,10 @@ function matchCard(g,m){
     const es=[...(m.entries||[])].sort((a,b)=>(+a.place||99)-(+b.place||99));
     sides = `<div class="side">${es.map(e=>`<div class="line"><span class="who2"><b class="num">${+e.place||"–"}.</b> ${plLink(e.pid)} ${e.pick?`<span class="pick">${esc(e.pick)}</span>`:""}</span><span class="num muted">${statLine(g,e.stats)}</span></div>`).join("")}</div>`;
   } else {
-    sides = `<div class="sides">${["A","B"].map(t=>`<div class="side"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>${(m.entries||[]).filter(e=>e.team===t).map(entry).join("")}</div>`).join("")}</div>`;
+    sides = `<div class="sides">${["A","B"].map(t=>`<div class="side"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>${quirkChips(m,t)}${(m.entries||[]).filter(e=>e.team===t).map(entry).join("")}</div>`).join("")}</div>`;
   }
   const del = S.canWrite ? (S.confirmDel===m.id ? `<span><button class="btn danger small" data-act="del-match" data-id="${esc(m.id)}">Delete match</button> <button class="btn small" data-act="cancel-del">Keep</button></span>` : `<button class="link" data-act="ask-del" data-id="${esc(m.id)}">Delete</button>`) : "";
-  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${headline(m)}${sides}${roastBox(m)}${talk(m)}</article>`;
+  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${headline(m)}${sides}${awardStrip(g,m)}${talk(m)}</article>`;
 }
 function talkAuthor(uid){ const pid=Object.keys(S.players).find(id=>S.players[id].uid===uid); return pid; }
 function talk(m){
@@ -587,21 +648,22 @@ function buildMatch(){
 const FUN_KEYS=["time","dead","alive","tower","reroll","pings","unspent","mitig","flash","cc","dc","snow","spells","left","ff"];
 const mmss=s=>{ s=Math.round(+s||0); const m=Math.floor(s/60); return m?`${m}m ${String(s%60).padStart(2,"0")}s`:`${s}s`; };
 const nf=v=>Math.round(+v||0).toLocaleString("en-GB");
-// pick: "max" or "min"; ok: is it roast-worthy; say: the line under the award
+function fmtBig(n,fmt){ return fmt==="time"?mmss(n):fmt==="pct"?Math.round(n)+"%":fmt==="dec"?(+n).toFixed(1):nf(n); }
+// pick: "max" or "min"; ok: worth a roast; big: [number, format] shown on the card
 const ROASTS=[
-  {key:"left", title:"Rage Quitter", pick:"max", ok:v=>v>0, say:()=>`left the game. Living up to the tournament name.`},
-  {key:"dc", title:"Wi-Fi Warrior", pick:"max", ok:v=>v>=5, say:v=>`disconnected for ${mmss(v)}. Router problems, or tactical?`},
-  {key:"deadPct", title:"Grey Screen Enjoyer", pick:"max", ok:v=>v>=.25, say:(v,f)=>`spent ${Math.round(v*100)}% of the game dead. That's ${mmss(f.dead)} of staring at a grey screen.`},
-  {key:"alive", title:"Mayfly", pick:"min", ok:v=>v>0&&v<=85, say:v=>`never stayed alive longer than ${mmss(v)}. Blink and you'd miss it.`},
-  {key:"tower", title:"Tower Hugger", pick:"max", ok:v=>v>=1500, say:v=>`took ${nf(v)} damage from towers. They do hurt, it turns out.`},
-  {key:"reroll", title:"Commitment Issues", pick:"max", ok:v=>v>=10, say:v=>`rerolled augments ${v} times and still wasn't happy.`},
-  {key:"pings", title:"Keyboard Warrior", pick:"max", ok:v=>v>=35, say:v=>`pinged ${v} times. We heard you the first time.`},
-  {key:"unspent", title:"Scrooge", pick:"max", ok:v=>v>=1500, say:v=>`finished with ${nf(v)} gold unspent. Saving up for something?`},
-  {key:"mitig", title:"Human Punching Bag", pick:"max", ok:v=>v>=40000, say:v=>`soaked up ${nf(v)} damage so everyone else didn't have to.`},
-  {key:"cc", title:"The Jailer", pick:"max", ok:v=>v>=30, say:v=>`kept enemies stunned and rooted for ${mmss(v)} in total.`},
-  {key:"flashPm", title:"Flash Addict", pick:"max", ok:v=>v>=1, say:(v,f)=>`used summoner spells ${f.flash} times. Nobody needs that many.`},
-  {key:"snow", title:"Snowball Sniper", pick:"max", ok:v=>v>=8, say:v=>`landed ${v} snowballs. Hexgate to the face.`},
-  {key:"spellsPm", title:"Button Masher", pick:"max", ok:v=>v>=14, say:(v,f)=>`cast ${nf(f.spells)} spells. The keyboard is begging for mercy.`},
+  {key:"left", icon:"🚪", title:"Rage Quitter", pick:"max", ok:v=>v>0, big:()=>[0,"text","QUIT"], unit:"left the game", quip:()=>"Living up to the tournament name."},
+  {key:"dc", icon:"📡", title:"Wi-Fi Warrior", pick:"max", ok:v=>v>=5, big:v=>[v,"time"], unit:"disconnected", quip:()=>"Router problems, or tactical?"},
+  {key:"deadPct", icon:"🪦", title:"Grey Screen Enjoyer", pick:"max", ok:v=>v>=.25, big:v=>[v*100,"pct"], unit:"of the game spent dead", quip:f=>`${mmss(f.dead)} of grey screen. Knows every pixel.`},
+  {key:"alive", icon:"🦟", title:"Mayfly", pick:"min", ok:v=>v>0&&v<=85, big:v=>[v,"time"], unit:"longest life", quip:()=>"Blink and you'd miss it."},
+  {key:"tower", icon:"🏰", title:"Tower Hugger", pick:"max", ok:v=>v>=1500, big:v=>[v,"int"], unit:"tower damage taken", quip:()=>"They do hurt, it turns out."},
+  {key:"reroll", icon:"🎰", title:"Commitment Issues", pick:"max", ok:v=>v>=10, big:v=>[v,"int"], unit:"augment rerolls", quip:()=>"Still wasn't happy."},
+  {key:"pings", icon:"📢", title:"Keyboard Warrior", pick:"max", ok:v=>v>=35, big:v=>[v,"int"], unit:"pings", quip:()=>"We heard you the first time."},
+  {key:"unspent", icon:"💰", title:"Scrooge", pick:"max", ok:v=>v>=1500, big:v=>[v,"int"], unit:"gold never spent", quip:()=>"Saving up for something?"},
+  {key:"mitig", icon:"🥊", title:"Human Punching Bag", pick:"max", ok:v=>v>=40000, big:v=>[v,"int"], unit:"damage soaked", quip:()=>"Took one for the team. Repeatedly."},
+  {key:"cc", icon:"⛓️", title:"The Jailer", pick:"max", ok:v=>v>=30, big:v=>[v,"time"], unit:"of stuns and roots", quip:()=>"Nobody moves on their watch."},
+  {key:"flashPm", icon:"⚡", title:"Flash Addict", pick:"max", ok:v=>v>=1, big:(v,f)=>[f.flash,"int"], unit:"summoner spells used", quip:()=>"Nobody needs that many."},
+  {key:"snow", icon:"❄️", title:"Snowball Sniper", pick:"max", ok:v=>v>=8, big:v=>[v,"int"], unit:"snowballs landed", quip:()=>"Hexgate to the face."},
+  {key:"spellsPm", icon:"⌨️", title:"Button Masher", pick:"max", ok:v=>v>=14, big:(v,f)=>[f.spells,"int"], unit:"spells cast", quip:()=>"The keyboard wants a lawyer."},
 ];
 function funVal(key,f){
   const mins=Math.max(1,(f.time||0)/60);
@@ -616,16 +678,39 @@ function roastsFor(m, max=4){
   for(const r of ROASTS){
     const vals=es.map(e=>({e,v:funVal(r.key,e.fun)})).filter(x=>r.ok(x.v)); if(!vals.length) continue;
     vals.sort((a,b)=>r.pick==="min"?a.v-b.v:b.v-a.v);
-    const best=vals.find(x=>(used.get(x.e.pid)||0)<1) || vals[0];
-    out.push({r, e:best.e, v:best.v}); used.set(best.e.pid,(used.get(best.e.pid)||0)+1);
+    const best=vals.find(x=>!used.get(x.e.pid)) || vals[0];
+    out.push({r, e:best.e, v:best.v, again:!!used.get(best.e.pid)}); used.set(best.e.pid,1);
   }
-  // spread awards around: one per player first, then repeats
-  out.sort((a,b)=>(used.get(a.e.pid)>1)-(used.get(b.e.pid)>1));
+  out.sort((a,b)=>a.again-b.again);
   return out.slice(0,max);
 }
-function roastBox(m){
+function champArt(pick){ const id=String(pick||"").replace(/[^A-Za-z]/g,""); return id?`https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${id}_0.jpg`:""; }
+function roastCard(x){
+  const [n,fmt,txt]=x.r.big(x.v,x.e.fun);
+  return {tone:"shame", icon:x.r.icon, title:x.r.title, pid:x.e.pid, pick:x.e.pick, num:n, fmt, text:txt, unit:typeof x.r.unit==="function"?x.r.unit(x.e.fun):x.r.unit, quip:x.r.quip(x.e.fun)};
+}
+function gloryCards(g,m){
+  const es=m.entries||[], out=[];
+  const mvp=mvpOf(g,m), e=es.find(x=>x.pid===mvp);
+  if(e && g.kda){ const s=e.stats||{}; out.push({tone:"glory", icon:"👑", title:"MVP", pid:e.pid, pick:e.pick, num:kdaVal(g,s), fmt:"dec", unit:"KDA", quip:`${+s[g.kda.k]||0} / ${+s[g.kda.d]||0} / ${+s[g.kda.a]||0}${e.pick?" on "+e.pick:""}. Bow down.`}); }
+  if(g.dmgStat){ const c=[...es].sort((a,b)=>(+b.stats?.[g.dmgStat]||0)-(+a.stats?.[g.dmgStat]||0))[0];
+    if(c && c.pid!==mvp && +c.stats?.[g.dmgStat]>0) out.push({tone:"glory", icon:"💥", title:"The Carry", pid:c.pid, pick:c.pick, num:+c.stats[g.dmgStat], fmt:"int", unit:"damage to champions", quip:"Did the heavy lifting."}); }
+  return out;
+}
+function awardCard(a, cls=""){
+  const art=champArt(a.pick);
+  return `<div class="acard ${a.tone} ${cls}">
+    ${art?`<img class="art" src="${esc(art)}" alt="" loading="lazy" onerror="this.remove()">`:""}<div class="shade"></div><div class="shine"></div>
+    <div class="top"><span class="ico" aria-hidden="true">${a.icon}</span><span class="ttl">${esc(a.title)}</span></div>
+    <div class="bot"><div class="val num"${a.fmt!=="text"?` data-count="${+a.num||0}" data-fmt="${a.fmt}"`:""}>${esc(a.fmt==="text"?a.text:fmtBig(a.num,a.fmt))}</div>
+      <div class="unit">${esc(a.unit)}</div>
+      <div class="who">${avatar(a.pid)}<b>${esc(pName(a.pid))}</b></div>
+      <p class="quip">${esc(a.quip)}</p></div></div>`;
+}
+function awardStrip(g,m){
   const rs=roastsFor(m); if(!rs.length) return "";
-  return `<div class="roasts"><h4>Post-match roast</h4>${rs.map(x=>`<div class="roast"><span class="award">${esc(x.r.title)}</span><span>${plLink(x.e.pid)} ${esc(x.r.say(x.v, x.e.fun))}</span></div>`).join("")}</div>`;
+  const cards=[...gloryCards(g,m).slice(0,1), ...rs.map(roastCard)];
+  return `<div class="awards"><div class="awards-head"><h4>Post-match roast</h4><button class="btn small primary" data-act="show" data-id="${esc(m.id)}">▶ Play the awards ceremony</button></div><div class="strip">${cards.map(c=>awardCard(c)).join("")}</div></div>`;
 }
 function headline(m){
   const es=(m.entries||[]).filter(e=>e.fun); if(!es.length) return "";
@@ -639,21 +724,112 @@ function headline(m){
   else return "";
   return `<p class="headline">${esc(line)}</p>`;
 }
+
+/* ---------- team quirks ---------- */
+const QUIRKS=[
+  {icon:"📢", label:"Chatterboxes", calc:es=>es.reduce((t,e)=>t+(+e.fun.pings||0),0), min:40, show:v=>nf(v)+" pings", why:"Pinged more than the other team"},
+  {icon:"🪦", label:"Feeding Frenzy", calc:es=>es.reduce((t,e)=>t+(+e.stats?.d||0),0), min:20, show:v=>nf(v)+" deaths", why:"Died the most, as a group"},
+  {icon:"🩹", label:"Hospital Ward", calc:es=>es.reduce((t,e)=>t+(+e.stats?.heal||0),0), min:15000, show:v=>nf(v)+" healing", why:"Kept each other alive"},
+  {icon:"⛓️", label:"Crowd Control Crew", calc:es=>es.reduce((t,e)=>t+(+e.fun.cc||0),0), min:40, show:v=>mmss(v)+" of CC", why:"Nobody on the other side could move"},
+  {icon:"🏰", label:"Tower Divers", calc:es=>es.reduce((t,e)=>t+(+e.fun.tower||0),0), min:3000, show:v=>nf(v)+" tower damage taken", why:"Fearless, or clueless"},
+  {icon:"🎰", label:"Gamblers", calc:es=>es.reduce((t,e)=>t+(+e.fun.reroll||0),0), min:25, show:v=>nf(v)+" rerolls", why:"Never happy with an augment"},
+  {icon:"💰", label:"Bankers", calc:es=>es.reduce((t,e)=>t+(+e.fun.unspent||0),0), min:3000, show:v=>nf(v)+" gold unspent", why:"Died rich"},
+  {icon:"⚡", label:"Flash Mob", calc:es=>es.reduce((t,e)=>t+(+e.fun.flash||0),0), min:25, show:v=>nf(v)+" summoner spells", why:"Spell cooldowns? Never heard of them"},
+];
+function teamQuirks(m){
+  const by={A:(m.entries||[]).filter(e=>e.team==="A"&&e.fun), B:(m.entries||[]).filter(e=>e.team==="B"&&e.fun)};
+  const out={A:[],B:[]}; if(!by.A.length && !by.B.length) return out;
+  for(const t of ["A","B"]) if(by[t].some(e=>e.fun.ff)) out[t].push({icon:"🏳️", label:"White Flag Wavers", show:"surrendered", why:"Pressed the button"});
+  for(const q of QUIRKS){
+    const a=by.A.length?q.calc(by.A):0, b=by.B.length?q.calc(by.B):0;
+    if(Math.max(a,b)<q.min || a===b) continue;
+    const t=a>b?"A":"B"; out[t].push({icon:q.icon, label:q.label, show:q.show(Math.max(a,b)), why:q.why});
+  }
+  return out;
+}
+function quirkChips(m,t){
+  const qs=teamQuirks(m)[t].slice(0,3); if(!qs.length) return "";
+  return `<div class="quirks">${qs.map(q=>`<span class="quirk" title="${esc(q.why)}">${q.icon} ${esc(q.label)} <small>· ${esc(q.show)}</small></span>`).join("")}</div>`;
+}
+
+/* ---------- awards ceremony ---------- */
+function showSlides(m){
+  const g=S.games[m.game]||G();
+  const cards=[...gloryCards(g,m), ...roastsFor(m,8).map(roastCard)];
+  return [{kind:"title"}, ...cards.map(c=>({kind:"card",c})), {kind:"quirks"}];
+}
+function ceremony(){
+  if(!S.show) return "";
+  const m=S.matches.find(x=>x.id===S.show.mid); if(!m){ S.show=null; return ""; }
+  const g=S.games[m.game]||G(), slides=showSlides(m), i=Math.max(0,Math.min(S.show.i,slides.length-1)), sl=slides[i];
+  let inner;
+  if(sl.kind==="title"){
+    const hl=headline(m).replace(/<[^>]+>/g,"");
+    inner=`<div class="title-slide"><span class="kicker" style="font:700 .8rem var(--display);letter-spacing:.25em;color:var(--muted)">${esc(fmtDate(m.playedAt))}${m.note?" · "+esc(m.note):""}</span>
+      <div class="big-t">The Roast</div>${m.winner?`<div class="result"><b>Team ${esc(m.winner)}</b> won</div>`:""}${hl?`<p class="headline" style="font-size:1.15rem">${hl}</p>`:""}
+      <p class="muted" style="margin:0">${slides.length-2} awards to hand out. Press Next.</p></div>`;
+  } else if(sl.kind==="card"){
+    inner=awardCard(sl.c,"big reveal");
+  } else {
+    const q=teamQuirks(m);
+    const col=t=>`<div class="col${m.winner===t?" won":""}"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>
+      ${q[t].length?q[t].map(x=>`<div class="qrow"><span class="qi">${x.icon}</span><span style="min-width:0"><b>${esc(x.label)}</b><span>${esc(x.show)} · ${esc(x.why)}</span></span></div>`).join(""):`<p class="muted" style="margin:0">Suspiciously normal.</p>`}</div>`;
+    inner=`<div style="display:grid;gap:16px;justify-items:center;width:100%"><div class="big-t" style="font:700 clamp(1.6rem,5vw,2.6rem) var(--display);text-transform:uppercase">Team quirks</div><div class="vs">${col("A")}${col("B")}</div></div>`;
+  }
+  const last=i===slides.length-1;
+  const confetti = sl.kind==="card" && sl.c.tone==="glory" && S._shown!==S.show.mid+":"+i ? `<div class="confetti">${Array.from({length:40},(_,k)=>`<i style="left:${(k*97)%100}%;background:${["#ffc857","#4fd8ff","#9b7bff","#ff6b7d","#3ee09a"][k%5]};animation-duration:${1.6+(k%7)*.25}s;animation-delay:${(k%10)*.06}s"></i>`).join("")}</div>` : "";
+  return `<div class="stage" role="dialog" aria-modal="true" aria-label="Awards ceremony">${confetti}
+    <div class="stage-top"><span class="kicker">${esc(g.name)} · Awards ceremony</span><button class="btn small" data-act="show-close" aria-label="Close">✕ Close</button></div>
+    <div class="stage-body" data-act="show-next">${inner}</div>
+    <div class="stage-foot"><button class="btn" data-act="show-prev"${i===0?" disabled":""}>Back</button><span class="dots">${slides.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")}</span><button class="btn primary" data-act="${last?"show-close":"show-next"}">${last?"Done":"Next"}</button></div>
+  </div>`;
+}
+function showStep(d){
+  if(!S.show) return;
+  const m=S.matches.find(x=>x.id===S.show.mid); if(!m){ closeShow(); return; }
+  const n=showSlides(m).length, i=S.show.i+d;
+  if(i>=n){ closeShow(); return; }
+  S.show.i=Math.max(0,i); render();
+}
+function closeShow(){ S.show=null; document.body.style.overflow=""; render(); }
+function ceremonyKey(e){
+  if(e.key==="Escape"){ closeShow(); return true; }
+  if(e.key==="ArrowRight"||e.key===" "){ e.preventDefault(); showStep(1); return true; }
+  if(e.key==="ArrowLeft"){ showStep(-1); return true; }
+  return false;
+}
+// count the big numbers up, once per ceremony slide
+function afterRender(){
+  if(!S.show) return;
+  const key=S.show.mid+":"+S.show.i; if(S._shown===key) return; S._shown=key;
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.querySelectorAll(".stage [data-count]").forEach(el=>{
+    const to=+el.dataset.count, fmt=el.dataset.fmt, t0=performance.now(), dur=1100;
+    const tick=now=>{ const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3); el.textContent=fmtBig(fmt==="dec"?to*e:Math.round(to*e),fmt); if(p<1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ---------- hall of shame ---------- */
 const SHAME=[
-  {title:"Grey Screen Champion", calc:f=>f.dead, show:v=>mmss(v)+" spent dead", q:"Total time dead this tournament"},
-  {title:"Keyboard Warrior", calc:f=>f.pings, show:v=>nf(v)+" pings", q:"Most pings sent"},
-  {title:"Tower Hugger", calc:f=>f.tower, show:v=>nf(v)+" tower damage taken", q:"Kept walking under towers"},
-  {title:"Commitment Issues", calc:f=>f.reroll, show:v=>nf(v)+" augment rerolls", q:"Never happy with an augment"},
-  {title:"Scrooge", calc:f=>f.unspent, show:v=>nf(v)+" gold never spent", q:"Taking it to the grave"},
-  {title:"Human Punching Bag", calc:f=>f.mitig, show:v=>nf(v)+" damage soaked", q:"Took one for the team, repeatedly"},
+  {icon:"🪦", title:"Grey Screen Champion", calc:f=>f.dead, fmt:"time", unit:"spent dead", quip:"Total time dead this tournament."},
+  {icon:"📢", title:"Keyboard Warrior", calc:f=>f.pings, fmt:"int", unit:"pings sent", quip:"Ping first, think later."},
+  {icon:"🏰", title:"Tower Hugger", calc:f=>f.tower, fmt:"int", unit:"tower damage taken", quip:"Kept walking under towers."},
+  {icon:"🎰", title:"Commitment Issues", calc:f=>f.reroll, fmt:"int", unit:"augment rerolls", quip:"Never happy with an augment."},
+  {icon:"💰", title:"Scrooge", calc:f=>f.unspent, fmt:"int", unit:"gold never spent", quip:"Taking it to the grave."},
+  {icon:"🥊", title:"Human Punching Bag", calc:f=>f.mitig, fmt:"int", unit:"damage soaked", quip:"Took one for the team, repeatedly."},
 ];
 function shamePanel(ms){
-  const tot={};
-  for(const m of ms) for(const e of m.entries||[]) if(e.fun){ const t=(tot[e.pid] ??= {}); for(const k of FUN_KEYS) t[k]=(t[k]||0)+(+e.fun[k]||0); }
+  const tot={}, champs={};
+  for(const m of ms) for(const e of m.entries||[]) if(e.fun){
+    const t=(tot[e.pid] ??= {}); for(const k of FUN_KEYS) t[k]=(t[k]||0)+(+e.fun[k]||0);
+    if(e.pick){ const c=(champs[e.pid] ??= {}); c[e.pick]=(c[e.pick]||0)+1; }
+  }
   const ids=Object.keys(tot); if(!ids.length) return "";
-  const cards=SHAME.map(c=>{ const best=ids.map(id=>({id,v:c.calc(tot[id])})).sort((a,b)=>b.v-a.v)[0]; return best&&best.v>0?{c,...best}:null; }).filter(Boolean);
+  const fav=pid=>Object.entries(champs[pid]||{}).sort((a,b)=>b[1]-a[1])[0]?.[0]||"";
+  const cards=SHAME.map(c=>{ const best=ids.map(id=>({id,v:c.calc(tot[id])})).sort((a,b)=>b.v-a.v)[0]; return best&&best.v>0?{tone:"shame",icon:c.icon,title:c.title,pid:best.id,pick:fav(best.id),num:best.v,fmt:c.fmt,unit:c.unit,quip:c.quip}:null; }).filter(Boolean);
   if(!cards.length) return "";
-  return `<section class="panel" style="margin-top:20px"><div class="panel-head"><h2>Hall of Shame</h2><span class="muted" style="font-size:.85rem">From uploaded replays</span></div><div class="shame-grid">${cards.map(x=>`<div class="shame-card"><span class="t">${esc(x.c.title)}</span><span class="who2">${plLink(x.id)}</span><b class="num">${esc(x.c.show(x.v))}</b><span class="q">${esc(x.c.q)}</span></div>`).join("")}</div></section>`;
+  return `<section class="panel" style="margin-top:20px"><div class="panel-head"><h2>Hall of Shame</h2><span class="muted" style="font-size:.85rem">From uploaded replays</span></div><div class="shame-grid">${cards.map(c=>awardCard(c)).join("")}</div></section>`;
 }
 
 /* ---------- replay import (.rofl) ---------- */
@@ -832,7 +1008,7 @@ function setPath(path, val){
   for(let i=0;i<parts.length-1;i++){ o=o[parts[i]]; if(o==null) return; }
   o[parts[parts.length-1]]=val;
 }
-document.addEventListener("keydown", e=>{ const id=e.target.id||""; if(e.key==="Enter" && id.startsWith("c-")){ e.preventDefault(); document.querySelector(`[data-act="post-talk"][data-id="${CSS.escape(id.slice(2))}"]`)?.click(); } });
+document.addEventListener("keydown", e=>{ if(S.show && ceremonyKey(e)) return; const id=e.target.id||""; if(e.key==="Enter" && id.startsWith("c-")){ e.preventDefault(); document.querySelector(`[data-act="post-talk"][data-id="${CSS.escape(id.slice(2))}"]`)?.click(); } });
 document.addEventListener("input", e=>{ const b=e.target.dataset?.bind; if(b) setPath(b, e.target.value); });
 document.addEventListener("change", e=>{
   const t=e.target, b=t.dataset?.bind;
@@ -849,6 +1025,10 @@ document.addEventListener("click", async e=>{
     case "game": S.gameId=id; S.form=null; render(); break;
     case "view-player": S.viewPlayer=el.dataset.pid; S.tab="players"; S.editTag=null; render(); window.scrollTo({top:0,behavior:"smooth"}); break;
     case "new-match": S.form=newForm(); S.formErr=""; S.tab="matches"; render(); break;
+    case "show": S.show={mid:id,i:0}; S._shown=""; document.body.style.overflow="hidden"; render(); break;
+    case "show-next": showStep(1); break;
+    case "show-prev": showStep(-1); break;
+    case "show-close": closeShow(); break;
     case "cancel-form": S.form=null; S.formErr=""; render(); break;
     case "add-row": { const g=S.games[S.form.game]; const side=el.dataset.side; const r={side,pid:"",pick:"",place:g.format==="ffa"?String(S.form.rows.length+1):"",stats:{},augments:"",multi:{}};
       let at=S.form.rows.length; if(side){ for(let i=S.form.rows.length-1;i>=0;i--) if(S.form.rows[i].side===side){ at=i+1; break; } }
