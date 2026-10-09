@@ -96,8 +96,10 @@ input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-vis
 .acard .who b{font-family:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acard .who .av{width:22px;height:22px;font-size:.7rem}
 .acard .quip{margin:0;font-size:.8rem;line-height:1.3;color:#d5dbf2}
-.shame-grid{display:flex;gap:14px;flex-wrap:wrap}
-@media (max-width:560px){ .shame-grid{flex-wrap:nowrap;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory} }
+.shame-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.shame-grid .acard{flex:none;width:100%;height:250px}
+.shame-grid .acard .val{font-size:1.8rem}
+@media (max-width:560px){ .shame-grid{display:flex;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory} .shame-grid .acard{flex:0 0 170px} }
 /* ceremony */
 .stage{position:fixed;inset:0;z-index:50;display:grid;grid-template-rows:auto 1fr auto;background:radial-gradient(60% 55% at 50% 42%,rgba(155,123,255,.22),rgba(8,12,24,.97) 70%),#080c18;color:var(--ink);overflow:hidden}
 .stage:before{content:"";position:absolute;left:50%;top:-20%;width:70vmin;height:120%;transform:translateX(-50%);background:conic-gradient(from 180deg at 50% 0%,transparent 160deg,rgba(255,255,255,.07) 175deg,rgba(255,255,255,.12) 180deg,rgba(255,255,255,.07) 185deg,transparent 200deg);pointer-events:none}
@@ -277,6 +279,74 @@ tr.lead td{background:rgba(255,200,87,.06)}
 .pod.p2{--medal:var(--silver)}
 .pod.p3{--medal:var(--bronze)}
 @media (max-width:520px){.pod .pts{font-size:1.25rem}.pod .av{width:42px;height:42px}.pod.p1 .av{width:52px;height:52px}}
+
+/* ===== clean scoreboard ===== */
+.match{border:1px solid var(--line);border-radius:14px;padding:0;display:grid;gap:0;overflow:hidden;background:linear-gradient(180deg,rgba(22,32,66,.55),rgba(8,12,24,.4))}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line)}
+.mh-l{display:grid;gap:2px;min-width:0}
+.mh-meta{font:700 .78rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mh-meta i{font-style:normal;margin:0 8px;color:var(--line)}
+.mh .headline{margin:0;font:600 .95rem var(--display);color:var(--ink)}
+.mh .headline:before,.mh .headline:after{content:none}
+.mh-r{display:flex;gap:6px;align-items:center}
+.icon-btn{all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;opacity:.55}
+.icon-btn:hover{opacity:1;background:var(--loss-soft)}
+.icon-btn.chat{width:auto;padding:0 8px;gap:4px;display:inline-flex;align-items:center;opacity:.8}.icon-btn.chat:hover{background:var(--accent-soft)}
+.icon-btn.chat span{font:700 .75rem var(--display);color:var(--accent)}
+.panel.bare{background:none;border:0;padding:0;box-shadow:none}
+.panel.bare > .match + .match{margin-top:0}
+.sb{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.sb-team{padding:10px 16px 12px;display:grid;gap:2px;min-width:0;position:relative}
+.sb-team:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line)}
+.sb-team.won:before{background:var(--win);box-shadow:0 0 12px var(--win)}
+.sb-team.lost:before{background:var(--loss)}
+.sb-team.won{background:linear-gradient(90deg,rgba(62,224,154,.07),transparent 60%)}
+.sb-team.lost{background:linear-gradient(90deg,rgba(255,107,125,.05),transparent 60%)}
+.sb-team + .sb-team{border-left:1px solid var(--line)}
+@media (max-width:860px){ .sb-team + .sb-team{border-left:0;border-top:1px solid var(--line)} }
+.sb-th{display:flex;align-items:center;gap:10px;padding:2px 0 8px;min-width:0}
+.sb-th .res{font:700 1.05rem var(--display);letter-spacing:.14em;text-transform:uppercase}
+.won .res{color:var(--win)}.lost .res{color:var(--loss)}
+.sb-th .tn{font:600 .78rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sb-th .th-dmg{margin-left:auto;font:600 .68rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);width:110px;text-align:right}
+.sb-row{display:grid;grid-template-columns:26px minmax(0,1fr) 92px 110px;gap:10px;align-items:center;padding:6px 8px;margin:0 -8px;border-radius:8px}
+.sb-row:hover{background:rgba(255,255,255,.03)}
+.sb-row.is-mvp{background:linear-gradient(90deg,rgba(255,200,87,.10),transparent 70%)}
+.sb-row:has(.sb-stats){grid-template-columns:26px minmax(0,1fr) auto}
+.sb-name{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap;row-gap:0}
+.nm{all:unset;cursor:pointer;font:600 .95rem var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.nm:hover{color:var(--accent)}
+.you-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.sb-champ{flex-basis:100%;font-size:.8rem;color:var(--muted);line-height:1.2}
+.sb-champ:empty{display:none}
+.mvp-chip,.mk{font:700 .62rem var(--display);letter-spacing:.08em;padding:1px 6px;border-radius:4px}
+.mvp-chip{background:var(--gold);color:#241a00}
+.mk{border:1px solid currentColor}
+.mk-triple{color:var(--accent)}.mk-quadra{color:var(--accent2)}.mk-penta{color:#04121c;background:linear-gradient(90deg,var(--loss),var(--gold));border-color:transparent}
+.sb-kda{font:700 1rem var(--display);text-align:center;white-space:nowrap}
+.sb-kda i{font-style:normal;color:var(--muted);margin:0 3px;font-weight:400}
+.sb-kda b{color:var(--loss)}
+.sb-stats{font-size:.85rem;color:var(--muted);text-align:right}
+.sb-dmg{display:grid;gap:4px;justify-items:end}
+.sb-dmg .num{font:600 .85rem var(--display)}
+.sb-dmg .bar{width:100%;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.sb-dmg .bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.sb-place{font:700 1rem var(--display);color:var(--muted);width:20px}
+.sb-more{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:4px 6px;font-size:.78rem;color:var(--muted)}
+.sb-more .aug{padding:1px 7px;border-radius:999px;background:var(--sunk)}
+.sb-th .tn{white-space:nowrap}
+@media (max-width:480px){ .sb-row{grid-template-columns:26px minmax(0,1fr) 76px 64px;gap:8px} .sb-th{flex-wrap:wrap;row-gap:6px} .sb-th .th-dmg{display:none} .sb-kda{font-size:.9rem} .hl-tile{padding:8px 16px} }
+.sb-team .quirk{font:600 .7rem var(--display);padding:2px 8px;border-radius:999px;background:rgba(155,123,255,.14);border:1px solid rgba(155,123,255,.35);color:#cdbdff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sb-team .quirks{margin:8px 0 0;display:flex;gap:6px;flex-wrap:wrap}
+.hl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.hl-tile{display:flex;gap:10px;align-items:center;padding:10px 16px;background:#0c1226;min-width:0}
+.hl-ico{font-size:1.3rem;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:rgba(255,107,125,.12);flex:none}
+.hl-txt{display:grid;min-width:0}
+.hl-t{font:700 .7rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:#ff9fb2}
+.hl-w{font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hl-w b{color:var(--ink);font-family:var(--display)}
+.match .talk{padding:10px 16px 12px;border-top:1px solid var(--line)}
+.match .talk:not(:has(.talk-line)):not(:has(.talk-form)){display:none}
 </style>
 </head>
 <body>
@@ -524,14 +594,14 @@ function standings(){
   const hof = g.multikills ? `<section class="panel"><h2>Pentakill Hall of Fame</h2>${ps.length?`<div class="hof">${ps.map(x=>`<div class="line"><span class="who2">${plLink(x.pid)} ${x.pick?`<span class="pick">${esc(x.pick)}</span>`:""}${x.n>1?` <b>×${x.n}</b>`:""}</span><span class="muted">${esc(fmtDate(x.m.playedAt))}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0">No pentakills yet. Somebody get one.</p>`}</section>` : "";
   const aug = g.augments ? augmentStats(ms) : [];
   const augPanel = g.augments ? `<section class="panel"><h2>Augments</h2>${aug.length?(()=>{
-      const top=[...aug].sort((a,b)=>b.games-a.games||b.wins/b.games-a.wins/a.games).slice(0,8);
+      const top=[...aug].sort((a,b)=>b.games-a.games||b.wins/b.games-a.wins/a.games).slice(0,5);
       const cursed=aug.filter(a=>a.games>=2).sort((a,b)=>a.wins/a.games-b.wins/b.games||b.games-a.games)[0];
       return `<div class="tbl-wrap"><table class="mini"><thead><tr><th class="l">Augment</th><th>Picked</th><th>Win %</th></tr></thead><tbody>${top.map(a=>`<tr><td class="l">${esc(a.name)}</td><td>${a.games}</td><td>${pct(a.wins,a.games)}</td></tr>`).join("")}</tbody></table></div>${cursed&&cursed.wins/cursed.games<.5?`<p style="margin:0"><span class="tag loss">Cursed</span> ${esc(cursed.name)} has won ${pct(cursed.wins,cursed.games)} of ${cursed.games} games.</p>`:""}`;
     })():`<p class="muted" style="margin:0">Log augments with each match to see which ones win.</p>`}</section>` : "";
   return `<div class="grid2">
     <section class="panel"><div class="panel-head"><h2>${esc(g.name)} standings</h2><span class="muted num">${ms.length} match${ms.length===1?"":"es"} · ${esc(seasonTxt)}</span></div>${podium}${table}<p class="muted" style="margin:0;font-size:.85rem">${rules}${mvpRule}</p></section>
     <section class="panel"><h2>Records</h2><div class="records">${recs.length?recs.map(r=>`<div class="rec${r.shame?" shame":""}"><span class="big num">${esc(r.value)}</span><span class="what"><b>${esc(r.title)}</b><span>${esc(pName(r.pid))}${r.pick&&!r.noDate?" · "+esc(r.pick):""}${r.noDate?" · "+esc(r.sub):" · "+esc(fmtDate(r.m.playedAt))}</span></span>${avatar(r.pid)}</div>`).join(""):`<p class="muted">Records appear once matches have stats.</p>`}</div></section>
-  </div>${hof||augPanel?`<div class="grid2" style="margin-top:20px">${augPanel||"<div></div>"}${hof}</div>`:""}${shamePanel(ms)}`;
+  </div>${shamePanel(ms)}${hof||augPanel?`<div class="grid2" style="margin-top:20px">${augPanel||"<div></div>"}${hof}</div>`:""}`;
 }
 const lc = l => l===l.toUpperCase() ? l : l.toLowerCase();
 function statLabel(g,key){ return (g.stats||[]).find(s=>s.key===key)?.label || key; }
@@ -545,30 +615,55 @@ function matchesTab(){
   const g=G(), ms=filtered();
   const form = S.form ? logForm() : "";
   const list = ms.length ? ms.map(m=>matchCard(g,m)).join("") : `<div class="empty"><p>No matches logged for this tournament yet.</p></div>`;
-  return `${form}<section class="panel"><div class="panel-head"><h2>Match history</h2>${S.canWrite&&!S.form?`<div class="btn-row">${replayOk()?REPLAY_BTN:""}<button class="btn primary" data-act="new-match">Log a match</button></div>`:""}</div>${list}</section>`;
+  return `${form}<section class="panel bare"><div class="panel-head"><h2>Match history</h2>${S.canWrite&&!S.form?`<div class="btn-row">${replayOk()?REPLAY_BTN:""}<button class="btn primary" data-act="new-match">Log a match</button></div>`:""}</div>${list}</section>`;
 }
+function shortNum(v){ v=+v||0; return v>=10000?(v/1000).toFixed(v>=100000?0:1).replace(/\.0$/,"")+"k":nf(v); }
+function nameBtn(pid){ return `<button class="nm" data-act="view-player" data-pid="${esc(pid)}">${esc(pName(pid))}</button>${pid===myPlayer()?'<span class="you-dot" title="You"></span>':""}`; }
 function matchCard(g,m){
-  const mvp=mvpOf(g,m);
-  const mk = e => MULTI.filter(([k])=>+(e.multi||{})[k]>0).map(([k,l])=>` <span class="tag ${k==="penta"?"penta":"mvp"}">${l}${+e.multi[k]>1?" ×"+(+e.multi[k]):""}</span>`).join("");
-  const entry = e => `<div><div class="line"><span class="who2">${plLink(e.pid)} ${e.pick?`<span class="pick">${esc(e.pick)}</span>`:""} ${mvp===e.pid&&g.mvpStat?'<span class="tag mvp">MVP</span>':""}${mk(e)}</span><span class="num muted">${statLine(g,e.stats)}</span></div>${(e.augments||[]).length?`<div class="augs">${e.augments.map(esc).join(" · ")}</div>`:""}</div>`;
-  let sides;
+  const mvp=mvpOf(g,m), es=m.entries||[];
+  const del = S.canWrite ? (S.confirmDel===m.id ? `<span class="btn-row"><button class="btn danger small" data-act="del-match" data-id="${esc(m.id)}">Delete match</button><button class="btn small" data-act="cancel-del">Keep</button></span>` : `<button class="icon-btn" data-act="ask-del" data-id="${esc(m.id)}" title="Delete match" aria-label="Delete match">🗑</button>`) : "";
+  const hasFun=es.some(e=>e.fun), open=!!S.openMatch?.[m.id];
+  const secs=hasFun?Math.max(...es.map(e=>e.fun?.time||0)):0;
+  const meta=[fmtDate(m.playedAt), secs?`${Math.floor(secs/60)}:${String(Math.round(secs%60)).padStart(2,"0")}`:"", m.note||""].filter(Boolean);
+  const head=`<header class="mh"><div class="mh-l"><span class="mh-meta">${meta.map(esc).join('<i>•</i>')}</span>${headline(m)}</div>
+    <div class="mh-r">${!S.commentsOff&&S.canWrite?`<button class="icon-btn chat" data-act="talk-open" data-id="${esc(m.id)}" title="Talk trash" aria-label="Talk trash">💬${(()=>{const n=S.comments.filter(c=>c.match_id===m.id).length;return n?`<span>${n}</span>`:"";})()}</button>`:""}${hasFun?`<button class="btn small primary" data-act="show" data-id="${esc(m.id)}">▶ Awards</button>`:""}
+    ${hasFun||es.some(e=>(e.augments||[]).length)?`<button class="btn small" data-act="toggle-match" data-id="${esc(m.id)}" aria-expanded="${open}">${open?"Less":"More"}</button>`:""}${del}</div></header>`;
   if(g.format==="ffa"){
-    const es=[...(m.entries||[])].sort((a,b)=>(+a.place||99)-(+b.place||99));
-    sides = `<div class="side">${es.map(e=>`<div class="line"><span class="who2"><b class="num">${+e.place||"–"}.</b> ${plLink(e.pid)} ${e.pick?`<span class="pick">${esc(e.pick)}</span>`:""}</span><span class="num muted">${statLine(g,e.stats)}</span></div>`).join("")}</div>`;
-  } else {
-    sides = `<div class="sides">${["A","B"].map(t=>`<div class="side"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>${quirkChips(m,t)}${(m.entries||[]).filter(e=>e.team===t).map(entry).join("")}</div>`).join("")}</div>`;
+    const rows=[...es].sort((a,b)=>(+a.place||99)-(+b.place||99));
+    return `<article class="match">${head}<div class="sb"><div class="sb-team">${rows.map(e=>`<div class="sb-row"><span class="sb-place num">${+e.place||"–"}</span>${avatar(e.pid)}<div class="sb-name">${nameBtn(e.pid)}${e.pick?`<span class="sb-champ">${esc(e.pick)}</span>`:""}</div><div class="sb-stats num">${statLine(g,e.stats)}</div></div>`).join("")}</div></div>${talk(m)}</article>`;
   }
-  const del = S.canWrite ? (S.confirmDel===m.id ? `<span><button class="btn danger small" data-act="del-match" data-id="${esc(m.id)}">Delete match</button> <button class="btn small" data-act="cancel-del">Keep</button></span>` : `<button class="link" data-act="ask-del" data-id="${esc(m.id)}">Delete</button>`) : "";
-  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${headline(m)}${sides}${awardStrip(g,m)}${talk(m)}</article>`;
+  const dk=g.dmgStat, dmax=Math.max(1,...es.map(e=>+e.stats?.[dk]||0));
+  const q=teamQuirks(m);
+  const multi=e=>{ const mu=e.multi||{}; const k=["penta","quadra","triple"].find(k=>+mu[k]>0); return k?`<span class="mk mk-${k}" title="${MULTI.find(x=>x[0]===k)[1]} kill">${k==="penta"?"PENTA":k==="quadra"?"QUADRA":"TRIPLE"}${+mu[k]>1?"×"+(+mu[k]):""}</span>`:""; };
+  const row=e=>{ const s=e.stats||{};
+    return `<div class="sb-row${mvp===e.pid&&g.mvpStat?" is-mvp":""}">${avatar(e.pid)}
+      <div class="sb-name">${nameBtn(e.pid)}${mvp===e.pid&&g.mvpStat?'<span class="mvp-chip">MVP</span>':""}${multi(e)}<span class="sb-champ">${esc(e.pick||"")}</span></div>
+      ${g.kda?`<div class="sb-kda num">${+s[g.kda.k]||0}<i>/</i><b>${+s[g.kda.d]||0}</b><i>/</i>${+s[g.kda.a]||0}</div>`:`<div class="sb-stats num">${statLine(g,s)}</div>`}
+      ${dk?`<div class="sb-dmg" title="${nf(s[dk])} ${esc(statLabel(g,dk))}"><span class="num">${shortNum(s[dk])}</span><span class="bar"><i style="width:${Math.round((+s[dk]||0)/dmax*100)}%"></i></span></div>`:""}
+      ${open&&((e.augments||[]).length||(g.healStat&&+s[g.healStat]))?`<div class="sb-more">${g.healStat?`<span>🩹 ${nf(s[g.healStat])} healing</span>`:""}${(e.augments||[]).map(a=>`<span class="aug">${esc(a)}</span>`).join("")}</div>`:""}
+    </div>`; };
+  const team=t=>{ const won=m.winner===t, qs=q[t];
+    return `<div class="sb-team ${won?"won":"lost"}"><div class="sb-th"><span class="res">${won?"Victory":"Defeat"}</span><span class="tn">Team ${t}</span>
+      ${qs.length?`<span class="quirk" title="${esc(qs[0].why)}">${qs[0].icon} ${esc(qs[0].label)}</span>`:""}
+      ${dk?`<span class="th-dmg">${esc(statLabel(g,dk))}</span>`:""}</div>
+      ${es.filter(e=>e.team===t).map(row).join("")}
+      ${open&&qs.length>1?`<div class="quirks">${qs.slice(1).map(x=>`<span class="quirk" title="${esc(x.why)}">${x.icon} ${esc(x.label)} <small>${esc(x.show)}</small></span>`).join("")}</div>`:""}
+    </div>`; };
+  return `<article class="match">${head}<div class="sb">${team("A")}${team("B")}</div>${highlights(g,m)}${talk(m)}</article>`;
+}
+function highlights(g,m){
+  const rs=roastsFor(m,3); if(!rs.length) return "";
+  return `<div class="hl">${rs.map(x=>{ const c=roastCard(x); return `<div class="hl-tile"><span class="hl-ico">${c.icon}</span><span class="hl-txt"><span class="hl-t">${esc(c.title)}</span><span class="hl-w"><b>${esc(pName(c.pid))}</b> · ${esc(c.fmt==="text"?c.text:fmtBig(c.num,c.fmt))} ${esc(c.unit)}</span></span></div>`; }).join("")}</div>`;
 }
 function talkAuthor(uid){ const pid=Object.keys(S.players).find(id=>S.players[id].uid===uid); return pid; }
 function talk(m){
   if(S.commentsOff) return "";
   const cs=S.comments.filter(c=>c.match_id===m.id);
-  if(!cs.length && !S.canWrite) return "";
+  const open=S.canWrite && (S.talkOpen?.[m.id] || S.cdraft[m.id]);
+  if(!cs.length && !open) return "";
   const lines=cs.map(c=>{ const pid=talkAuthor(c.author); const mine=S.me?.id===c.author;
     return `<div class="talk-line">${pid?avatar(pid):'<span class="av av-txt">?</span>'}<span class="body"><b>${esc(pid?pName(pid):"Someone")}</b> ${esc(c.body)}</span>${mine||S.isAdmin?`<button class="link x" data-act="del-talk" data-id="${esc(c.id)}">Delete</button>`:""}</div>`; }).join("");
-  const form = S.canWrite ? `<div class="talk-form"><input id="c-${esc(m.id)}" data-bind="cdraft.${esc(m.id)}" value="${esc(S.cdraft[m.id]||"")}" maxlength="280" placeholder="Talk some trash…" aria-label="Comment on this match"><button class="btn small" data-act="post-talk" data-id="${esc(m.id)}">Post</button></div>` : "";
+  const form = open ? `<div class="talk-form"><input id="c-${esc(m.id)}" data-bind="cdraft.${esc(m.id)}" value="${esc(S.cdraft[m.id]||"")}" maxlength="280" placeholder="Talk some trash…" aria-label="Comment on this match"><button class="btn small" data-act="post-talk" data-id="${esc(m.id)}">Post</button></div>` : "";
   return `<div class="talk">${lines}${form}</div>`;
 }
 
@@ -1025,6 +1120,8 @@ document.addEventListener("click", async e=>{
     case "game": S.gameId=id; S.form=null; render(); break;
     case "view-player": S.viewPlayer=el.dataset.pid; S.tab="players"; S.editTag=null; render(); window.scrollTo({top:0,behavior:"smooth"}); break;
     case "new-match": S.form=newForm(); S.formErr=""; S.tab="matches"; render(); break;
+    case "talk-open": S.talkOpen={...(S.talkOpen||{}),[id]:true}; render(); document.getElementById("c-"+id)?.focus(); break;
+    case "toggle-match": S.openMatch={...(S.openMatch||{}),[id]:!S.openMatch?.[id]}; render(); break;
     case "show": S.show={mid:id,i:0}; S._shown=""; document.body.style.overflow="hidden"; render(); break;
     case "show-next": showStep(1); break;
     case "show-prev": showStep(-1); break;
