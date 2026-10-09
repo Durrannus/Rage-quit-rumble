@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Rage Quit Rumble</title>
+<link rel="icon" href="icon.png">
+<meta name="theme-color" content="#0d0618">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: one-column arena scoreboard. Hero header with game and season switch, podium, then tabbed panels.
    Deliberately dark-only: a night arena with frost-blue and trophy-gold light. */
@@ -347,6 +349,61 @@ tr.lead td{background:rgba(255,200,87,.06)}
 .hl-w b{color:var(--ink);font-family:var(--display)}
 .match .talk{padding:10px 16px 12px;border-top:1px solid var(--line)}
 .match .talk:not(:has(.talk-line)):not(:has(.talk-form)){display:none}
+
+/* ===== logo theme: neon synthwave ===== */
+:root{
+  --bg:#0b0516; --bg2:#170a2b; --surface:#150a28; --surface2:#1e0f3a; --sunk:#241247; --line:#3b2268; --ink:#f7f1ff; --muted:#b9a8dc;
+  --accent:#20f0e4; --accent2:#ff3fd2; --lime:#c6ff2e; --flame:#ff8a1f; --accent-ink:#0b0516; --accent-soft:#0c3a40;
+  --win:#5dff9e; --win-soft:#0f3a2a; --loss:#ff4d8d; --loss-soft:#3e0f2a; --gold:#ffd23f; --gold-soft:#3f300a;
+  --title:"Bungee","Chakra Petch",system-ui,sans-serif;
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body{background:linear-gradient(180deg,rgba(11,5,22,.55),rgba(11,5,22,.92) 700px),url(bg.jpg) center top/cover fixed,var(--bg)}
+header.top{background:linear-gradient(135deg,rgba(32,240,228,.08),rgba(255,63,210,.10) 55%,rgba(255,138,31,.08));border:1px solid rgba(255,63,210,.35);border-radius:18px;padding:16px 20px 0;
+  box-shadow:0 0 0 1px rgba(32,240,228,.08),0 0 40px rgba(255,63,210,.18),0 20px 50px rgba(0,0,0,.5)}
+header.top::before{background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.018) 3px 4px)}
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center}
+.logo{width:clamp(130px,22vw,210px);height:auto;border-radius:16px;display:block;box-shadow:0 0 0 2px rgba(255,63,210,.5),0 0 30px rgba(255,63,210,.45),0 0 60px rgba(32,240,228,.2)}
+.hero-side{display:grid;gap:12px;min-width:0}
+.who-row{display:flex;justify-content:flex-end}
+.tagline{margin:0;font:400 clamp(1rem,2.6vw,1.45rem)/1.15 var(--title);text-transform:uppercase;letter-spacing:.02em;color:var(--ink);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.tagline b{font-weight:400;background:linear-gradient(90deg,var(--lime),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 10px rgba(198,255,46,.35))}
+@media (max-width:620px){ .hero{grid-template-columns:1fr;justify-items:center;text-align:center} .who-row,.tagline{justify-content:center} .controls{justify-content:center} .logo{width:min(240px,70vw)} }
+h2{font-family:var(--title);font-weight:400;letter-spacing:.02em;text-transform:uppercase;font-size:1.15rem;background:linear-gradient(90deg,var(--lime),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}
+.panel{background:linear-gradient(180deg,rgba(30,15,58,.92),rgba(21,10,40,.92));border:1px solid rgba(255,63,210,.22);border-radius:16px;box-shadow:0 0 0 1px rgba(32,240,228,.05),0 14px 40px rgba(0,0,0,.45)}
+.panel.bare{background:none;border:0;box-shadow:none}
+.chip{background:rgba(255,255,255,.04);border-color:var(--line);font-family:var(--display)}
+.chip[aria-pressed="true"]{background:linear-gradient(100deg,var(--accent2),#a63dff);color:#fff;border-color:transparent;box-shadow:0 0 16px rgba(255,63,210,.5)}
+nav.tabs{background:rgba(0,0,0,.28);border-top:1px solid rgba(255,63,210,.25);margin-top:16px}
+nav.tabs button{font-family:var(--title);font-weight:400;letter-spacing:.04em;text-transform:uppercase;font-size:.88rem}
+nav.tabs button[aria-selected="true"]{color:#fff;text-shadow:0 0 12px rgba(32,240,228,.7)}
+nav.tabs button[aria-selected="true"]::after{background:linear-gradient(90deg,var(--lime),var(--accent),var(--accent2));height:3px;box-shadow:0 0 12px var(--accent)}
+.btn{background:var(--sunk);border-color:var(--line)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:linear-gradient(100deg,var(--lime),var(--accent));color:var(--accent-ink);border-color:transparent;box-shadow:0 0 18px rgba(32,240,228,.35)}
+.btn.primary:hover{filter:brightness(1.1);box-shadow:0 0 26px rgba(198,255,46,.45)}
+input,select,textarea{background:rgba(11,5,22,.8);border-color:var(--line)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.banner{background:linear-gradient(100deg,rgba(32,240,228,.12),rgba(255,63,210,.12));border:1px solid rgba(255,63,210,.3)}
+.rec .big{color:var(--accent);text-shadow:0 0 14px rgba(32,240,228,.4)}
+.rec.shame .big{color:var(--loss);text-shadow:0 0 14px rgba(255,77,141,.4)}
+tr.lead td{background:rgba(198,255,46,.07)}
+.pod.p1{box-shadow:0 0 24px rgba(255,210,63,.25)}
+.match{background:linear-gradient(180deg,rgba(30,15,58,.85),rgba(15,7,30,.85));border-color:rgba(255,63,210,.22);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.sb-th .res{font-family:var(--title);font-weight:400;font-size:1.05rem;letter-spacing:.06em}
+.won .res{text-shadow:0 0 14px rgba(93,255,158,.55)}.lost .res{text-shadow:0 0 14px rgba(255,77,141,.5)}
+.sb-dmg .bar i{background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.sb-team .quirk{background:rgba(255,63,210,.12);border-color:rgba(255,63,210,.4);color:#ffb3ef}
+.hl-tile{background:rgba(11,5,22,.7)}
+.hl-t{color:var(--flame)}
+.hl-ico{background:rgba(255,138,31,.14)}
+.mvp-chip{background:var(--gold)}
+.awards-head h4{color:var(--flame)}
+.title-slide .big-t{font-family:var(--title);font-weight:400;background:linear-gradient(100deg,var(--lime),var(--accent) 45%,var(--accent2))}
+.stage{background:radial-gradient(60% 55% at 50% 42%,rgba(255,63,210,.22),rgba(11,5,22,.97) 70%),var(--bg)}
+.dots i.on{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+#toast{background:linear-gradient(100deg,var(--lime),var(--accent));color:var(--accent-ink)}
+@media (max-width:480px){ nav.tabs{padding-inline:4px} nav.tabs button{padding:12px 9px;font-size:.78rem} }
 </style>
 </head>
 <body>
@@ -555,10 +612,12 @@ function header(){
     ? `<span class="who">${S.me.avatar?`<img class="av" src="${esc(S.me.avatar)}" alt="">`:""}${esc(S.me.name||"Signed in")}${S.isAdmin?' <span class="tag you">Organiser</span>':""} <button class="link" data-act="logout">Log out</button></span>`
     : `<button class="btn discord" data-act="login">${DISCORD_ICON}Log in with Discord</button>`;
   return `<header class="top">
-    <div class="brand"><h1>Rage Quit <span class="slash"><span>Rumble</span></span></h1>${who}</div>
-    <p class="tagline">The annual friends' showdown · ${esc(S.season==="all"?"All time":S.season)}</p>
-    ${S.ready && Object.keys(S.games).length ? `<div class="controls"><div class="chips" role="group" aria-label="Game">${gameChips}</div>
-      <label class="season"><span class="label">Tournament</span><select id="season" data-act="season">${seasonOpts}</select></label></div>` : ""}
+    <div class="hero"><img class="logo" src="logo.jpg" alt="" width="720" height="686"><h1 class="sr-only">Rage Quit Rumble</h1>
+      <div class="hero-side"><div class="who-row">${who}</div>
+        <p class="tagline">The annual friends' showdown<b>${esc(S.season==="all"?"All time":S.season)}</b></p>
+        ${S.ready && Object.keys(S.games).length ? `<div class="controls"><div class="chips" role="group" aria-label="Game">${gameChips}</div>
+        <label class="season"><span class="label">Tournament</span><select id="season" data-act="season">${seasonOpts}</select></label></div>` : ""}
+      </div></div>
     <nav class="tabs" role="tablist">${TABS.map(([id,l])=>`<button role="tab" data-act="tab" data-id="${id}" aria-selected="${S.tab===id}">${l}</button>`).join("")}</nav>
   </header>`;
 }
