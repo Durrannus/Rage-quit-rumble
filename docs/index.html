@@ -528,6 +528,18 @@ tr.lead td{background:rgba(198,255,46,.07)}
 .drop:hover{border-color:var(--accent);background:rgba(32,240,228,.08)}.drop.off{opacity:.5;pointer-events:none}
 .drop b{font:400 1rem var(--title);text-transform:uppercase;color:var(--accent)}.drop span{font-size:.84rem;color:var(--muted);max-width:440px}
 .cm-files{display:grid;gap:6px}
+.mt{width:min(720px,100%)}
+a.btn{text-decoration:none}
+.mt-list{display:grid;gap:6px}
+.mt-row{display:grid;grid-template-columns:minmax(0,1.2fr) auto minmax(0,1fr);gap:8px;align-items:center;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.04);border-left:3px solid var(--lime)}
+.mt-row.throw{border-left-color:var(--accent2)}.mt-row.skip{border-left-color:transparent;opacity:.55}
+.mt-name{display:grid;min-width:0}.mt-name b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.9rem}.mt-name .muted{font-size:.78rem}
+.mt-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.mt-opts>label{display:grid;gap:4px}.mt-music{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.mt-music b{font-size:.88rem}
+.mt-stage canvas,.mt-out{width:100%;aspect-ratio:16/9;border-radius:12px;background:#000;display:block}
+.mt-prog{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}.mt-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--lime),var(--accent),var(--accent2));transition:width .4s}
+@media (max-width:600px){.mt-row{grid-template-columns:minmax(0,1fr) auto}.mt-row input{grid-column:1/-1}}
+
 .cm-file{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,180px);gap:10px;align-items:center;font-size:.85rem;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04)}
 .cm-fn{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:560px){ .cm-file{grid-template-columns:1fr} }
@@ -581,7 +593,7 @@ const YEAR = String(new Date().getFullYear());
 const S = {
   sb:null, me:null, isAdmin:false, canWrite:false, authReady:false, ready:false, noDb:false,
   games:{}, players:{}, matches:[], loaded:{games:false,players:false,matches:false},
-  profiles:{}, comments:[], commentsOff:false, settings:{}, settingsOff:false, clips:[], clipsOff:false, clipper:null, playing:null, hookDraft:"", penDraft:null, cdraft:{}, confirmGameDel:null, gameId:null, season:YEAR, tab:"standings", viewPlayer:null,
+  profiles:{}, comments:[], commentsOff:false, settings:{}, settingsOff:false, clips:[], clipsOff:false, clipper:null, montage:null, playing:null, hookDraft:"", penDraft:null, cdraft:{}, confirmGameDel:null, gameId:null, season:YEAR, tab:"standings", viewPlayer:null,
   form:null, formErr:"", confirmDel:null, busy:false,
   join:{tag:""}, addp:{tag:""}, editTag:null,
   ng:{name:"",format:"teams",teamSize:"5",pickLabel:"",stats:"",shame:"",mvp:"",win:"3",loss:"0",mvpPts:"1",placements:"10,7,5,3,2,1"}
@@ -732,8 +744,8 @@ function render(){
   const app=$("#app"); if(!app) return;
   const a=document.activeElement, aid=a&&a.id, sel=(a&&"selectionStart" in a)?[a.selectionStart,a.selectionEnd]:null;
   S._trophies = S.ready ? trophies() : {};
-  app.innerHTML = header() + body() + ceremony() + statCard() + clipMaker();
-  afterRender();
+  app.innerHTML = header() + body() + ceremony() + statCard() + clipMaker() + montageMaker();
+  afterRender(); mtAttach();
   if(aid){ const el=document.getElementById(aid); if(el){ el.focus({preventScroll:true}); if(sel && el.setSelectionRange){ try{ el.setSelectionRange(sel[0],sel[1]); }catch(e){} } } }
 }
 function header(){
@@ -808,7 +820,7 @@ function matchesTab(){
   const g=G(), ms=filtered();
   const form = S.form ? logForm() : "";
   const list = ms.length ? ms.map(m=>matchCard(g,m)).join("") : `<div class="empty"><p>No matches logged for this tournament yet.</p></div>`;
-  return `${form}<section class="panel bare"><div class="panel-head"><h2>Match history</h2>${S.canWrite&&!S.form?`<div class="btn-row">${replayOk()?REPLAY_BTN:""}<button class="btn primary" data-act="new-match">Log a match</button></div>`:""}</div>${list}</section>`;
+  return `${form}<section class="panel bare"><div class="panel-head"><h2>Match history</h2>${S.canWrite&&!S.form?`<div class="btn-row">${S.isAdmin?`<button class="btn" data-act="mt-open" title="Make a highlight video">🎬 Montage</button>`:""}${replayOk()?REPLAY_BTN:""}<button class="btn primary" data-act="new-match">Log a match</button></div>`:""}</div>${list}</section>`;
 }
 function shortNum(v){ v=+v||0; return v>=10000?(v/1000).toFixed(v>=100000?0:1).replace(/\.0$/,"")+"k":nf(v); }
 function nameBtn(pid){ return `<button class="nm" data-act="view-player" data-pid="${esc(pid)}">${esc(pName(pid))}</button>${pid===myPlayer()?'<span class="you-dot" title="You"></span>':""}`; }
@@ -1608,6 +1620,257 @@ function clipChip(c, big){
   return `<span class="clip${big?" big":""}${S.playing===c.id?" on":""}"><button class="play" data-act="clip-play" data-id="${esc(c.id)}" aria-label="Play clip">${S.playing===c.id?"■":"▶"}</button><span class="clip-l">${esc(c.label||(c.pid?pName(c.pid):"Comms clip"))}${c.label&&c.pid?` <small>${esc(pName(c.pid))}</small>`:""}</span>${!big&&(mine||S.isAdmin)?`<button class="clip-x" data-act="clip-del" data-id="${esc(c.id)}" title="Delete clip" aria-label="Delete clip">✕</button>`:""}</span>`;
 }
 
+/* ---------- video montage ---------- */
+// The organiser drops in the kill and death clips Outplayed or Medal saved. The browser sorts them into
+// plays and throws from the file names, adds music, captions and voice clips, and records the result
+// with MediaRecorder. Nothing uploads; the finished video downloads for posting in Discord.
+const THROW_QUIPS=["Certified int","Respawn timer speedrun","He had a plan. Probably.","Walked in. Did not walk out.","Tactical feeding","Grey screen enjoyer","Flash was on cooldown. So was the brain.","Bold strategy","That's going in the group chat","Gave them the shutdown, for free"];
+const PLAY_TIERS=[[/penta/,5,"PENTAKILL"],[/quadra/,4,"QUADRA KILL"],[/triple/,3,"TRIPLE KILL"],[/double/,2,"DOUBLE KILL"],[/\bace\b/,2,"ACE"],[/shut ?down/,2,"SHUTDOWN"],[/kill|assist|highlight|play/,1,"Outplayed"]];
+function guessClip(name){
+  const n=name.toLowerCase().replace(/[_\-.]+/g," ");
+  if(/death|died|\bdead\b|executed|slain|feed/.test(n)) return {kind:"throw", tier:0, label:THROW_QUIPS[hashStr(name)%THROW_QUIPS.length]};
+  for(const [re,tier,label] of PLAY_TIERS) if(re.test(n)) return {kind:"play", tier, label};
+  return {kind:"play", tier:1, label:"Big play"};
+}
+function mtVoiceClips(){
+  const ids=new Set(filtered().map(m=>m.id));
+  return (S.clips||[]).filter(c=>ids.has(c.match_id)).sort((a,b)=>(!!b.label)-(!!a.label));
+}
+function mtPlan(){
+  const M=S.montage, seg=+M.seg||6, use=M.files.filter(f=>f.kind!=="skip");
+  const len=f=>Math.min(seg, f.dur||seg);
+  const throws=use.filter(f=>f.kind==="throw"), plays=use.filter(f=>f.kind==="play").sort((a,b)=>a.tier-b.tier);
+  const voice=mtVoiceClips().slice(0,+M.voice||0);
+  const scenes=[{k:"intro",d:3}];
+  if(throws.length){ scenes.push({k:"title",d:1.8,t:"THE THROWS",s:"Moments we'd rather forget",c:"#ff3fd2"}); throws.forEach((f,i)=>scenes.push({k:"vid",f,d:len(f),n:i+1,of:throws.length,sec:"THE THROWS"})); }
+  voice.forEach((c,i)=>scenes.push({k:"voice",c,d:Math.min(10,c.dur_s||10),first:i===0}));
+  if(plays.length){ scenes.push({k:"title",d:1.8,t:"THE PLAYS",s:"Okay, this was actually good",c:"#c6ff2e"}); plays.forEach((f,i)=>scenes.push({k:"vid",f,d:len(f),n:i+1,of:plays.length,sec:"THE PLAYS"})); }
+  scenes.push({k:"outro",d:4.5});
+  return {scenes, total:scenes.reduce((t,s)=>t+s.d,0), clips:use.length, voice:voice.length};
+}
+function mtAddFiles(files){
+  const M=S.montage; if(!M) return;
+  for(const file of files){
+    if(!/^video\//.test(file.type) && !/\.(mp4|webm|mov|mkv)$/i.test(file.name)) continue;
+    const f={id:"v"+Math.random().toString(36).slice(2,8), name:file.name, url:URL.createObjectURL(file), dur:0, ...guessClip(file.name)};
+    M.files.push(f);
+    const v=document.createElement("video"); v.preload="metadata"; v.muted=true;
+    v.onloadedmetadata=()=>{ f.dur=isFinite(v.duration)?v.duration:0; v.removeAttribute("src"); v.load(); render(); };
+    v.onerror=()=>{ f.bad=true; f.kind="skip"; render(); };
+    v.src=f.url;
+  }
+  M.out=null; render();
+}
+function mtClose(){
+  const M=S.montage; if(!M) return;
+  if(M.busy){ M.cancel=true; M.closeAfter=true; return; }
+  M.files.forEach(f=>URL.revokeObjectURL(f.url)); if(M.out) URL.revokeObjectURL(M.out.url);
+  S.montage=null; render();
+}
+function montageMaker(){
+  const M=S.montage; if(!M) return "";
+  const g=G(), p=mtPlan(), nVoice=mtVoiceClips().length;
+  const season=S.season==="all"?"All time":S.season;
+  const opt=(v,l,cur)=>`<option value="${v}"${String(cur)===String(v)?" selected":""}>${esc(l)}</option>`;
+  let main;
+  if(M.out){
+    main=`<video class="mt-out" src="${esc(M.out.url)}" controls playsinline></video>
+      <p class="muted" style="margin:0">${fmtT(M.out.secs)} long · ${(M.out.size/1048576).toFixed(1)} MB${M.out.size>10*1048576?" · over Discord's 10 MB free limit, so pick Discord size and make it again if it won't send":""}</p>`;
+  } else if(M.busy){
+    main=`<div id="mt-stage" class="mt-stage"></div><div class="mt-prog"><i id="mt-bar" style="width:${Math.round((M.pct||0)*100)}%"></i></div>
+      <p class="muted" id="mt-msg" style="margin:0">${esc(M.prog||"Starting…")}</p><p class="muted" style="margin:0;font-size:.8rem">It records in real time, so keep this tab open and in front until it finishes.</p>`;
+  } else {
+    main=`<label class="drop"><input type="file" accept="video/*,.mp4,.webm,.mov,.mkv" multiple data-act="mt-files" hidden>
+        <b>Choose your highlight clips</b><span>Drop in the kill and death clips Outplayed or Medal saved. Plays and throws are sorted from the file names, so fix any it gets wrong. Nothing uploads.</span></label>
+      ${M.files.length?`<div class="mt-list">${M.files.map((f,i)=>`<div class="mt-row ${f.kind}"><div class="mt-name"><b title="${esc(f.name)}">${esc(f.name)}</b><span class="muted">${f.bad?"Can't play this file here":f.dur?fmtT(f.dur):"…"}</span></div>
+          <select data-bind="montage.files.${i}.kind" data-rerender="1" aria-label="Play or throw"${f.bad?" disabled":""}>${opt("play","🔥 Play",f.kind)}${opt("throw","🤡 Throw",f.kind)}${opt("skip","Skip",f.kind)}</select>
+          <input data-bind="montage.files.${i}.label" value="${esc(f.label)}" maxlength="40" placeholder="Caption" aria-label="Caption"></div>`).join("")}</div>`:""}
+      <div class="mt-opts">
+        <label><span class="label">Music</span><span class="mt-music"><b>${esc(M.music?M.music.name:"Built-in neon beat")}</b><label class="btn small">Choose<input type="file" accept="audio/*" data-act="mt-music" hidden></label>${M.music?`<button class="link" data-act="mt-music-clear">Use the beat</button>`:""}</span></label>
+        <label><span class="label">Voice clips</span><select data-bind="montage.voice" data-rerender="1">${Array.from({length:Math.min(5,nVoice)+1},(_,n)=>opt(n,n?String(n):"None",M.voice)).join("")}</select></label>
+        <label><span class="label">Each clip</span><select data-bind="montage.seg" data-rerender="1">${[4,6,8,10].map(n=>opt(n,n+" seconds",M.seg)).join("")}</select></label>
+        <label><span class="label">Size</span><select data-bind="montage.size">${opt("discord","Discord size",M.size)}${opt("hq","High quality",M.size)}</select></label>
+      </div>
+      ${nVoice?"":`<p class="muted" style="margin:0;font-size:.85rem">No voice clips in the ${esc(season==="All time"?"tournament":season+" tournament")} yet. Add some with 🎙 on a match and they'll drop in here.</p>`}
+      ${M.err?`<p class="banner" style="margin:0">${esc(M.err)}</p>`:""}`;
+  }
+  const foot = M.out ? `<button class="btn" data-act="mt-again">Make another</button><a class="btn primary" href="${esc(M.out.url)}" download="${esc(M.out.file)}">⬇ Download</a>`
+    : M.busy ? `<button class="btn danger" data-act="mt-cancel">Stop</button>`
+    : `<button class="btn primary" data-act="mt-make"${p.clips||p.voice?"":" disabled"}>Make montage${p.clips||p.voice?` · ${fmtT(p.total)}`:""}</button>`;
+  return `<div class="pc-wrap" data-act="mt-close-bg"><div class="cm mt" role="dialog" aria-modal="true" aria-label="Montage maker">
+    <div class="cm-head"><div><h2>🎬 Montage</h2><span class="muted">${esc(g?.name||"")} · ${esc(season)}</span></div><button class="pc-x" style="position:static" data-act="mt-close" aria-label="Close">✕</button></div>
+    <div class="cm-body">${main}</div>
+    <div class="cm-foot"><span class="muted">${M.out?"Saved on your device only.":`${p.clips} clip${p.clips===1?"":"s"}${p.voice?` + ${p.voice} voice`:""}`}</span><div class="btn-row">${foot}</div></div>
+  </div></div>`;
+}
+function mtAttach(){ const M=S.montage, st=document.getElementById("mt-stage"); if(M?.canvas && st && M.canvas.parentNode!==st) st.appendChild(M.canvas); }
+function mtProgress(msg,pct){ const M=S.montage; if(!M) return; M.prog=msg; M.pct=pct; const a=document.getElementById("mt-msg"), b=document.getElementById("mt-bar"); if(a) a.textContent=msg; if(b) b.style.width=Math.round(pct*100)+"%"; }
+
+// A short synthwave loop so montages have music without anyone needing a track.
+async function synthBeat(sr){
+  const bpm=124, beat=60/bpm, bars=8, len=bars*4*beat, oc=new OfflineAudioContext(2,Math.ceil(len*sr),sr);
+  const out=oc.createGain(); out.gain.value=.7; out.connect(oc.destination);
+  const noise=oc.createBuffer(1,Math.floor(sr*.25),sr), nd=noise.getChannelData(0); for(let i=0;i<nd.length;i++) nd[i]=Math.random()*2-1;
+  const hz=n=>440*2**((n-69)/12), roots=[33,29,31,28], minor=[1,0,0,0];
+  for(let b=0;b<bars*4;b++){
+    const t=b*beat, o=oc.createOscillator(), g=oc.createGain();
+    o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(42,t+.13);
+    g.gain.setValueAtTime(1,t); g.gain.exponentialRampToValueAtTime(.001,t+.38); o.connect(g).connect(out); o.start(t); o.stop(t+.4);
+    const hat=(at,vol,dec,f,type)=>{ const n=oc.createBufferSource(); n.buffer=noise; const fl=oc.createBiquadFilter(); fl.type=type; fl.frequency.value=f; const hg=oc.createGain(); hg.gain.setValueAtTime(vol,at); hg.gain.exponentialRampToValueAtTime(.001,at+dec); n.connect(fl).connect(hg).connect(out); n.start(at); n.stop(at+dec+.01); };
+    hat(t+beat/2,.18,.05,8000,"highpass");
+    if(b%2===1) hat(t,.35,.18,1800,"bandpass");
+  }
+  for(let i=0;i<bars*8;i++){
+    const t=i*beat/2, bar=Math.floor(i/8)%4, o=oc.createOscillator(), f=oc.createBiquadFilter(), g=oc.createGain();
+    o.type="sawtooth"; o.frequency.value=hz(roots[bar]+(i%2?12:0));
+    f.type="lowpass"; f.frequency.setValueAtTime(1100,t); f.frequency.exponentialRampToValueAtTime(180,t+.2);
+    g.gain.setValueAtTime(.0001,t); g.gain.linearRampToValueAtTime(.3,t+.01); g.gain.exponentialRampToValueAtTime(.001,t+beat/2*.95);
+    o.connect(f).connect(g).connect(out); o.start(t); o.stop(t+beat/2);
+  }
+  for(let i=0;i<bars*16;i++){
+    const t=i*beat/4, bar=Math.floor(i/16)%4, ch=minor[bar]?[0,3,7,12]:[0,4,7,12], o=oc.createOscillator(), g=oc.createGain();
+    o.type="square"; o.frequency.value=hz(roots[bar]+24+ch[i%4]+(Math.floor(i/4)%2?12:0));
+    g.gain.setValueAtTime(.05,t); g.gain.exponentialRampToValueAtTime(.001,t+.12); o.connect(g).connect(out); o.start(t); o.stop(t+.13);
+  }
+  return oc.startRendering();
+}
+
+async function makeMontage(){
+  const M=S.montage; if(!M||M.busy) return;
+  const plan=mtPlan(); if(!plan.clips&&!plan.voice) return;
+  const types=["video/mp4;codecs=avc1.42E01F,mp4a.40.2","video/mp4;codecs=avc1,mp4a","video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
+  const mime=window.MediaRecorder&&types.find(t=>MediaRecorder.isTypeSupported(t));
+  const cv0=document.createElement("canvas");
+  if(!mime||!cv0.captureStream){ M.err="This browser can't record video. Try Chrome or Edge on a computer."; render(); return; }
+  const hq=M.size==="hq", W=hq?1280:854, H=hq?720:480, K=W/1280;
+  const vbps=hq?6e6:Math.max(350e3,Math.min(2.5e6,(9.2*8*1048576)/plan.total-128e3));
+  M.busy=true; M.cancel=false; M.err=""; M.out=null; M.pct=0; M.prog="Getting ready…";
+  const cv=cv0; cv.width=W; cv.height=H; M.canvas=cv; render();
+  const x=cv.getContext("2d");
+  const ac=new (window.AudioContext||window.webkitAudioContext)(); await ac.resume().catch(()=>{});
+  const dest=ac.createMediaStreamDestination(), mix=ac.createGain(), comp=ac.createDynamicsCompressor(); mix.gain.value=.8; mix.connect(comp); comp.connect(dest); comp.connect(ac.destination);
+  const musicG=ac.createGain(); musicG.gain.value=0; musicG.connect(mix);
+  const level=(v,at=.25)=>musicG.gain.setTargetAtTime(v,ac.currentTime,at);
+  let raf=0, scene=null, rec=null, music=null;
+  const stopAll=()=>{ cancelAnimationFrame(raf); try{ music?.stop(); }catch(_){} };
+  try{
+    try{ await Promise.all(['40px "Bungee"','600 30px "Chakra Petch"','700 30px "Chakra Petch"'].map(f=>document.fonts.load(f))); }catch(_){}
+    const logo=await new Promise(r=>{ const im=new Image(); im.onload=()=>r(im); im.onerror=()=>r(null); im.src="logo.jpg"; });
+    mtProgress("Warming up the music…",0);
+    let mbuf=null;
+    if(M.music){ try{ mbuf=await ac.decodeAudioData(await M.music.file.arrayBuffer()); }catch(_){ toast("Couldn't read that music file, using the beat instead."); } }
+    if(!mbuf) mbuf=await synthBeat(ac.sampleRate);
+    const voices=[];
+    for(const s of plan.scenes.filter(s=>s.k==="voice")){
+      try{ const r=await fetch(clipUrl(s.c.path)); if(!r.ok) throw 0; s.buf=await ac.decodeAudioData(await r.arrayBuffer()); s.d=Math.min(10,s.buf.duration); voices.push(s); }catch(_){ s.skip=true; }
+    }
+    const scenes=plan.scenes.filter(s=>!s.skip), total=scenes.reduce((t,s)=>t+s.d,0);
+    const champ=(()=>{ const g=G(); if(!g) return null; const a=aggregate(g,filtered()); if(!a.length) return null;
+      const dk=g.kda?.d, feeder=dk?[...a].sort((p,q)=>(q.sums[dk]||0)-(p.sums[dk]||0))[0]:null;
+      return {top:a[0], feeder:feeder&&(feeder.sums[dk]||0)>0?feeder:null, dk}; })();
+
+    // ---- drawing helpers ----
+    const T='"Bungee","Chakra Petch",sans-serif', D='"Chakra Petch",sans-serif';
+    const bg=t=>{ const gr=x.createLinearGradient(0,0,0,H); gr.addColorStop(0,"#1e0f3a"); gr.addColorStop(1,"#0b0516"); x.fillStyle=gr; x.fillRect(0,0,W,H);
+      x.save(); x.strokeStyle="rgba(255,63,210,.22)"; x.lineWidth=1.5*K; const hz=H*.62;
+      for(let i=-12;i<=12;i++){ x.beginPath(); x.moveTo(W/2+i*40*K,hz); x.lineTo(W/2+i*220*K,H); x.stroke(); }
+      for(let j=0;j<9;j++){ const y=hz+Math.pow((j+(t*1.2)%1)/9,2)*(H-hz); x.beginPath(); x.moveTo(0,y); x.lineTo(W,y); x.stroke(); }
+      x.restore(); };
+    const neon=(txt,cx,cy,size,font=T,fill)=>{ x.save(); x.font=`${size*K}px ${font}`; x.textAlign="center"; x.textBaseline="middle";
+      const w=x.measureText(txt).width; let f=fill; if(!f){ f=x.createLinearGradient(cx-w/2,0,cx+w/2,0); f.addColorStop(0,"#c6ff2e"); f.addColorStop(.5,"#20f0e4"); f.addColorStop(1,"#ff3fd2"); }
+      x.shadowColor="rgba(255,63,210,.8)"; x.shadowBlur=24*K; x.fillStyle=f; x.fillText(txt,cx,cy); x.restore(); return w; };
+    const plain=(txt,cx,cy,size,color="#f7f1ff",font=D,align="center")=>{ x.save(); x.font=`${font===D?"600 ":""}${size*K}px ${font}`; x.textAlign=align; x.textBaseline="middle"; x.fillStyle=color; x.fillText(txt,cx,cy); x.restore(); };
+    const fit=(txt,max,size,font=T)=>{ x.font=`${size*K}px ${font}`; let s=size; while(s>18&&x.measureText(txt).width>max){ s-=2; x.font=`${s*K}px ${font}`; } return s; };
+    const flash=t=>{ if(t<.15){ x.fillStyle=`rgba(255,255,255,${(1-t/.15)*.85})`; x.fillRect(0,0,W,H); } };
+    const mark=()=>plain("RAGE QUIT RUMBLE",W-24*K,30*K,16,"rgba(255,255,255,.75)",T,"right");
+    const ease=t=>1-Math.pow(1-Math.min(1,Math.max(0,t)),3);
+    const loop=()=>{ if(scene) scene(performance.now()); raf=requestAnimationFrame(loop); };
+    const hold=(draw,d)=>new Promise(res=>{ const t0=performance.now(); scene=now=>{ const t=(now-t0)/1000; draw(t,d); if(t>=d||M.cancel) res(); }; });
+    const season=S.season==="all"?"ALL TIME":S.season, gname=(G()?.name||"").toUpperCase();
+
+    // ---- start recording ----
+    const stream=new MediaStream([...cv.captureStream(30).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+    rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:vbps, audioBitsPerSecond:128e3});
+    const chunks=[]; rec.ondataavailable=e=>{ if(e.data?.size) chunks.push(e.data); };
+    const stopped=new Promise(r=>rec.onstop=r);
+    music=ac.createBufferSource(); music.buffer=mbuf; music.loop=true; music.connect(musicG); music.start();
+    raf=requestAnimationFrame(loop); rec.start(1000);
+    let done=0;
+    for(const s of scenes){
+      if(M.cancel) break;
+      const label=s.k==="vid"?`${s.sec==="THE PLAYS"?"Play":"Throw"} ${s.n} of ${s.of}`:s.k==="voice"?"Voice clip":s.k==="title"?s.t:s.k==="intro"?"Intro":"Outro";
+      mtProgress(`Recording: ${label}…`, done/total);
+      if(s.k==="intro"){ level(.6,.1);
+        await hold(t=>{ bg(t); const e=ease(t/.6);
+          if(logo){ const sc=Math.min(W*.5/logo.width,H*.56/logo.height)*(0.85+.15*e), lw=logo.width*sc, lh=logo.height*sc; x.globalAlpha=e; x.drawImage(logo,(W-lw)/2,H*.36-lh/2,lw,lh); x.globalAlpha=1; }
+          if(t>.5){ x.globalAlpha=ease((t-.5)/.4); neon("THE MONTAGE",W/2,H*.78,64); plain(`${gname} · ${season}`,W/2,H*.88,26,"#b9a8dc"); x.globalAlpha=1; }
+          if(t>s.d-.3){ x.fillStyle=`rgba(0,0,0,${(t-(s.d-.3))/.3})`; x.fillRect(0,0,W,H); } },s.d);
+      } else if(s.k==="title"){ level(.6,.1);
+        await hold(t=>{ bg(t); const sc=1.35-.35*ease(t/.35), j=t<.4?(Math.random()-.5)*14*K:0;
+          x.save(); x.translate(W/2,H/2); x.scale(sc,sc); x.translate(-W/2,-H/2);
+          if(t<.4){ plain(s.t,W/2+j,H*.46,110,"rgba(32,240,228,.7)",T); plain(s.t,W/2-j,H*.46,110,"rgba(255,63,210,.7)",T); }
+          neon(s.t,W/2,H*.46,110,T,s.c); x.restore();
+          if(t>.35){ x.globalAlpha=ease((t-.35)/.3); plain(s.s,W/2,H*.62,30,"#f7f1ff"); x.globalAlpha=1; }
+          flash(t); },s.d);
+      } else if(s.k==="vid"){
+        const v=document.createElement("video"); v.playsInline=true; v.preload="auto"; v.src=s.f.url;
+        await new Promise((r,j)=>{ v.onloadedmetadata=r; v.onerror=()=>j(new Error("Couldn't play "+s.f.name)); });
+        const dur=isFinite(v.duration)?v.duration:s.d, segL=Math.min(s.d,dur), start=Math.max(0,dur-segL-(dur>segL+1.5?1:0));
+        v.currentTime=start; await new Promise(r=>{ v.onseeked=r; setTimeout(r,1500); });
+        const src=ac.createMediaElementSource(v), vg=ac.createGain(); vg.gain.value=.9; src.connect(vg).connect(mix);
+        level(.22,.15);
+        await v.play();
+        const good=s.sec==="THE PLAYS", accent=good?"#c6ff2e":"#ff3fd2";
+        await new Promise(res=>{ const t0=performance.now(); scene=now=>{ const t=(now-t0)/1000;
+          x.fillStyle="#000"; x.fillRect(0,0,W,H);
+          const vw=v.videoWidth||16, vh=v.videoHeight||9, k=Math.max(W/vw,H/vh)*(1+.03*Math.min(1,t/segL)); x.drawImage(v,(W-vw*k)/2,(H-vh*k)/2,vw*k,vh*k);
+          if(t>.25){ const a=ease((t-.25)/.3), txt=s.f.label||(good?"Big play":"Oops"), size=fit(txt,W*.62,good&&s.f.tier>=3?52:40);
+            x.save(); x.globalAlpha=a; x.font=`${size*K}px ${T}`; const tw=x.measureText(txt).width, bx=36*K-(1-a)*60*K, by=H-128*K, bw=tw+60*K, bh=96*K;
+            x.fillStyle="rgba(11,5,22,.78)"; x.beginPath(); x.roundRect?x.roundRect(bx,by,bw,bh,14*K):x.rect(bx,by,bw,bh); x.fill();
+            x.fillStyle=accent; x.fillRect(bx,by,6*K,bh);
+            plain(`${s.sec} · ${s.n}/${s.of}`,bx+28*K,by+24*K,16,accent,D,"left");
+            x.font=`${size*K}px ${T}`; x.textAlign="left"; x.textBaseline="middle"; x.fillStyle="#fff"; if(good&&s.f.tier>=3){ x.shadowColor=accent; x.shadowBlur=18*K; } x.fillText(txt,bx+28*K,by+60*K); x.restore(); }
+          mark(); flash(t);
+          if(v.currentTime>=start+segL-.05||v.ended||t>segL+1.5||M.cancel) res(); }; });
+        v.pause(); try{ src.disconnect(); vg.disconnect(); }catch(_){} v.removeAttribute("src"); v.load();
+      } else if(s.k==="voice"){
+        const an=ac.createAnalyser(); an.fftSize=128; const fd=new Uint8Array(an.frequencyBinCount);
+        const b=ac.createBufferSource(), vg=ac.createGain(); vg.gain.value=1.15; b.buffer=s.buf; b.connect(vg); vg.connect(mix); vg.connect(an);
+        level(.05,.12); b.start();
+        const who=s.c.pid?pName(s.c.pid):"", cap=s.c.label||(who?`${who} on comms`:"Overheard on comms");
+        await hold(t=>{ bg(t*.3); an.getByteFrequencyData(fd);
+          plain(s.first?"COMMS CHECK":"MORE COMMS",W/2,H*.16,24,"#20f0e4",T);
+          const n=32, bw=W*.6/n; for(let i=0;i<n;i++){ const v=fd[i+2]/255, h=(8+v*170)*K; x.fillStyle=i%2?"#ff3fd2":"#20f0e4"; x.globalAlpha=.5+v*.5; x.fillRect(W*.2+i*bw+2*K,H*.42-h/2,bw-4*K,h); } x.globalAlpha=1;
+          const sz=fit(`"${cap}"`,W*.86,46,D); plain(`"${cap}"`,W/2,H*.7,sz,"#f7f1ff",D);
+          if(who&&s.c.label) plain(`— ${who}`,W/2,H*.8,26,"#b9a8dc");
+          mark(); flash(t); },s.d);
+        try{ b.stop(); }catch(_){} b.disconnect(); vg.disconnect();
+      } else if(s.k==="outro"){ level(.6,.1);
+        await hold(t=>{ bg(t);
+          plain("TOURNAMENT STANDINGS",W/2,H*.2,22,"#b9a8dc",T);
+          if(champ){ const e=ease(t/.5); x.globalAlpha=e;
+            neon(`👑 ${pName(champ.top.pid).toUpperCase()}`,W/2,H*.36,fit(`👑 ${pName(champ.top.pid).toUpperCase()}`,W*.86,72),T);
+            plain(`On top with ${champ.top.pts} point${champ.top.pts===1?"":"s"}`,W/2,H*.48,28);
+            if(champ.feeder&&t>.8){ x.globalAlpha=ease((t-.8)/.4); plain(`🪦 Most deaths: ${pName(champ.feeder.pid)} (${champ.feeder.sums[champ.dk]})`,W/2,H*.62,30,"#ff8a1f"); }
+            x.globalAlpha=1; }
+          else neon("GG",W/2,H*.42,120);
+          plain("RAGE QUIT RUMBLE",W/2,H*.84,30,"#ff3fd2",T);
+          if(t>s.d-1.6) level(0,.4);
+          if(t>s.d-.6){ x.fillStyle=`rgba(0,0,0,${(t-(s.d-.6))/.6})`; x.fillRect(0,0,W,H); } },s.d);
+      }
+      done+=s.d;
+    }
+    rec.stop(); await stopped; stopAll();
+    if(M.cancel){ M.busy=false; M.canvas=null; M.cancel=false; M.prog=""; ac.close(); if(M.closeAfter) mtClose(); else render(); return; }
+    const blob=new Blob(chunks,{type:mime.split(";")[0]}), ext=mime.startsWith("video/mp4")?"mp4":"webm";
+    M.out={url:URL.createObjectURL(blob), size:blob.size, secs:total, file:`rage-quit-rumble-montage-${String(S.season).replace(/\W+/g,"-")}.${ext}`};
+    M.busy=false; M.canvas=null; ac.close(); render(); toast("Montage ready");
+  }catch(err){
+    console.error(err); stopAll(); try{ rec&&rec.state!=="inactive"&&rec.stop(); }catch(_){} ac.close().catch(()=>{});
+    M.busy=false; M.canvas=null; M.err=(err&&err.message)||"Something went wrong making the video."; render();
+  }
+}
+
 /* ---------- players ---------- */
 function playersTab(){
   const g=G(), mine=myPlayer();
@@ -1711,7 +1974,7 @@ function setPath(path, val){
   for(let i=0;i<parts.length-1;i++){ o=o[parts[i]]; if(o==null) return; }
   o[parts[parts.length-1]]=val;
 }
-document.addEventListener("keydown", e=>{ if(S.clipper && e.key==="Escape" && !S.clipper.busy){ stopAudio(); S.clipper=null; render(); return; } if(S.card && e.key==="Escape"){ S.card=null; render(); return; } if(S.show && ceremonyKey(e)) return; const id=e.target.id||""; if(e.key==="Enter" && id.startsWith("c-")){ e.preventDefault(); document.querySelector(`[data-act="post-talk"][data-id="${CSS.escape(id.slice(2))}"]`)?.click(); } });
+document.addEventListener("keydown", e=>{ if(S.montage && e.key==="Escape"){ if(!S.montage.busy) mtClose(); return; } if(S.clipper && e.key==="Escape" && !S.clipper.busy){ stopAudio(); S.clipper=null; render(); return; } if(S.card && e.key==="Escape"){ S.card=null; render(); return; } if(S.show && ceremonyKey(e)) return; const id=e.target.id||""; if(e.key==="Enter" && id.startsWith("c-")){ e.preventDefault(); document.querySelector(`[data-act="post-talk"][data-id="${CSS.escape(id.slice(2))}"]`)?.click(); } });
 document.addEventListener("input", e=>{ const b=e.target.dataset?.bind; if(b) setPath(b, e.target.value); });
 document.addEventListener("change", e=>{
   const t=e.target, b=t.dataset?.bind;
@@ -1720,6 +1983,8 @@ document.addEventListener("change", e=>{
   if(t.dataset?.act==="winner"){ S.form.winner=t.value; render(); }
   if(t.dataset?.act==="clip-files" && t.files?.length){ const fs=[...t.files]; t.value=""; analyseFiles(fs); }
   if(t.dataset?.act==="clip-keep" && S.clipper){ const c=S.clipper.cands[+t.dataset.i]; if(c){ c.keep=t.checked; render(); } }
+  if(t.dataset?.act==="mt-files" && t.files?.length){ const fs=[...t.files]; t.value=""; mtAddFiles(fs); }
+  if(t.dataset?.act==="mt-music" && t.files?.[0] && S.montage){ S.montage.music={name:t.files[0].name, file:t.files[0]}; t.value=""; render(); }
   if(t.dataset?.act==="rofl" && t.files?.[0]){ const file=t.files[0]; t.value=""; importReplay(file); }
 });
 document.addEventListener("click", async e=>{
@@ -1734,6 +1999,13 @@ document.addEventListener("click", async e=>{
     case "card-close-bg": if(e.target===el){ S.card=null; render(); } break;
     case "card-img": saveCardImage(); break;
     case "clip-open": if(!S.isAdmin) break; S.clipper={mid:id, files:[], cands:[], busy:false, msg:""}; render(); break;
+    case "mt-open": if(!S.isAdmin) break; S.montage={files:[], music:null, voice:Math.min(3,mtVoiceClips().length), seg:6, size:"discord", busy:false, out:null, err:""}; render(); break;
+    case "mt-close": mtClose(); break;
+    case "mt-close-bg": if(e.target===el && !S.montage?.busy) mtClose(); break;
+    case "mt-cancel": if(S.montage) S.montage.cancel=true; break;
+    case "mt-make": makeMontage(); break;
+    case "mt-again": if(S.montage){ URL.revokeObjectURL(S.montage.out?.url); S.montage.out=null; render(); } break;
+    case "mt-music-clear": if(S.montage){ S.montage.music=null; render(); } break;
     case "clip-close": stopAudio(); S.clipper=null; render(); break;
     case "clip-close-bg": if(e.target===el && !S.clipper?.busy){ stopAudio(); S.clipper=null; render(); } break;
     case "clip-preview": { const c=S.clipper?.cands[+el.dataset.i]; if(c) playSamples(c.data,c.id); break; }

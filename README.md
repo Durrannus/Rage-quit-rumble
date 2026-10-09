@@ -54,6 +54,15 @@ The webhook is stored where only the organiser can read it, and the database doe
 
 Everyone in the call should know it's being recorded.
 
+## Video montage
+On the Matches tab the organiser sees **🎬 Montage**. You don't need to run anything in Supabase for this.
+1. Record games with **Outplayed** or **Medal**. They save a short clip for every kill, death and multikill automatically.
+2. Press 🎬 Montage and drop the clips in. Files with "death" in the name become throws. Kills, double, triple, quadra and penta kills become plays. Change any it gets wrong and edit the captions.
+3. Pick music (a built-in beat is used if you don't), how many voice clips to add, and the clip length, then press Make montage.
+4. It records in real time, so keep the tab open. Then press Download. "Discord size" stays under the free 10 MB upload limit.
+
+Nothing uploads. The video is made in your browser. Chrome or Edge on a computer works best.
+
 ## How scoring works
 - Win 3 points, loss 0, and +1 for the match MVP (highest KDA).
 - Each year is its own tournament; there is also an "All time" view.

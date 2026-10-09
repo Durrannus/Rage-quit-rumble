@@ -14,6 +14,8 @@ A yearly gaming tournament between friends, run by Darren (the organiser). The s
 - **Discord posts.** On save, the client writes summary text into `matches.announce`. A database trigger (`pg_net`) posts it to the webhook stored in the admin-only `secrets` table, so the webhook never reaches the browser.
 - **Voice clips.** Call recordings are analysed in the browser (loudness spikes compared with the speaker's normal level). Only the 10-second WAV clips the user keeps are uploaded, to the `clips` storage bucket, with one row per clip in `public.clips`.
 
+- **Video montage.** This is organiser only and runs entirely in the browser. Highlight clips from Outplayed or Medal are sorted into plays and throws by file name (`guessClip`). Scenes are drawn on a canvas, and audio (music, which falls back to the `synthBeat` loop, game audio and voice clips) is mixed in Web Audio. `MediaRecorder` records it, preferring MP4/H.264 and falling back to WebM. The result is downloaded, never uploaded.
+
 ### Code map (`docs/index.html`)
 - `render()` rebuilds the page from the state object `S`: `header()+body()+ceremony()+statCard()+clipMaker()`.
 - Clicks are handled by delegation on `data-act="..."`. Inputs use `data-bind="path.in.S"`, and `data-rerender` re-renders on change.
