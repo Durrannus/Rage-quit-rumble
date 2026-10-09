@@ -418,6 +418,7 @@ tr.lead td{background:rgba(198,255,46,.07)}
 .s-who{display:flex;gap:6px;align-items:center;margin-top:4px;padding:4px 10px 4px 4px;border-radius:999px;background:rgba(255,255,255,.06);font:600 .85rem var(--display);max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .s-who .av{width:22px;height:22px;font-size:.7rem}
 @media (max-width:560px){ .shame-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible} }
+.pid-cell{display:flex;gap:4px;min-width:0}.pid-cell select{flex:1 1 auto;min-width:0}.add-riot{flex:none;padding:4px 9px;font-size:1rem;line-height:1}
 </style>
 </head>
 <body>
@@ -755,7 +756,7 @@ function logForm(){
   const cols = `minmax(130px,1.6fr) ${g.pickLabel?"minmax(100px,1.2fr) ":""}${g.format==="ffa"?"64px ":""}${(g.stats||[]).map(s=>s.key===g.dmgStat||s.key===g.healStat?"minmax(72px,.8fr)":"minmax(54px,.6fr)").join(" ")}${g.multikills?" 54px 54px 54px":""}${g.augments?" minmax(180px,2fr)":""}`;
   const head = `<div class="roster-row roster-head" style="grid-template-columns:${cols}"><span>Player</span>${g.pickLabel?`<span>${esc(g.pickLabel)}</span>`:""}${g.format==="ffa"?"<span>Place</span>":""}${(g.stats||[]).map(s=>`<span>${esc(s.label)}</span>`).join("")}${g.multikills?MULTI.map(([,l])=>`<span>${l}</span>`).join(""):""}${g.augments?"<span>Augments (comma separated)</span>":""}</div>`;
   const rowHtml = (r,i) => `<div class="roster-row" style="grid-template-columns:${cols}">
-      <select id="f-${i}-pid" data-bind="form.rows.${i}.pid" aria-label="Player"${r.riot?` title="In the replay: ${esc(r.riot)}"`:""}>${opts(r.pid,r.riot)}</select>
+      <div class="pid-cell"><select id="f-${i}-pid" data-bind="form.rows.${i}.pid" data-rerender="1" aria-label="Player"${r.riot?` title="In the replay: ${esc(r.riot)}"`:""}>${opts(r.pid,r.riot)}</select>${r.riot&&!r.pid&&S.isAdmin?`<button class="btn small add-riot" data-act="add-riot" data-i="${i}" title="Add ${esc(r.riot)} to the roster" aria-label="Add ${esc(r.riot)} to the roster">+</button>`:""}</div>
       ${g.pickLabel?`<input id="f-${i}-pick" data-bind="form.rows.${i}.pick" value="${esc(r.pick)}" placeholder="${esc(g.pickLabel)}" aria-label="${esc(g.pickLabel)}">`:""}
       ${g.format==="ffa"?`<input id="f-${i}-place" type="number" min="1" inputmode="numeric" data-bind="form.rows.${i}.place" value="${esc(r.place)}" aria-label="Place">`:""}
       ${(g.stats||[]).map(s=>`<input id="f-${i}-${esc(s.key)}" type="number" min="0" inputmode="numeric" data-bind="form.rows.${i}.stats.${esc(s.key)}" value="${esc(r.stats[s.key]??"")}" placeholder="0" aria-label="${esc(s.label)}">`).join("")}
@@ -1069,7 +1070,7 @@ async function importReplay(file){
   const left=rep.players.filter(p=>p.WAS_LEAVER==="1"||p.WAS_AFK==="1").map(p=>p.RIOT_ID_GAME_NAME).filter(Boolean);
   const mins=rep.lengthMs?Math.round(rep.lengthMs/60000)+" min game. ":"";
   S.form.rows=rows; if(winner) S.form.winner=winner;
-  S.form.replay=`Filled in from ${file.name}. ${mins}${matched} of ${rows.length} players matched to the roster. Pick who's who for the rest; anyone left blank isn't saved.${left.length?" Left the game: "+left.join(", ")+".":""}`;
+  S.form.replay=`Filled in from ${file.name}. ${mins}${matched} of ${rows.length} players matched to the roster. Pick who's who for the rest${S.isAdmin?", or press + to add them to the roster":""}. Anyone left blank isn't saved.${left.length?" Left the game: "+left.join(", ")+".":""}`;
   S.formErr=""; S.tab="matches"; render(); window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -1194,6 +1195,10 @@ document.addEventListener("click", async e=>{
     case "view-player": S.viewPlayer=el.dataset.pid; S.tab="players"; S.editTag=null; render(); window.scrollTo({top:0,behavior:"smooth"}); break;
     case "new-match": S.form=newForm(); S.formErr=""; S.tab="matches"; render(); break;
     case "talk-open": S.talkOpen={...(S.talkOpen||{}),[id]:true}; render(); document.getElementById("c-"+id)?.focus(); break;
+    case "add-riot": { const r=S.form?.rows[+el.dataset.i]; if(!r?.riot) break; const tag=r.riot.slice(0,32);
+      const have=Object.keys(S.players).find(k=>S.players[k].tag.toLowerCase()===tag.toLowerCase());
+      if(have){ r.pid=have; render(); break; }
+      try{ const {data,error}=await S.sb.from("players").insert({tag, user_id:null}).select("id").single(); if(error) throw error; await loadAll(); r.pid=data.id; render(); toast(tag+" added to the roster"); }catch(err){ toast(writeError(err)); } break; }
     case "toggle-match": S.openMatch={...(S.openMatch||{}),[id]:!S.openMatch?.[id]}; render(); break;
     case "show": S.show={mid:id,i:0}; S._shown=""; document.body.style.overflow="hidden"; render(); break;
     case "show-next": showStep(1); break;
