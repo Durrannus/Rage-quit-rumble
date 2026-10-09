@@ -8,25 +8,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: one-column scoreboard. Header carries the game and season switch; tabbed panels below. */
+/* Layout: one-column arena scoreboard. Hero header with game and season switch, podium, then tabbed panels.
+   Deliberately dark-only: a night arena with frost-blue and trophy-gold light. */
 :root{
-  --bg:#eceff5; --surface:#ffffff; --sunk:#e2e6ef; --ink:#131a2d; --muted:#596282; --line:#d3d8e5;
-  --accent:#2c4fe0; --accent-ink:#ffffff; --accent-soft:#e1e7ff;
-  --win:#0f7a49; --win-soft:#dcf2e6; --loss:#bf2d39; --loss-soft:#fbe3e5; --gold:#9a6608; --gold-soft:#fbefd5;
+  --bg:#080c18; --bg2:#0d1430; --surface:#111831; --surface2:#162042; --sunk:#1a2446; --ink:#eef2ff; --muted:#93a0c6; --line:#253158;
+  --accent:#4fd8ff; --accent2:#9b7bff; --accent-ink:#04121c; --accent-soft:#0f2e45;
+  --win:#3ee09a; --win-soft:#0f3328; --loss:#ff6b7d; --loss-soft:#3d1622; --gold:#ffc857; --gold-soft:#3b2d0e;
+  --silver:#cfd8ec; --bronze:#e0995e;
   --display:"Chakra Petch","Arial Narrow",system-ui,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --r:6px;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0c1020; --surface:#151a2d; --sunk:#1c2238; --ink:#e7eaf5; --muted:#97a0bf; --line:#283051;
-  --accent:#7290ff; --accent-ink:#0c1020; --accent-soft:#222c55;
-  --win:#43cf8f; --win-soft:#123326; --loss:#ff6d77; --loss-soft:#3a1a20; --gold:#f2b84f; --gold-soft:#3a2c10;
-  color-scheme:dark;
-}}
-:root[data-theme="dark"]{
-  --bg:#0c1020; --surface:#151a2d; --sunk:#1c2238; --ink:#e7eaf5; --muted:#97a0bf; --line:#283051;
-  --accent:#7290ff; --accent-ink:#0c1020; --accent-soft:#222c55;
-  --win:#43cf8f; --win-soft:#123326; --loss:#ff6d77; --loss-soft:#3a1a20; --gold:#f2b84f; --gold-soft:#3a2c10;
+  --r:10px;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -169,6 +160,50 @@ td.pts{font-family:var(--display);font-weight:700;font-size:1.05rem}
 
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:var(--r);font-weight:600;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(0,0,0,.25)}
 @media (prefers-reduced-motion:no-preference){.match,.panel{animation:rise .25s ease both}@keyframes rise{from{transform:translateY(4px)}to{transform:none}}}
+
+/* ---- arena skin ---- */
+body{background:
+  radial-gradient(900px 500px at 10% -10%, rgba(79,216,255,.16), transparent 60%),
+  radial-gradient(800px 500px at 100% 0%, rgba(155,123,255,.16), transparent 60%),
+  linear-gradient(180deg, var(--bg2), var(--bg) 600px) fixed, var(--bg)}
+header.top{background:linear-gradient(135deg, rgba(79,216,255,.10), rgba(155,123,255,.10));border:1px solid var(--line);border-radius:16px;padding:20px 20px 0;position:relative;overflow:hidden}
+header.top::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(-55deg, transparent 0 22px, rgba(255,255,255,.025) 22px 23px);pointer-events:none}
+header.top>*{position:relative}
+.brand h1{letter-spacing:.01em;text-shadow:0 0 28px rgba(79,216,255,.25)}
+.brand h1 .slash{background:linear-gradient(100deg,var(--accent),var(--accent2));color:var(--accent-ink);box-shadow:0 6px 24px rgba(79,216,255,.25)}
+.tagline{margin:-6px 0 0;color:var(--muted);font:500 .95rem var(--display);letter-spacing:.06em;text-transform:uppercase}
+.chip{background:rgba(255,255,255,.04)}
+.chip[aria-pressed="true"]{background:linear-gradient(100deg,var(--accent),var(--accent2));color:var(--accent-ink);border-color:transparent}
+nav.tabs{border-bottom:0;margin-inline:-20px;padding-inline:12px;background:rgba(0,0,0,.18);border-top:1px solid var(--line)}
+nav.tabs button{padding:13px 14px}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]::after{background:linear-gradient(90deg,var(--accent),var(--accent2));height:3px;bottom:0}
+.panel{background:linear-gradient(180deg,var(--surface2),var(--surface));border-color:var(--line);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.btn{background:var(--sunk)}
+.btn.primary{background:linear-gradient(100deg,var(--accent),var(--accent2));border-color:transparent;color:var(--accent-ink);box-shadow:0 4px 16px rgba(79,216,255,.2)}
+.btn.primary:hover{filter:brightness(1.08)}
+input,select,textarea{background:var(--bg);border-color:var(--line)}
+tbody tr:hover td{background:rgba(255,255,255,.03)}
+tr.lead td{background:rgba(255,200,87,.06)}
+.banner{background:linear-gradient(100deg,rgba(79,216,255,.14),rgba(155,123,255,.14));border:1px solid var(--line)}
+.tile{background:var(--bg);border:1px solid var(--line)}
+.tile .v{color:var(--ink)}
+.match{background:rgba(0,0,0,.18)}
+.team-block.won{background:var(--win-soft)}
+.rec .big{color:var(--accent)}
+.av-txt{font-weight:700}
+/* podium */
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+.pod{border:1px solid var(--line);border-radius:14px;padding:14px 10px 12px;display:grid;justify-items:center;gap:4px;text-align:center;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.01));position:relative;min-width:0}
+.pod .av{width:52px;height:52px;font-size:1.3rem;border:2px solid var(--medal)}
+.pod .name{font:600 1rem var(--display);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .pts{font:700 1.6rem var(--display);color:var(--medal);line-height:1}
+.pod .place{position:absolute;top:8px;left:10px;font:700 .8rem var(--display);color:var(--medal)}
+.pod.p1{--medal:var(--gold);padding-block:22px 16px;border-color:rgba(255,200,87,.5);box-shadow:0 0 36px rgba(255,200,87,.15)}
+.pod.p1 .av{width:64px;height:64px}
+.pod.p2{--medal:var(--silver)}
+.pod.p3{--medal:var(--bronze)}
+@media (max-width:520px){.pod .pts{font-size:1.25rem}.pod .av{width:42px;height:42px}.pod.p1 .av{width:52px;height:52px}}
 </style>
 </head>
 <body>
@@ -349,7 +384,8 @@ function avatar(pid, cls="av"){
   const p=S.players[pid];
   if(p?.avatar && /^https:\/\/cdn\.discordapp\.com\//.test(p.avatar)) return `<img class="${cls}" src="${esc(p.avatar)}" alt="">`;
   const t=((p?.tag||"?").trim()[0]||"?").toUpperCase();
-  return `<span class="${cls} av-txt">${esc(t)}</span>`;
+  let h=0; for(const c of (p?.tag||"?")) h=(h*31+c.charCodeAt(0))%100003; h=(h*137)%360;
+  return `<span class="${cls} av-txt" style="background:hsl(${h} 45% 26%);color:hsl(${h} 85% 82%)">${esc(t)}</span>`;
 }
 function plLink(pid){ return `<span class="pl">${avatar(pid)}<button data-act="view-player" data-pid="${esc(pid)}">${esc(pName(pid))}</button>${pid===myPlayer()?' <span class="tag you">You</span>':""}${badges(pid)?" "+badges(pid):""}</span>`; }
 function computeAccess(){
@@ -376,6 +412,7 @@ function header(){
     : `<button class="btn discord" data-act="login">${DISCORD_ICON}Log in with Discord</button>`;
   return `<header class="top">
     <div class="brand"><h1>Rage Quit <span class="slash"><span>Rumble</span></span></h1>${who}</div>
+    <p class="tagline">The annual friends' showdown · ${esc(S.season==="all"?"All time":S.season)}</p>
     ${S.ready && Object.keys(S.games).length ? `<div class="controls"><div class="chips" role="group" aria-label="Game">${gameChips}</div>
       <label class="season"><span class="label">Tournament</span><select id="season" data-act="season">${seasonOpts}</select></label></div>` : ""}
     <nav class="tabs" role="tablist">${TABS.map(([id,l])=>`<button role="tab" data-act="tab" data-id="${id}" aria-selected="${S.tab===id}">${l}</button>`).join("")}</nav>
@@ -404,6 +441,7 @@ function standings(){
     ${rows.map((r,i)=>`<tr class="${i===0?"lead":""}"><td class="rank">${i+1}</td><td class="l">${plLink(r.pid)}</td><td>${r.games}</td><td>${r.wins}</td><td>${r.losses}</td><td>${pct(r.wins,r.games)}</td>${g.kda?`<td>${fmt1(r.kda)}</td>`:""}${ffa?`<td>${fmt1(r.placeSum/r.games)}</td>`:""}${g.mvpStat?`<td>${r.mvps}</td>`:""}<td class="pts">${r.pts}</td><td class="l"><span class="form">${r.form.map(w=>`<span class="pip ${w?"w":"l"}">${w?"W":"L"}</span>`).join("")}</span></td></tr>`).join("")}
   </tbody></table></div>`;
   const recs=records(g,ms);
+  const podium = rows.length>=2 ? `<div class="podium">${[1,0,2].map(i=>rows[i]?`<div class="pod p${i+1}"><span class="place">#${i+1}</span>${avatar(rows[i].pid)}<button class="link name" data-act="view-player" data-pid="${esc(rows[i].pid)}" style="color:var(--ink)">${esc(pName(rows[i].pid))}</button><span class="pts num">${rows[i].pts}</span><span class="muted num" style="font-size:.8rem">${rows[i].wins}W ${rows[i].losses}L${g.kda?" · "+fmt1(rows[i].kda)+" KDA":""}</span></div>`:"<div></div>").join("")}</div>` : "";
   const p=g.points||{};
   const rules = ffa ? `Points by finishing place: ${(p.placements||[]).map((v,i)=>`${i+1}${["st","nd","rd"][i]||"th"} ${v}`).join(", ")}.` : `Win ${p.win??3} pts, loss ${p.loss??0}.`;
   const mvpRule = (g.mvpStat && p.mvp ? ` MVP (highest ${g.mvpStat==="kda"?"KDA":esc(statLabel(g,g.mvpStat))} in the match) gets +${p.mvp}.` : "")
@@ -417,7 +455,7 @@ function standings(){
       return `<div class="tbl-wrap"><table class="mini"><thead><tr><th class="l">Augment</th><th>Picked</th><th>Win %</th></tr></thead><tbody>${top.map(a=>`<tr><td class="l">${esc(a.name)}</td><td>${a.games}</td><td>${pct(a.wins,a.games)}</td></tr>`).join("")}</tbody></table></div>${cursed&&cursed.wins/cursed.games<.5?`<p style="margin:0"><span class="tag loss">Cursed</span> ${esc(cursed.name)} has won ${pct(cursed.wins,cursed.games)} of ${cursed.games} games.</p>`:""}`;
     })():`<p class="muted" style="margin:0">Log augments with each match to see which ones win.</p>`}</section>` : "";
   return `<div class="grid2">
-    <section class="panel"><div class="panel-head"><h2>${esc(g.name)} standings</h2><span class="muted num">${ms.length} match${ms.length===1?"":"es"} · ${esc(seasonTxt)}</span></div>${table}<p class="muted" style="margin:0;font-size:.85rem">${rules}${mvpRule}</p></section>
+    <section class="panel"><div class="panel-head"><h2>${esc(g.name)} standings</h2><span class="muted num">${ms.length} match${ms.length===1?"":"es"} · ${esc(seasonTxt)}</span></div>${podium}${table}<p class="muted" style="margin:0;font-size:.85rem">${rules}${mvpRule}</p></section>
     <section class="panel"><h2>Records</h2><div class="records">${recs.length?recs.map(r=>`<div class="rec${r.shame?" shame":""}"><span class="big num">${esc(r.value)}</span><span class="what"><b>${esc(r.title)}</b><span>${esc(pName(r.pid))}${r.pick&&!r.noDate?" · "+esc(r.pick):""}${r.noDate?" · "+esc(r.sub):" · "+esc(fmtDate(r.m.playedAt))}</span></span>${avatar(r.pid)}</div>`).join(""):`<p class="muted">Records appear once matches have stats.</p>`}</div></section>
   </div>${hof||augPanel?`<div class="grid2" style="margin-top:20px">${augPanel||"<div></div>"}${hof}</div>`:""}`;
 }
