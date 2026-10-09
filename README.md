@@ -13,7 +13,7 @@ It is a static site (the `docs/` folder, served by GitHub Pages) backed by a fre
 ### 2. Create the Discord app
 1. Go to https://discord.com/developers/applications and press **New Application**. Name it "Rage Quit Rumble".
 2. Open **OAuth2**. Copy the **Client ID**, then press **Reset Secret** and copy the **Client Secret**.
-3. Under **Redirects**, add `https://YOUR-PROJECT.supabase.co/auth/v1/callback` (your project URL from Supabase, plus `/auth/v1/callback`) and save.
+3. Under **Redirects**, add `https://snfnpmnpdykskzlajwyy.supabase.co/auth/v1/callback` (your project URL from Supabase, plus `/auth/v1/callback`) and save.
 
 ### 3. Turn on Discord login in Supabase
 1. In Supabase, open **Authentication → Sign In / Providers → Discord**.
