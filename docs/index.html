@@ -788,12 +788,12 @@ function logForm(){
 function buildMatch(){
   const f=S.form, g=S.games[f.game];
   const rows=f.rows.filter(r=>r.pid);
-  if(rows.length<2) return "Pick at least two players.";
+  if(rows.length<(f.replay?1:2)) return f.replay?"Pick who you are in the replay (or press + next to a name).":"Pick at least two players.";
   const ids=rows.map(r=>r.pid); if(new Set(ids).size!==ids.length) return "Each player can only appear once in a match.";
   if(!/^\d{4}-\d{2}-\d{2}$/.test(f.date)) return "Choose the date the match was played.";
   if(!f.season.trim()) return "Fill in which tournament this match belongs to, for example "+YEAR+".";
   if(g.format==="ffa"){ if(rows.some(r=>!(+r.place>=1))) return "Give every player a finishing place."; }
-  else { if(!rows.some(r=>r.side==="A")||!rows.some(r=>r.side==="B")) return "Both teams need at least one player."; }
+  else if(!f.replay){ if(!rows.some(r=>r.side==="A")||!rows.some(r=>r.side==="B")) return "Both teams need at least one player."; }
   const entries=rows.map(r=>{
     const e={pid:r.pid, stats:{}};
     if(g.format==="ffa") e.place=+r.place; else e.team=r.side;
