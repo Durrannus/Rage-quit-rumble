@@ -46,6 +46,14 @@ On the Matches tab, press **Upload replay** and choose the game's `.rofl` file. 
 
 The webhook is stored where only the organiser can read it, and the database does the posting, so friends never see it.
 
+## Voice comms clips
+1. In Supabase > SQL Editor, paste all of `supabase/004_voice_clips.sql` and press Run (once).
+2. Record the call. The Craig bot for Discord gives one file per person, so each clip is tagged with who said it. A single recording of the whole call also works.
+3. On the match, press 🎙 and choose the file(s). The site listens for the loudest moments in your browser (nothing uploads yet), then shows up to 8 ten-second clips per file.
+4. Play them, add a caption, untick the duds, and press Save. Clips show on the match card and get their own slide in the awards ceremony.
+
+Everyone in the call should know it's being recorded.
+
 ## How scoring works
 - Win 3 points, loss 0, and +1 for the match MVP (highest KDA).
 - Each year is its own tournament; there is also an "All time" view.
