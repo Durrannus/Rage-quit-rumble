@@ -18,14 +18,14 @@ It is a static site (the `docs/` folder, served by GitHub Pages) backed by a fre
 ### 3. Turn on Discord login in Supabase
 1. In Supabase, open **Authentication → Sign In / Providers → Discord**.
 2. Switch it on, paste the Client ID and Client Secret, and save.
-3. Open **Authentication → URL Configuration**. Set **Site URL** to `https://durrannus.github.io/rage-quit-rumble/` and add the same address under **Redirect URLs**.
+3. Open **Authentication → URL Configuration**. Set **Site URL** to `https://durrannus.github.io/Rage-quit-rumble/` and add the same address under **Redirect URLs**.
 
 ### 4. Connect the site to the database
 1. In Supabase, open **Project Settings → API**. Copy the **Project URL** and the **anon public** key.
 2. Put them in `docs/config.js`. The anon key is designed to be public; the rules in `setup.sql` protect the data.
 
 ### 5. Publish the site
-In this GitHub repo, open **Settings → Pages**, choose **Deploy from a branch**, pick `main` and `/docs`, and save. After a minute the site is live at `https://durrannus.github.io/rage-quit-rumble/`.
+In this GitHub repo, open **Settings → Pages**, choose **Deploy from a branch**, pick `main` and `/docs`, and save. After a minute the site is live at `https://durrannus.github.io/Rage-quit-rumble/`.
 
 ### 6. Log in first
 The **first person to log in becomes the organiser**, so log in yourself before sharing the link. Then send the link to your friends. When they log in and join the roster, approve them on the **Players** tab; approved players can log and delete matches. Anyone can view the scores without logging in.
