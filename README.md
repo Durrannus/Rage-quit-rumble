@@ -33,6 +33,10 @@ The **first person to log in becomes the organiser**, so log in yourself before 
 ## Adding trash talk to an existing database
 If you set the database up before trash talk existed, run `supabase/002_trash_talk.sql` once in the SQL Editor. New setups get it from `setup.sql` automatically.
 
+## Logging a match from a replay
+
+On the Matches tab, press **Upload replay** and choose the game's `.rofl` file. The League client saves these in `Documents/League of Legends/Replays` (download one from Match History if it isn't there). The site reads the end-of-game stats in your browser: champions, teams, the winner, K/D/A, damage, healing, multikills and augments. Pick which friend is which in-game name, check the form, and save. Next time it remembers who's who. Nothing from the replay is uploaded apart from the match you save.
+
 ## How scoring works
 - Win 3 points, loss 0, and +1 for the match MVP (highest KDA).
 - Each year is its own tournament; there is also an "All time" view.

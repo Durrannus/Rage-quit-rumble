@@ -62,6 +62,8 @@ input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-vis
 .btn.danger{color:var(--loss);border-color:var(--loss)}
 .btn.small{padding:4px 10px;font-size:.8rem}
 .btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+label.btn{display:inline-block}
 .link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:600}
 
 /* surfaces */
@@ -435,7 +437,7 @@ function body(){
 function standings(){
   const g=G(), ms=filtered(), rows=aggregate(g,ms);
   const seasonTxt = S.season==="all" ? "all tournaments" : S.season+" tournament";
-  if(!rows.length) return `<div class="panel empty"><h2>No ${esc(g.name)} matches in the ${esc(seasonTxt)} yet</h2><p>Log the first match and the standings fill in.</p>${S.canWrite?`<button class="btn primary" data-act="new-match">Log a match</button>`:""}</div>`;
+  if(!rows.length) return `<div class="panel empty"><h2>No ${esc(g.name)} matches in the ${esc(seasonTxt)} yet</h2><p>Log the first match and the standings fill in.</p>${S.canWrite?`<div class="btn-row"><button class="btn primary" data-act="new-match">Log a match</button>${replayOk()?REPLAY_BTN:""}</div>`:""}</div>`;
   const ffa=g.format==="ffa";
   const table = `<div class="tbl-wrap"><table><thead><tr><th class="l">#</th><th class="l">Player</th><th>Played</th><th>W</th><th>L</th><th>Win %</th>${g.kda?"<th>KDA</th>":""}${ffa?"<th>Avg place</th>":""}${g.mvpStat?"<th>MVP</th>":""}<th>Points</th><th class="l">Last 5</th></tr></thead><tbody>
     ${rows.map((r,i)=>`<tr class="${i===0?"lead":""}"><td class="rank">${i+1}</td><td class="l">${plLink(r.pid)}</td><td>${r.games}</td><td>${r.wins}</td><td>${r.losses}</td><td>${pct(r.wins,r.games)}</td>${g.kda?`<td>${fmt1(r.kda)}</td>`:""}${ffa?`<td>${fmt1(r.placeSum/r.games)}</td>`:""}${g.mvpStat?`<td>${r.mvps}</td>`:""}<td class="pts">${r.pts}</td><td class="l"><span class="form">${r.form.map(w=>`<span class="pip ${w?"w":"l"}">${w?"W":"L"}</span>`).join("")}</span></td></tr>`).join("")}
@@ -471,7 +473,7 @@ function matchesTab(){
   const g=G(), ms=filtered();
   const form = S.form ? logForm() : "";
   const list = ms.length ? ms.map(m=>matchCard(g,m)).join("") : `<div class="empty"><p>No matches logged for this tournament yet.</p></div>`;
-  return `${form}<section class="panel"><div class="panel-head"><h2>Match history</h2>${S.canWrite&&!S.form?`<button class="btn primary" data-act="new-match">Log a match</button>`:""}</div>${list}</section>`;
+  return `${form}<section class="panel"><div class="panel-head"><h2>Match history</h2>${S.canWrite&&!S.form?`<div class="btn-row">${replayOk()?REPLAY_BTN:""}<button class="btn primary" data-act="new-match">Log a match</button></div>`:""}</div>${list}</section>`;
 }
 function matchCard(g,m){
   const mvp=mvpOf(g,m);
@@ -509,11 +511,11 @@ function newForm(){
 }
 function logForm(){
   const g=S.games[S.form.game]||G(), f=S.form;
-  const opts = sel => `<option value="">Choose player…</option>`+Object.entries(S.players).sort((a,b)=>a[1].tag.localeCompare(b[1].tag)).map(([id,p])=>`<option value="${esc(id)}"${id===sel?" selected":""}>${esc(p.tag)}</option>`).join("");
+  const opts = (sel,hint) => `<option value="">${hint?"Who is "+esc(hint)+"?":"Choose player…"}</option>`+Object.entries(S.players).sort((a,b)=>a[1].tag.localeCompare(b[1].tag)).map(([id,p])=>`<option value="${esc(id)}"${id===sel?" selected":""}>${esc(p.tag)}</option>`).join("");
   const cols = `minmax(130px,1.6fr) ${g.pickLabel?"minmax(100px,1.2fr) ":""}${g.format==="ffa"?"64px ":""}${(g.stats||[]).map(s=>s.key===g.dmgStat||s.key===g.healStat?"minmax(72px,.8fr)":"minmax(54px,.6fr)").join(" ")}${g.multikills?" 54px 54px 54px":""}${g.augments?" minmax(180px,2fr)":""}`;
   const head = `<div class="roster-row roster-head" style="grid-template-columns:${cols}"><span>Player</span>${g.pickLabel?`<span>${esc(g.pickLabel)}</span>`:""}${g.format==="ffa"?"<span>Place</span>":""}${(g.stats||[]).map(s=>`<span>${esc(s.label)}</span>`).join("")}${g.multikills?MULTI.map(([,l])=>`<span>${l}</span>`).join(""):""}${g.augments?"<span>Augments (comma separated)</span>":""}</div>`;
   const rowHtml = (r,i) => `<div class="roster-row" style="grid-template-columns:${cols}">
-      <select id="f-${i}-pid" data-bind="form.rows.${i}.pid" aria-label="Player">${opts(r.pid)}</select>
+      <select id="f-${i}-pid" data-bind="form.rows.${i}.pid" aria-label="Player"${r.riot?` title="In the replay: ${esc(r.riot)}"`:""}>${opts(r.pid,r.riot)}</select>
       ${g.pickLabel?`<input id="f-${i}-pick" data-bind="form.rows.${i}.pick" value="${esc(r.pick)}" placeholder="${esc(g.pickLabel)}" aria-label="${esc(g.pickLabel)}">`:""}
       ${g.format==="ffa"?`<input id="f-${i}-place" type="number" min="1" inputmode="numeric" data-bind="form.rows.${i}.place" value="${esc(r.place)}" aria-label="Place">`:""}
       ${(g.stats||[]).map(s=>`<input id="f-${i}-${esc(s.key)}" type="number" min="0" inputmode="numeric" data-bind="form.rows.${i}.stats.${esc(s.key)}" value="${esc(r.stats[s.key]??"")}" placeholder="0" aria-label="${esc(s.label)}">`).join("")}
@@ -528,7 +530,8 @@ function logForm(){
     roster = ["A","B"].map(t=>`<div class="team-block${f.winner===t?" won":""}"><div class="panel-head"><h3>Team ${t}</h3><label class="radio"><input type="radio" name="winner" id="f-win-${t}" data-act="winner" value="${t}"${f.winner===t?" checked":""}> Won this match</label></div>
       ${rosterScroll(head+f.rows.map((r,i)=>r.side===t?rowHtml(r,i):"").join(""))}<div><button class="btn small" data-act="add-row" data-side="${t}">Add player</button></div></div>`).join("");
   }
-  return `<section class="panel logform"><div class="panel-head"><h2>New ${esc(g.name)} match</h2><button class="btn small" data-act="cancel-form">Cancel</button></div>
+  return `<section class="panel logform"><div class="panel-head"><h2>New ${esc(g.name)} match</h2><div class="btn-row">${replayOk(g)?REPLAY_BTN.replace('class="btn"','class="btn small"'):""}<button class="btn small" data-act="cancel-form">Cancel</button></div></div>
+    ${f.replay?`<p class="banner" style="margin:0">${esc(f.replay)}</p>`:""}
     <div class="row-fields">
       <label class="field"><span class="label">Date played</span><input id="f-date" type="date" data-bind="form.date" value="${esc(f.date)}"></label>
       <label class="field"><span class="label">Tournament</span><input id="f-season" data-bind="form.season" value="${esc(f.season)}" style="width:7em"></label>
@@ -554,6 +557,7 @@ function buildMatch(){
     const e={pid:r.pid, stats:{}};
     if(g.format==="ffa") e.place=+r.place; else e.team=r.side;
     if(r.pick && r.pick.trim()) e.pick=r.pick.trim().slice(0,40);
+    if(r.riot) e.riot=String(r.riot).slice(0,40);
     for(const s of g.stats||[]) e.stats[s.key]=Math.max(0,Math.round(+r.stats[s.key]||0));
     if(g.multikills){ const mu={}; for(const [k] of MULTI){ const v=Math.max(0,Math.round(+(r.multi||{})[k]||0)); if(v) mu[k]=v; } if(Object.keys(mu).length) e.multi=mu; }
     if(g.augments && r.augments){ const a=r.augments.split(",").map(x=>x.trim().slice(0,40)).filter(Boolean).slice(0,6); if(a.length) e.augments=a; }
@@ -563,6 +567,75 @@ function buildMatch(){
   if(g.format!=="ffa") doc.winner=f.winner;
   if(f.note.trim()) doc.note=f.note.trim().slice(0,80);
   return doc;
+}
+
+
+/* ---------- replay import (.rofl) ---------- */
+const REPLAY_BTN = `<label class="btn" title="Fill the match in from a League of Legends .rofl replay">Upload replay<input type="file" accept=".rofl" data-act="rofl" hidden></label>`;
+const AUG_URL = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/cherry-augments.json";
+let AUG_NAMES = null;
+function replayOk(g=G()){ return !!g && g.format!=="ffa" && /league|lol|aram/i.test((g.name||"")+" "+(g.short||"")+" "+S.gameId); }
+async function augNames(){
+  if(AUG_NAMES) return AUG_NAMES;
+  try{ const r=await fetch(AUG_URL); if(!r.ok) throw 0; const a=await r.json(); AUG_NAMES={}; for(const x of a) if(x && x.id!=null && x.nameTRA) AUG_NAMES[String(x.id)]=x.nameTRA; }
+  catch(_){ return {}; }
+  return AUG_NAMES;
+}
+// A .rofl ends with a JSON block of end-of-game stats: {"gameLength":…, "statsJson":"[…]"}
+function parseRofl(buf){
+  const b=new Uint8Array(buf);
+  if(b.length<16 || b[0]!==82 || b[1]!==73 || b[2]!==79 || b[3]!==84) throw "That file isn't a League of Legends replay (.rofl).";
+  const needle=[...'{"gameLength'].map(c=>c.charCodeAt(0)); let at=-1;
+  outer: for(let i=b.length-needle.length;i>=0;i--){ for(let j=0;j<needle.length;j++) if(b[i+j]!==needle[j]) continue outer; at=i; break; }
+  if(at<0) throw "Couldn't find the end-of-game stats in that replay. Was the game finished?";
+  const txt=new TextDecoder("utf-8").decode(b.subarray(at, Math.min(b.length, at+2000000)));
+  let depth=0, str=false, esc_=false, end=-1;
+  for(let i=0;i<txt.length;i++){ const c=txt[i];
+    if(str){ if(esc_) esc_=false; else if(c==="\\") esc_=true; else if(c==="\"") str=false; continue; }
+    if(c==="\"") str=true; else if(c==="{") depth++; else if(c==="}" && --depth===0){ end=i+1; break; } }
+  if(end<0) throw "The replay's stats block looks damaged.";
+  const meta=JSON.parse(txt.slice(0,end));
+  const players=typeof meta.statsJson==="string"?JSON.parse(meta.statsJson):meta.statsJson;
+  if(!Array.isArray(players)||!players.length) throw "The replay has no player stats in it.";
+  return {lengthMs:+meta.gameLength||0, players};
+}
+function rosterMatch(name, taken){
+  const norm=x=>String(x||"").toLowerCase().replace(/[^\p{L}\p{N}]/gu,"");
+  const n=norm(name); if(!n) return "";
+  for(const m of [...S.matches].sort((a,b)=>String(b.playedAt||b.played_at||"").localeCompare(String(a.playedAt||a.played_at||""))))
+    for(const e of m.entries||[]) if(e.riot && norm(e.riot)===n && S.players[e.pid] && !taken.has(e.pid)) return e.pid;
+  const ids=Object.keys(S.players).filter(id=>!taken.has(id));
+  return ids.find(id=>norm(S.players[id].tag)===n)
+      || ids.find(id=>{ const t=norm(S.players[id].tag); return t.length>=4 && n.length>=4 && (t.startsWith(n)||n.startsWith(t)); })
+      || "";
+}
+async function importReplay(file){
+  if(!S.canWrite) return;
+  let rep;
+  try{ rep=parseRofl(await file.arrayBuffer()); }
+  catch(err){ toast(typeof err==="string"?err:"Couldn't read that replay."); return; }
+  if(!S.form) S.form=newForm();
+  const g=S.games[S.form.game]||G(), keys=new Set((g.stats||[]).map(s=>s.key));
+  const names=g.augments?await augNames():{};
+  const num=v=>Math.max(0,Math.round(+v||0));
+  const taken=new Set(); let matched=0, winner="";
+  const rows=rep.players.map(p=>{
+    const side=String(p.TEAM)==="200"?"B":"A";
+    if(p.WIN==="Win") winner=side;
+    const riot=String(p.RIOT_ID_GAME_NAME||p.NAME||"").trim();
+    const pid=rosterMatch(riot, taken); if(pid){ taken.add(pid); matched++; }
+    const all={k:p.CHAMPIONS_KILLED, d:p.NUM_DEATHS, a:p.ASSISTS, dmg:p.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS, heal:p.TOTAL_HEAL, cs:(+p.MINIONS_KILLED||0)+(+p.NEUTRAL_MINIONS_KILLED||0)};
+    const stats={}; for(const k in all) if(keys.has(k)) stats[k]=String(num(all[k]));
+    const multi={triple:p.TRIPLE_KILLS, quadra:p.QUADRA_KILLS, penta:p.PENTA_KILLS}; for(const k in multi) multi[k]=num(multi[k])?String(num(multi[k])):"";
+    const augs=[1,2,3,4,5,6].map(i=>String(p["PLAYER_AUGMENT_"+i]||"0")).filter(x=>x!=="0").map(x=>names[x]||"Augment #"+x);
+    return {side, pid, riot, pick:String(p.SKIN||""), place:"", stats, multi, augments:augs.join(", ")};
+  });
+  rows.sort((a,b)=>a.side.localeCompare(b.side));
+  const left=rep.players.filter(p=>p.WAS_LEAVER==="1"||p.WAS_AFK==="1").map(p=>p.RIOT_ID_GAME_NAME).filter(Boolean);
+  const mins=rep.lengthMs?Math.round(rep.lengthMs/60000)+" min game. ":"";
+  S.form.rows=rows; if(winner) S.form.winner=winner;
+  S.form.replay=`Filled in from ${file.name}. ${mins}${matched} of ${rows.length} players matched to the roster. Pick who's who for the rest; anyone left blank isn't saved.${left.length?" Left the game: "+left.join(", ")+".":""}`;
+  S.formErr=""; S.tab="matches"; render(); window.scrollTo({top:0,behavior:"smooth"});
 }
 
 /* ---------- players ---------- */
@@ -675,6 +748,7 @@ document.addEventListener("change", e=>{
   if(b){ setPath(b,t.value); if(t.dataset.rerender) render(); }
   if(t.dataset?.act==="season"){ S.season=t.value; render(); }
   if(t.dataset?.act==="winner"){ S.form.winner=t.value; render(); }
+  if(t.dataset?.act==="rofl" && t.files?.[0]){ const file=t.files[0]; t.value=""; importReplay(file); }
 });
 document.addEventListener("click", async e=>{
   const el=e.target.closest("[data-act]"); if(!el || el.tagName==="SELECT" || (el.tagName==="INPUT")) return;
