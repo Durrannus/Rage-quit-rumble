@@ -399,7 +399,7 @@ tr.lead td{background:rgba(198,255,46,.07)}
 .hl-ico{background:rgba(255,138,31,.14)}
 .mvp-chip{background:var(--gold)}
 .awards-head h4{color:var(--flame)}
-.title-slide .big-t{font-family:var(--title);font-weight:400;background:linear-gradient(100deg,var(--lime),var(--accent) 45%,var(--accent2))}
+.title-slide .big-t{font-family:var(--title);font-weight:400;background:linear-gradient(100deg,var(--lime),var(--accent) 45%,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .stage{background:radial-gradient(60% 55% at 50% 42%,rgba(255,63,210,.22),rgba(11,5,22,.97) 70%),var(--bg)}
 .dots i.on{background:var(--lime);box-shadow:0 0 8px var(--lime)}
 #toast{background:linear-gradient(100deg,var(--lime),var(--accent));color:var(--accent-ink)}
@@ -432,6 +432,47 @@ tr.lead td{background:rgba(198,255,46,.07)}
 .stage .acard:hover{transform:none;box-shadow:0 10px 30px rgba(0,0,0,.45)}
 .stage .acard .shine{display:none}
 .acard.big{height:min(470px,calc(100vh - 220px))}
+
+/* penalty jar */
+.pen{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--line);background:linear-gradient(90deg,rgba(255,138,31,.14),transparent 70%)}
+.pen-t{font:400 .78rem var(--title);letter-spacing:.04em;text-transform:uppercase;color:var(--flame);white-space:nowrap}
+.pen-x{font:600 .92rem var(--display)}
+.pen-jar{font-size:3.4rem;filter:drop-shadow(0 0 18px rgba(255,138,31,.6));animation:pop .6s both}
+.pen-big{font:700 clamp(1.2rem,3.4vw,1.7rem)/1.3 var(--display);margin:0;max-width:560px}
+.title-slide .av{width:56px;height:56px;font-size:1.4rem;border:2px solid var(--flame);box-shadow:0 0 18px rgba(255,138,31,.5)}
+/* rivalries */
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:10px}
+.rv{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"i t" "a n" "l l";gap:4px 10px;align-items:center;padding:12px;border-radius:12px;background:rgba(11,5,22,.6);border:1px solid var(--line);transition:border-color .2s,box-shadow .2s}
+.rv:hover,.rv:focus-visible{border-color:var(--accent2);box-shadow:0 0 16px rgba(255,63,210,.3)}
+.rv-i{grid-area:i;font-size:1.3rem}.rv-t{grid-area:t;font:400 .74rem var(--title);text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.rv .av{grid-area:a}.rv b{grid-area:n;font:600 1rem var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-l{grid-area:l;font-size:.82rem;color:var(--muted)}
+/* achievements */
+.ach-count{font:400 .9rem var(--title);color:var(--lime)}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ach{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"i n" "i d";gap:0 10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(11,5,22,.5);border:1px solid var(--line);opacity:.45;filter:grayscale(1)}
+.ach.got{opacity:1;filter:none;border-color:rgba(198,255,46,.35);background:linear-gradient(135deg,rgba(198,255,46,.08),rgba(32,240,228,.06));box-shadow:0 0 14px rgba(198,255,46,.08)}
+.ach-i{grid-area:i;font-size:1.5rem}
+.ach-n{grid-area:n;font:700 .85rem var(--display);line-height:1.2}
+.ach-d{grid-area:d;font-size:.72rem;color:var(--muted);line-height:1.25}
+.ach-more{margin-top:8px}.ach-more summary{cursor:pointer;font:600 .85rem var(--display);color:var(--accent);margin-bottom:8px}
+/* organiser settings */
+.set-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;padding:14px 0;border-top:1px solid var(--line)}
+.set-row:first-of-type{border-top:0;padding-top:4px}
+@media (max-width:700px){ .set-row{grid-template-columns:1fr;gap:10px} }
+.set-txt{display:grid;gap:4px;align-content:start}.set-txt b{font:700 1rem var(--display)}.set-txt .muted{font-size:.86rem}
+.set-status{font:700 .78rem var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.set-status.ok{color:var(--win);text-shadow:0 0 10px rgba(93,255,158,.5)}
+.set-ctl{display:grid;gap:8px;align-content:start}
+.set-ctl input,.set-ctl textarea{width:100%}
+.set-ctl textarea{font:500 .88rem/1.4 var(--body);resize:vertical}
+.how{font-size:.82rem;color:var(--muted)}.how summary{cursor:pointer;color:var(--accent)}
+.switch{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:10px;font:700 .85rem var(--display);width:fit-content}
+.switch i{width:46px;height:26px;border-radius:999px;background:var(--sunk);border:1px solid var(--line);position:relative;transition:background .2s}
+.switch i:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.switch.on i{background:linear-gradient(90deg,var(--lime),var(--accent));border-color:transparent;box-shadow:0 0 14px rgba(32,240,228,.4)}
+.switch.on i:after{transform:translateX(20px);background:#0b0516}
+.switch:focus-visible i{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -475,7 +516,7 @@ const YEAR = String(new Date().getFullYear());
 const S = {
   sb:null, me:null, isAdmin:false, canWrite:false, authReady:false, ready:false, noDb:false,
   games:{}, players:{}, matches:[], loaded:{games:false,players:false,matches:false},
-  profiles:{}, comments:[], commentsOff:false, cdraft:{}, confirmGameDel:null, gameId:null, season:YEAR, tab:"standings", viewPlayer:null,
+  profiles:{}, comments:[], commentsOff:false, settings:{}, settingsOff:false, hookDraft:"", penDraft:null, cdraft:{}, confirmGameDel:null, gameId:null, season:YEAR, tab:"standings", viewPlayer:null,
   form:null, formErr:"", confirmDel:null, busy:false,
   join:{tag:""}, addp:{tag:""}, editTag:null,
   ng:{name:"",format:"teams",teamSize:"5",pickLabel:"",stats:"",shame:"",mvp:"",win:"3",loss:"0",mvpPts:"1",placements:"10,7,5,3,2,1"}
@@ -717,7 +758,7 @@ function matchCard(g,m){
     ${hasFun||es.some(e=>(e.augments||[]).length)?`<button class="btn small" data-act="toggle-match" data-id="${esc(m.id)}" aria-expanded="${open}">${open?"Less":"More"}</button>`:""}${del}</div></header>`;
   if(g.format==="ffa"){
     const rows=[...es].sort((a,b)=>(+a.place||99)-(+b.place||99));
-    return `<article class="match">${head}<div class="sb"><div class="sb-team">${rows.map(e=>`<div class="sb-row"><span class="sb-place num">${+e.place||"–"}</span>${avatar(e.pid)}<div class="sb-name">${nameBtn(e.pid)}${e.pick?`<span class="sb-champ">${esc(e.pick)}</span>`:""}</div><div class="sb-stats num">${statLine(g,e.stats)}</div></div>`).join("")}</div></div>${talk(m)}</article>`;
+    return `<article class="match">${head}<div class="sb"><div class="sb-team">${rows.map(e=>`<div class="sb-row"><span class="sb-place num">${+e.place||"–"}</span>${avatar(e.pid)}<div class="sb-name">${nameBtn(e.pid)}${e.pick?`<span class="sb-champ">${esc(e.pick)}</span>`:""}</div><div class="sb-stats num">${statLine(g,e.stats)}</div></div>`).join("")}</div></div>${penaltyBar(g,m)}${talk(m)}</article>`;
   }
   const dk=g.dmgStat, dmax=Math.max(1,...es.map(e=>+e.stats?.[dk]||0));
   const q=teamQuirks(m);
@@ -736,7 +777,7 @@ function matchCard(g,m){
       ${es.filter(e=>e.team===t).map(row).join("")}
       ${open&&qs.length>1?`<div class="quirks">${qs.slice(1).map(x=>`<span class="quirk" title="${esc(x.why)}">${x.icon} ${esc(x.label)} <small>${esc(x.show)}</small></span>`).join("")}</div>`:""}
     </div>`; };
-  return `<article class="match">${head}<div class="sb">${team("A")}${team("B")}</div>${highlights(g,m)}${talk(m)}</article>`;
+  return `<article class="match">${head}<div class="sb">${team("A")}${team("B")}</div>${highlights(g,m)}${penaltyBar(g,m)}${talk(m)}</article>`;
 }
 function highlights(g,m){
   const rs=roastsFor(m,3); if(!rs.length) return "";
@@ -938,7 +979,9 @@ function quirkChips(m,t){
 function showSlides(m){
   const g=S.games[m.game]||G();
   const cards=[...gloryCards(g,m), ...roastsFor(m,8).map(roastCard)];
-  return [{kind:"title"}, ...cards.map(c=>({kind:"card",c})), {kind:"quirks"}];
+  const out=[{kind:"title"}, ...cards.map(c=>({kind:"card",c})), {kind:"quirks"}];
+  const pen=penaltyFor(g,m); if(pen) out.push({kind:"penalty",pen});
+  return out;
 }
 function ceremony(){
   if(!S.show) return "";
@@ -949,9 +992,11 @@ function ceremony(){
     const hl=headline(m).replace(/<[^>]+>/g,"");
     inner=`<div class="title-slide"><span class="kicker" style="font:700 .8rem var(--display);letter-spacing:.25em;color:var(--muted)">${esc(fmtDate(m.playedAt))}${m.note?" · "+esc(m.note):""}</span>
       <div class="big-t">The Roast</div>${m.winner?`<div class="result"><b>Team ${esc(m.winner)}</b> won</div>`:""}${hl?`<p class="headline" style="font-size:1.15rem">${hl}</p>`:""}
-      <p class="muted" style="margin:0">${slides.length-2} awards to hand out. Press Next.</p></div>`;
+      <p class="muted" style="margin:0">${slides.filter(x=>x.kind==="card").length} awards to hand out. Press Next.</p></div>`;
   } else if(sl.kind==="card"){
     inner=awardCard(sl.c,"big reveal");
+  } else if(sl.kind==="penalty"){
+    inner=`<div class="title-slide"><div class="pen-jar">⚖️</div><div class="big-t" style="font-size:clamp(2rem,7vw,3.4rem)">Penalty jar</div>${avatar(sl.pen.pid)}<p class="pen-big">${esc(sl.pen.text)}</p><p class="muted" style="margin:0">No appeals. The jar has spoken.</p></div>`;
   } else {
     const q=teamQuirks(m);
     const col=t=>`<div class="col${m.winner===t?" won":""}"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>
@@ -1087,6 +1132,172 @@ async function importReplay(file){
   S.formErr=""; S.tab="matches"; render(); window.scrollTo({top:0,behavior:"smooth"});
 }
 
+/* ---------- penalty jar ---------- */
+const DEFAULT_PENALTIES=[
+  "{name} gets their next champion picked by the winners.",
+  "{name} plays the next game without Flash.",
+  "{name} must take the first augment offered every round next game. No rerolls.",
+  "{name} has to buy boots last next game.",
+  "{name} must say \"my bad\" on voice after every death next game.",
+  "{name} is on snacks and drinks for the next round.",
+  "{name} has to type a genuine compliment to the enemy team in all chat next game.",
+  "{name} plays a support next game, no arguments.",
+  "{name} gets their summoner spells chosen by the group next game.",
+  "{name} changes their Discord nickname to \"Feeder\" until they win a game.",
+];
+function penaltiesOn(){ return !!S.settings?.penalties?.on; }
+function penaltyList(){ const l=S.settings?.penalty_list?.items; return Array.isArray(l)&&l.filter(Boolean).length?l.filter(Boolean):DEFAULT_PENALTIES; }
+function uuid4(){ if(crypto.randomUUID) try{ return crypto.randomUUID(); }catch(_){} const b=crypto.getRandomValues(new Uint8Array(16)); b[6]=(b[6]&15)|64; b[8]=(b[8]&63)|128; const h=[...b].map(x=>x.toString(16).padStart(2,"0")).join(""); return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`; }
+function hashStr(t){ let h=2166136261; for(const c of String(t)){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
+// The loser with the worst game takes the penalty; the same match always draws the same one.
+function penaltyFor(g,m){
+  if(!penaltiesOn()) return null;
+  const es=m.entries||[]; if(!es.length) return null;
+  let pool;
+  if(g.format==="ffa") pool=[...es].sort((a,b)=>(+b.place||0)-(+a.place||0)).slice(0,1);
+  else { if(!m.winner) return null; pool=es.filter(e=>e.team!==m.winner); }
+  if(!pool.length) return null;
+  const score=e=>g.kda?kdaVal(g,e.stats||{}):(g.mvpStat?(+e.stats?.[g.mvpStat]||0):0);
+  const who=[...pool].sort((a,b)=>score(a)-score(b))[0];
+  const list=penaltyList(), text=list[hashStr(m.id||"x")%list.length];
+  return {pid:who.pid, text:String(text).replaceAll("{name}", pName(who.pid))};
+}
+function penaltyBar(g,m){
+  const p=penaltyFor(g,m); if(!p) return "";
+  return `<div class="pen"><span class="pen-t">⚖️ Penalty jar</span><span class="pen-x">${esc(p.text)}</span></div>`;
+}
+
+/* ---------- rivalries ---------- */
+function rivalries(g,pid){
+  if(g.format==="ffa") return null;
+  const R={};
+  for(const m of filtered()){
+    const me=(m.entries||[]).find(e=>e.pid===pid); if(!me||!m.winner) continue;
+    const won=me.team===m.winner;
+    for(const e of m.entries){ if(e.pid===pid) continue;
+      const r=(R[e.pid] ??= {pid:e.pid,vsG:0,vsW:0,wG:0,wW:0});
+      if(e.team===me.team){ r.wG++; if(won) r.wW++; } else { r.vsG++; if(won) r.vsW++; }
+    }
+  }
+  const rows=Object.values(R).filter(r=>S.players[r.pid]); if(!rows.length) return null;
+  const vs=rows.filter(r=>r.vsG>=2), duo=rows.filter(r=>r.wG>=2);
+  const nemesis=[...vs].filter(r=>r.vsW<r.vsG-r.vsW).sort((a,b)=>(b.vsG-b.vsW)-(a.vsG-a.vsW)||a.vsW/a.vsG-b.vsW/b.vsG)[0];
+  const victim=[...vs].filter(r=>r.vsW>r.vsG-r.vsW).sort((a,b)=>b.vsW-a.vsW||b.vsW/b.vsG-a.vsW/a.vsG)[0];
+  const best=[...duo].filter(r=>r.wW/r.wG>.5).sort((a,b)=>b.wW/b.wG-a.wW/a.wG||b.wG-a.wG)[0];
+  const cursed=[...duo].filter(r=>r.wW/r.wG<.5).sort((a,b)=>a.wW/a.wG-b.wW/b.wG||b.wG-a.wG)[0];
+  return {rows:rows.sort((a,b)=>(b.vsG+b.wG)-(a.vsG+a.wG)), nemesis, victim, best, cursed};
+}
+function rivalryPanel(g,pid){
+  const r=rivalries(g,pid); if(!r) return "";
+  const wl=(w,n)=>n?`<span class="num">${w}–${n-w}</span>`:'<span class="muted">–</span>';
+  const card=(icon,title,x,line)=>x?`<button class="rv" data-act="view-player" data-pid="${esc(x.pid)}"><span class="rv-i">${icon}</span><span class="rv-t">${title}</span>${avatar(x.pid)}<b>${esc(pName(x.pid))}</b><span class="rv-l">${line}</span></button>`:"";
+  const cards=[card("😈","Nemesis",r.nemesis,r.nemesis&&`Beaten you ${r.nemesis.vsG-r.nemesis.vsW} of ${r.nemesis.vsG}`),
+    card("🎯","Favourite victim",r.victim,r.victim&&`You've won ${r.victim.vsW} of ${r.victim.vsG}`),
+    card("🤝","Best duo",r.best,r.best&&`${pct(r.best.wW,r.best.wG)} wins together`),
+    card("💔","Cursed duo",r.cursed,r.cursed&&`${pct(r.cursed.wW,r.cursed.wG)} wins together`)].filter(Boolean).join("");
+  return `<div><h3 style="margin-bottom:8px">Rivalries</h3>${cards?`<div class="rv-grid">${cards}</div>`:`<p class="muted" style="margin:0 0 8px">Play a couple more games against the same people to unlock a nemesis.</p>`}
+    <div class="tbl-wrap"><table class="mini"><thead><tr><th class="l">Player</th><th>Against</th><th>Together</th></tr></thead><tbody>${r.rows.slice(0,10).map(x=>`<tr><td class="l">${plLink(x.pid)}</td><td>${wl(x.vsW,x.vsG)}</td><td>${wl(x.wW,x.wG)}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+
+/* ---------- achievements ---------- */
+function achievementList(g){
+  const K=g.kda||{}, lol=replayOk(g), pick=(g.pickLabel||"pick").toLowerCase();
+  const st=(e,k)=>+(e.stats||{})[k]||0;
+  const A=[
+    {id:"first", icon:"🩸", name:"First Blood", desc:"Play your first match", ok:c=>c.n>=1},
+    {id:"win", icon:"🏆", name:"Winner Winner", desc:"Win a match", ok:c=>c.wins>=1},
+    {id:"s3", icon:"🔥", name:"Heating Up", desc:"Win 3 in a row", ok:c=>c.bestStreak>=3},
+    {id:"s5", icon:"🌋", name:"Unstoppable", desc:"Win 5 in a row", ok:c=>c.bestStreak>=5},
+    {id:"l3", icon:"🧊", name:"Ice Cold", desc:"Lose 3 in a row", ok:c=>c.worstStreak>=3},
+    {id:"mvp", icon:"👑", name:"MVP", desc:"Be MVP of a match", ok:c=>c.mvps>=1, need:()=>!!g.mvpStat},
+    {id:"mvp5", icon:"🐐", name:"GOAT", desc:"Be MVP 5 times", ok:c=>c.mvps>=5, need:()=>!!g.mvpStat},
+    {id:"k20", icon:"🎯", name:"Killing Spree", desc:"20+ kills in one game", ok:c=>c.list.some(x=>st(x.e,K.k)>=20), need:()=>!!g.kda},
+    {id:"d0", icon:"😇", name:"Untouchable", desc:"Win without dying once", ok:c=>c.list.some(x=>x.win&&st(x.e,K.d)===0&&K.d in (x.e.stats||{})), need:()=>!!g.kda},
+    {id:"d15", icon:"💀", name:"Professional Feeder", desc:"15+ deaths in one game", ok:c=>c.list.some(x=>st(x.e,K.d)>=15), need:()=>!!g.kda},
+    {id:"d100", icon:"⚰️", name:"Death Collector", desc:"100 deaths in total", ok:c=>c.list.reduce((t,x)=>t+st(x.e,K.d),0)>=100, need:()=>!!g.kda},
+    {id:"a30", icon:"🤝", name:"Team Player", desc:"30+ assists in one game", ok:c=>c.list.some(x=>st(x.e,K.a)>=30), need:()=>!!g.kda},
+    {id:"dmg", icon:"💥", name:"Big Hitter", desc:"40,000+ damage in one game", ok:c=>c.list.some(x=>st(x.e,g.dmgStat)>=40000), need:()=>!!g.dmgStat},
+    {id:"heal", icon:"🩹", name:"Field Medic", desc:"20,000+ healing in one game", ok:c=>c.list.some(x=>st(x.e,g.healStat)>=20000), need:()=>!!g.healStat},
+    {id:"tri", icon:"⚡", name:"Triple Threat", desc:"Get a triple kill", ok:c=>c.list.some(x=>+x.e.multi?.triple>0||+x.e.multi?.quadra>0||+x.e.multi?.penta>0), need:()=>!!g.multikills},
+    {id:"penta", icon:"🐉", name:"PENTAKILL", desc:"Get a pentakill", ok:c=>c.list.some(x=>+x.e.multi?.penta>0), need:()=>!!g.multikills},
+    {id:"pool", icon:"🎭", name:"Shapeshifter", desc:`Play 10 different ${pick}s`, ok:c=>new Set(c.list.map(x=>x.e.pick).filter(Boolean)).size>=10, need:()=>!!g.pickLabel},
+    {id:"vet", icon:"🧓", name:"Veteran", desc:"Play 25 matches", ok:c=>c.n>=25},
+    {id:"grey", icon:"🪦", name:"Grey Screen Regular", desc:"Spend 10 minutes dead in total", ok:c=>c.list.reduce((t,x)=>t+(+x.e.fun?.dead||0),0)>=600, need:()=>lol},
+    {id:"ping", icon:"📢", name:"Spam King", desc:"Send 100 pings in total", ok:c=>c.list.reduce((t,x)=>t+(+x.e.fun?.pings||0),0)>=100, need:()=>lol},
+    {id:"ff", icon:"🏳️", name:"White Flag", desc:"Be on a team that surrendered", ok:c=>c.list.some(x=>x.e.fun?.ff), need:()=>lol},
+    {id:"quit", icon:"🚪", name:"True Rage Quitter", desc:"Leave a game early", ok:c=>c.list.some(x=>x.e.fun?.left), need:()=>lol},
+  ];
+  return A.filter(a=>!a.need||a.need());
+}
+function achievementsFor(g,pid){
+  const ms=S.matches.filter(m=>m.game===S.gameId && (m.entries||[]).some(e=>e.pid===pid))
+    .sort((a,b)=>String(a.playedAt).localeCompare(String(b.playedAt)));
+  const list=ms.map(m=>{ const e=m.entries.find(x=>x.pid===pid); return {m,e,win:isWin(g,m,e),mvp:mvpOf(g,m)===pid}; });
+  let run=0,lrun=0,best=0,worst=0;
+  for(const x of list){ if(x.win){ run++; lrun=0; } else { lrun++; run=0; } best=Math.max(best,run); worst=Math.max(worst,lrun); }
+  const c={n:list.length, wins:list.filter(x=>x.win).length, mvps:list.filter(x=>x.mvp).length, bestStreak:best, worstStreak:worst, list};
+  return achievementList(g).map(a=>({...a, got:!!a.ok(c)}));
+}
+function achievementPanel(g,pid){
+  const as=achievementsFor(g,pid), got=as.filter(a=>a.got).length;
+  const tile=a=>`<div class="ach${a.got?" got":""}" title="${esc(a.desc)}"><span class="ach-i" aria-hidden="true">${a.got?a.icon:"🔒"}</span><span class="ach-n">${esc(a.name)}</span><span class="ach-d">${esc(a.desc)}</span></div>`;
+  return `<div><div class="panel-head" style="margin-bottom:8px"><h3>Achievements</h3><span class="ach-count num">${got} / ${as.length}</span></div>
+    ${got?`<div class="ach-grid">${as.filter(a=>a.got).map(tile).join("")}</div>`:`<p class="muted" style="margin:0">Nothing unlocked yet.</p>`}
+    ${got<as.length?`<details class="ach-more"><summary>${as.length-got} still locked</summary><div class="ach-grid">${as.filter(a=>!a.got).map(tile).join("")}</div></details>`:""}</div>`;
+}
+
+/* ---------- discord post ---------- */
+function plain(t){ return String(t||"").replace(/[*_~`|>\\]/g,""); }
+function announceText(g,m){
+  const L=[], nm=pid=>plain(pName(pid));
+  L.push(`🎮 **${plain(g.name)}** · ${fmtDate(m.playedAt)}${m.note?" · "+plain(m.note):""}`);
+  const es=m.entries||[];
+  if(g.format==="ffa"){
+    const r=[...es].sort((a,b)=>(+a.place||99)-(+b.place||99));
+    L.push(r.slice(0,3).map((e,i)=>`${["🥇","🥈","🥉"][i]} ${nm(e.pid)}`).join("   "));
+  } else if(m.winner){
+    const team=t=>es.filter(e=>e.team===t).map(e=>nm(e.pid)+(e.pick?` (${plain(e.pick)})`:"")).join(", ");
+    const lose=m.winner==="A"?"B":"A";
+    L.push(`🏆 **Team ${m.winner} wins**${team(m.winner)?": "+team(m.winner):""}`);
+    if(team(lose)) L.push(`💀 Team ${lose}: ${team(lose)}`);
+  }
+  const hl=headline(m).replace(/<[^>]+>/g,""); if(hl) L.push(`> ${plain(hl.replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&amp;/g,"&"))}`);
+  const mvp=mvpOf(g,m), me=es.find(e=>e.pid===mvp);
+  if(me && g.mvpStat){ const s=me.stats||{}; L.push(`👑 MVP: **${nm(mvp)}**${g.kda?` ${+s[g.kda.k]||0}/${+s[g.kda.d]||0}/${+s[g.kda.a]||0}`:""}${me.pick?" on "+plain(me.pick):""}`); }
+  for(const x of roastsFor(m,3)){ const c=roastCard(x); L.push(`${c.icon} **${c.title}**: ${nm(c.pid)}, ${c.fmt==="text"?c.text:fmtBig(c.num,c.fmt)} ${c.unit}`); }
+  const p=penaltyFor(g,m); if(p) L.push(`⚖️ **Penalty jar**: ${plain(p.text)}`);
+  L.push(`<${location.origin}${location.pathname}#matches>`);
+  return L.join("\n").slice(0,1900);
+}
+
+/* ---------- organiser settings ---------- */
+async function loadHook(){
+  if(!S.isAdmin || S.settingsOff || S.hookLoaded) return; S.hookLoaded=true;
+  const {data,error}=await S.sb.from("secrets").select("value").eq("key","discord_webhook").maybeSingle();
+  if(!error){ S.hookSet=!!data?.value; render(); }
+}
+function settingsPanel(){
+  if(!S.isAdmin) return "";
+  if(S.settingsOff) return `<section class="panel"><h2>Organiser settings</h2><p class="banner" style="margin:0">To switch on Discord posts and the penalty jar, run <b>supabase/003_discord_and_settings.sql</b> once in Supabase › SQL Editor, then reload this page.</p></section>`;
+  if(!S.hookLoaded) setTimeout(loadHook,0);
+  const on=penaltiesOn(), list=S.penDraft ?? penaltyList().join("\n");
+  return `<section class="panel"><h2>Organiser settings</h2>
+    <div class="set-row"><div class="set-txt"><b>Discord posts</b><span class="muted">Every saved match posts the result, MVP, roasts and penalty in your Discord channel.</span>
+      <span class="set-status ${S.hookSet?"ok":""}">${S.hookSet?"● Connected":"○ Not connected"}</span></div>
+      <div class="set-ctl"><input id="hook" data-bind="hookDraft" value="${esc(S.hookDraft||"")}" placeholder="Paste Discord webhook URL" autocomplete="off" spellcheck="false">
+        <div class="btn-row"><button class="btn small primary" data-act="save-hook">Save</button>${S.hookSet?`<button class="btn small" data-act="test-hook">Send test</button><button class="btn small danger" data-act="del-hook">Disconnect</button>`:""}</div>
+        <details class="how"><summary>Where do I get this?</summary>In Discord: Server Settings › Integrations › Webhooks › New Webhook. Pick the channel, then Copy Webhook URL and paste it here. Keep it private.</details></div></div>
+    <div class="set-row"><div class="set-txt"><b>Penalty jar</b><span class="muted">After each match, the loser with the worst game draws a forfeit. Shown on the match, in the ceremony and on Discord.</span></div>
+      <div class="set-ctl"><button class="switch${on?" on":""}" role="switch" aria-checked="${on}" data-act="toggle-pen"><i></i><span>${on?"On":"Off"}</span></button>
+        ${on?`<label class="field"><span class="label">Forfeits, one per line. {name} becomes the player.</span><textarea id="pen-list" rows="6" data-bind="penDraft">${esc(list)}</textarea></label>
+        <div class="btn-row"><button class="btn small primary" data-act="save-pen">Save forfeits</button><button class="btn small" data-act="reset-pen">Use the defaults</button></div>`:""}</div></div>
+  </section>`;
+}
+async function setSetting(key,value){
+  const {error}=await S.sb.from("app_settings").upsert({key,value}); if(error) throw error;
+  S.settings={...S.settings,[key]:value};
+}
+
 /* ---------- players ---------- */
 function playersTab(){
   const g=G(), mine=myPlayer();
@@ -1130,7 +1341,7 @@ function playerDetail(g,pid){
   const cabinet = tro.length ? `<div class="row-fields" style="align-items:center"><span class="label">Trophy cabinet</span>${tro.map(x=>x.penta?`<span class="tag penta">Pentakill</span>`:`<span class="tag trophy">${TROPHY_ICON}${esc(x.title)}</span>`).join("")}</div>` : "";
   const picksTbl = g.pickLabel && picks.length ? `<div><h3 style="margin-bottom:6px">${esc(g.pickLabel)} pool</h3><div class="tbl-wrap"><table><thead><tr><th class="l">${esc(g.pickLabel)}</th><th>Played</th><th>W</th><th>Win %</th></tr></thead><tbody>${picks.map(k=>`<tr><td class="l">${esc(k.name)}</td><td>${k.games}</td><td>${k.wins}</td><td>${pct(k.wins,k.games)}</td></tr>`).join("")}</tbody></table></div></div>` : "";
   const hist = `<div><h3 style="margin-bottom:6px">Recent matches</h3><div class="tbl-wrap"><table><thead><tr><th class="l">Date</th><th class="l">Result</th>${g.pickLabel?`<th class="l">${esc(g.pickLabel)}</th>`:""}<th>Stats</th><th>Pts</th></tr></thead><tbody>${ms.slice(0,10).map(m=>{const e=m.entries.find(x=>x.pid===pid); const mvp=mvpOf(g,m); const w=isWin(g,m,e); return `<tr><td class="l">${esc(fmtDate(m.playedAt))}</td><td class="l"><span class="tag ${w?"win":"loss"}">${g.format==="ffa"?"#"+(+e.place||"–"):(w?"Win":"Loss")}</span>${mvp===pid&&g.mvpStat?' <span class="tag mvp">MVP</span>':""}</td>${g.pickLabel?`<td class="l">${esc(e.pick||"")}</td>`:""}<td>${statLine(g,e.stats)}</td><td>${entryPoints(g,m,e,mvp)}</td></tr>`;}).join("")}</tbody></table></div></div>`;
-  return `<section class="panel">${head}<div class="tiles">${tiles.map(([l,v])=>`<div class="tile"><span class="label">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>${cabinet}${picksTbl}${augTbl}${hist}</section>`;
+  return `<section class="panel">${head}<div class="tiles">${tiles.map(([l,v])=>`<div class="tile"><span class="label">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>${cabinet}${achievementPanel(g,pid)}${rivalryPanel(g,pid)}${picksTbl}${augTbl}${hist}</section>`;
 }
 
 /* ---------- games ---------- */
@@ -1161,7 +1372,7 @@ function gamesTab(){
     </div>
     <div><button class="btn primary" data-act="add-game">Add game</button></div>
   </section>` : "";
-  return `<section class="panel"><h2>Games in the tournament</h2>${cards}</section>${addForm}`;
+  return `${settingsPanel()}<section class="panel"><h2>Games in the tournament</h2>${cards}</section>${addForm}`;
 }
 function gameFromForm(){
   const n=S.ng; const name=n.name.trim(); if(!name) return "Give the game a name.";
@@ -1212,6 +1423,15 @@ document.addEventListener("click", async e=>{
       const have=Object.keys(S.players).find(k=>S.players[k].tag.toLowerCase()===tag.toLowerCase());
       if(have){ r.pid=have; render(); break; }
       try{ const {data,error}=await S.sb.from("players").insert({tag, user_id:null}).select("id").single(); if(error) throw error; await loadAll(); r.pid=data.id; render(); toast(tag+" added to the roster"); }catch(err){ toast(writeError(err)); } break; }
+    case "save-hook": { const u=(S.hookDraft||"").trim();
+      if(!/^https:\/\/(ptb\.|canary\.)?discord(app)?\.com\/api\/webhooks\/\d+\/[\w-]+$/.test(u)){ toast("That doesn't look like a Discord webhook URL."); break; }
+      try{ const {error}=await S.sb.from("secrets").upsert({key:"discord_webhook",value:u}); if(error) throw error; S.hookSet=true; S.hookDraft=""; render(); toast("Discord connected. Try Send test."); }catch(err){ toast(writeError(err)); } break; }
+    case "test-hook": try{ const {error}=await S.sb.rpc("discord_test"); if(error) throw error; toast("Test sent. Check your Discord channel."); }catch(err){ toast(writeError(err)); } break;
+    case "del-hook": try{ const {error}=await S.sb.from("secrets").delete().eq("key","discord_webhook"); if(error) throw error; S.hookSet=false; render(); toast("Discord disconnected"); }catch(err){ toast(writeError(err)); } break;
+    case "toggle-pen": try{ await setSetting("penalties",{on:!penaltiesOn()}); render(); toast(penaltiesOn()?"Penalty jar is on":"Penalty jar is off"); }catch(err){ toast(writeError(err)); } break;
+    case "save-pen": { const items=String(S.penDraft ?? penaltyList().join("\n")).split("\n").map(x=>x.trim().slice(0,160)).filter(Boolean).slice(0,40);
+      try{ await setSetting("penalty_list",{items}); S.penDraft=null; render(); toast("Forfeits saved"); }catch(err){ toast(writeError(err)); } break; }
+    case "reset-pen": try{ await setSetting("penalty_list",{items:[]}); S.penDraft=null; render(); toast("Back to the default forfeits"); }catch(err){ toast(writeError(err)); } break;
     case "toggle-match": S.openMatch={...(S.openMatch||{}),[id]:!S.openMatch?.[id]}; render(); break;
     case "show": S.show={mid:id,i:0}; S._shown=""; document.body.style.overflow="hidden"; render(); break;
     case "show-next": showStep(1); break;
@@ -1225,7 +1445,10 @@ document.addEventListener("click", async e=>{
     case "save-match": {
       const doc=buildMatch(); if(typeof doc==="string"){ S.formErr=doc; render(); break; }
       S.busy=true; S.formErr=""; render();
-      try{ const {error}=await S.sb.from("matches").insert({game:doc.game, season:doc.season, played_at:doc.playedAt, winner:doc.winner||null, note:doc.note||null, entries:doc.entries, logged_by:S.me.id}); if(error) throw error; S.form=null; await loadAll(); toast("Match saved"); }
+      try{ const mid=uuid4(); const row={game:doc.game, season:doc.season, played_at:doc.playedAt, winner:doc.winner||null, note:doc.note||null, entries:doc.entries, logged_by:S.me.id};
+        if(mid) row.id=mid;
+        if(!S.settingsOff && mid) row.announce=announceText(S.games[doc.game], {...doc, id:mid});
+        const {error}=await S.sb.from("matches").insert(row); if(error) throw error; S.form=null; await loadAll(); toast("Match saved"); }
       catch(err){ S.formErr=writeError(err); }
       S.busy=false; render(); break; }
     case "ask-del": S.confirmDel=id; render(); break;
@@ -1267,6 +1490,7 @@ async function loadAll(){
   S.games=Object.fromEntries(g.data.map(r=>[r.id,r.config||{}]));
   S.players=Object.fromEntries(p.data.map(r=>[r.id,{tag:r.tag,uid:r.user_id,approved:r.approved,avatar:r.avatar}]));
   if(!S.commentsOff){ const c=await S.sb.from("comments").select("id,match_id,author,body,created_at").order("created_at",{ascending:true}).limit(5000); if(c.error) S.commentsOff=true; else S.comments=c.data; }
+  if(!S.settingsOff){ const st=await S.sb.from("app_settings").select("key,value"); if(st.error) S.settingsOff=true; else S.settings=Object.fromEntries(st.data.map(r=>[r.key,r.value])); }
   S.matches=m.data.map(r=>({id:r.id,game:r.game,season:r.season,playedAt:r.played_at,winner:r.winner,note:r.note,entries:r.entries||[]}));
   if(!S.gameId || !S.games[S.gameId]){ const first=Object.entries(S.games).sort((a,b)=>(a[1].order||0)-(b[1].order||0))[0]; S.gameId=first?first[0]:null; }
   S.ready=true; computeAccess(); render();
@@ -1302,6 +1526,7 @@ render();
     .on("postgres_changes",{event:"*",schema:"public",table:"players"},refresh)
     .on("postgres_changes",{event:"*",schema:"public",table:"matches"},refresh)
     .on("postgres_changes",{event:"*",schema:"public",table:"comments"},refresh)
+    .on("postgres_changes",{event:"*",schema:"public",table:"app_settings"},refresh)
     .subscribe();
 })();
 </script>

@@ -37,6 +37,15 @@ If you set the database up before trash talk existed, run `supabase/002_trash_ta
 
 On the Matches tab, press **Upload replay** and choose the game's `.rofl` file. The League client saves these in `Documents/League of Legends/Replays` (download one from Match History if it isn't there). The site reads the end-of-game stats in your browser: champions, teams, the winner, K/D/A, damage, healing, multikills and augments. Pick which friend is which in-game name, check the form, and save. Next time it remembers who's who. Nothing from the replay is uploaded apart from the match you save.
 
+## Discord posts and the penalty jar
+
+1. In Supabase › SQL Editor, paste all of `supabase/003_discord_and_settings.sql` and press Run (it also sets up trash talk, so 002 isn't needed).
+2. In Discord: Server Settings › Integrations › Webhooks › New Webhook, pick the channel, Copy Webhook URL.
+3. On the site, Games tab › Organiser settings: paste the URL, Save, then Send test.
+4. Flip the Penalty jar switch on or off there, and edit the forfeits if you like.
+
+The webhook is stored where only the organiser can read it, and the database does the posting, so friends never see it.
+
 ## How scoring works
 - Win 3 points, loss 0, and +1 for the match MVP (highest KDA).
 - Each year is its own tournament; there is also an "All time" view.
