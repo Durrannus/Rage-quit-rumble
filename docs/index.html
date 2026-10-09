@@ -105,6 +105,17 @@ td.pts{font-family:var(--display);font-weight:700;font-size:1.05rem}
 .tag.mvp{background:var(--gold-soft);color:var(--gold)}
 .tag.win{background:var(--win-soft);color:var(--win)}
 .tag.loss{background:var(--loss-soft);color:var(--loss)}
+.tag.trophy{background:var(--gold-soft);color:var(--gold);display:inline-flex;align-items:center;gap:3px}
+.tag.penta{background:var(--loss-soft);color:var(--loss)}
+.augs{font-size:.8rem;color:var(--muted);padding-left:34px;margin-top:-3px}
+.talk{border-top:1px solid var(--line);padding-top:8px;display:grid;gap:6px}
+.talk-line{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;min-width:0}
+.talk-line .body{min-width:0;overflow-wrap:anywhere}
+.talk-line .x{margin-left:auto;font-size:.8rem}
+.talk-form{display:flex;gap:6px}
+.talk-form input{flex:1 1 auto}
+.hof{display:grid;gap:4px}
+.mini th,.mini td{padding:5px 6px;font-size:.88rem}
 .tag.you{background:var(--accent-soft);color:var(--accent)}
 
 /* records */
@@ -124,7 +135,7 @@ td.pts{font-family:var(--display);font-weight:700;font-size:1.05rem}
 .side{display:grid;gap:4px;min-width:0}
 .side h3{display:flex;gap:8px;align-items:center}
 .line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;font-size:.92rem;padding:3px 0}
-.line .who2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.line .who2{min-width:0;overflow-wrap:anywhere}
 .line .pick{color:var(--muted)}
 
 /* log form */
@@ -176,6 +187,10 @@ td.pts{font-family:var(--display);font-weight:700;font-size:1.05rem}
 <script src="config.js"></script>
 <script>
 const TEMPLATES = {
+  aram: { name:"ARAM Mayhem", short:"ARAM", format:"teams", teamSize:5, pickLabel:"Champion",
+    stats:[{key:"k",label:"Kills"},{key:"d",label:"Deaths"},{key:"a",label:"Assists"},{key:"dmg",label:"Damage"},{key:"heal",label:"Healing"}],
+    kda:{k:"k",d:"d",a:"a"}, shameStat:"d", mvpStat:"kda", dmgStat:"dmg", healStat:"heal", augments:true, multikills:true,
+    points:{win:3,loss:0,mvp:1,multi:{triple:1,quadra:2,penta:3}} },
   lol: { name:"League of Legends", short:"LoL", format:"teams", teamSize:5, pickLabel:"Champion",
     stats:[{key:"k",label:"Kills"},{key:"d",label:"Deaths"},{key:"a",label:"Assists"},{key:"cs",label:"CS"}],
     kda:{k:"k",d:"d",a:"a"}, shameStat:"d", mvpStat:"kda", points:{win:3,loss:0,mvp:1} },
@@ -190,12 +205,14 @@ const TEMPLATES = {
     points:{placements:[10,7,5,3,2,1],mvp:0} }
 };
 const DISCORD_ICON = '<svg width="18" height="14" viewBox="0 0 71 55" aria-hidden="true"><path fill="currentColor" d="M60.1 4.9A58.5 58.5 0 0 0 45.6.4a40 40 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A39 39 0 0 0 25.8.4 58.4 58.4 0 0 0 11.2 4.9C2 18.7-.5 32.2.7 45.5a58.8 58.8 0 0 0 18 9.1 43 43 0 0 0 3.8-6.2 38 38 0 0 1-6-2.9l1.5-1.1a42 42 0 0 0 35.9 0l1.5 1.1a38 38 0 0 1-6 2.9 43 43 0 0 0 3.8 6.2 58.6 58.6 0 0 0 18-9.1c1.5-15.4-2.5-28.8-10.6-40.6ZM23.7 37.3c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.5 3.3 6.4 7.2c0 4-2.8 7.2-6.4 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2 6.5 3.3 6.4 7.2c0 4-2.8 7.2-6.4 7.2Z"/></svg>';
+const MULTI = [["triple","Triple"],["quadra","Quadra"],["penta","Penta"]];
+const TROPHY_ICON = '<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 2h10v2h4v3a5 5 0 0 1-4.6 5A5 5 0 0 1 13 15.9V19h4v3H7v-3h4v-3.1A5 5 0 0 1 7.6 12 5 5 0 0 1 3 7V4h4V2Zm0 4H5v1a3 3 0 0 0 2 2.8V6Zm10 0v3.8A3 3 0 0 0 19 7V6h-2Z"/></svg>';
 const TABS = [["standings","Standings"],["matches","Matches"],["players","Players"],["games","Games"]];
 const YEAR = String(new Date().getFullYear());
 const S = {
   sb:null, me:null, isAdmin:false, canWrite:false, authReady:false, ready:false, noDb:false,
   games:{}, players:{}, matches:[], loaded:{games:false,players:false,matches:false},
-  profiles:{}, gameId:null, season:YEAR, tab:"standings", viewPlayer:null,
+  profiles:{}, comments:[], commentsOff:false, cdraft:{}, confirmGameDel:null, gameId:null, season:YEAR, tab:"standings", viewPlayer:null,
   form:null, formErr:"", confirmDel:null, busy:false,
   join:{tag:""}, addp:{tag:""}, editTag:null,
   ng:{name:"",format:"teams",teamSize:"5",pickLabel:"",stats:"",shame:"",mvp:"",win:"3",loss:"0",mvpPts:"1",placements:"10,7,5,3,2,1"}
@@ -205,7 +222,8 @@ try{ const h=location.hash.slice(1); if(TABS.some(t=>t[0]===h)) S.tab=h; }catch(
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const today = () => { const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
-const fmt1 = n => (Math.round(n*10)/10).toFixed(1);
+const fmt1 = n => Math.abs(n)>=1000 ? Math.round(n).toLocaleString() : (Math.round(n*10)/10).toFixed(1);
+const big = n => (+n||0).toLocaleString();
 const pct = (a,b) => b ? Math.round(100*a/b)+"%" : "–";
 const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40) || "x";
 const fmtDate = iso => { try{ return new Date(iso).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}); }catch(e){ return iso; } };
@@ -232,12 +250,13 @@ function entryPoints(g,m,e,mvp){
   if(g.format==="ffa") pts=(p.placements||[])[(+e.place||0)-1]||0;
   else pts = e.team===m.winner ? (p.win??3) : (p.loss??0);
   if(mvp && mvp===e.pid) pts += (p.mvp??0);
+  if(g.multikills && p.multi) for(const [k] of MULTI) pts += (+(e.multi||{})[k]||0)*(+p.multi[k]||0);
   return pts;
 }
 function filtered(){ return S.matches.filter(m=>m.game===S.gameId && (S.season==="all"||m.season===S.season)); }
 function aggregate(g, ms){
   const T={};
-  const row = pid => T[pid] ??= {pid,games:0,wins:0,losses:0,pts:0,mvps:0,sums:{},picks:{},form:[],placeSum:0};
+  const row = pid => T[pid] ??= {pid,games:0,wins:0,losses:0,pts:0,mvps:0,sums:{},picks:{},form:[],placeSum:0,multi:{},augs:{}};
   for(const m of ms){
     const mvp=mvpOf(g,m);
     for(const e of m.entries||[]){
@@ -248,6 +267,8 @@ function aggregate(g, ms){
       if(e.pick){ const k=e.pick.trim().toLowerCase(); const pk=r.picks[k] ??= {name:e.pick.trim(),games:0,wins:0,pts:0}; pk.games++; if(w) pk.wins++; }
       if(r.form.length<5) r.form.push(w);
       if(g.format==="ffa") r.placeSum += +e.place||0;
+      for(const [k] of MULTI) r.multi[k]=(r.multi[k]||0)+(+(e.multi||{})[k]||0);
+      for(const a of e.augments||[]){ const k=a.toLowerCase(); const x=r.augs[k] ??= {name:a,games:0,wins:0}; x.games++; if(w) x.wins++; }
     }
   }
   const list=Object.values(T);
@@ -262,7 +283,8 @@ function records(g, ms){
     for(const m of ms) for(const e of m.entries||[]){ const v=+(e.stats||{})[st.key]||0; if(!best||v>best.v) best={v,pid:e.pid,m,pick:e.pick}; }
     if(best && best.v>0){
       const shame = st.key===g.shameStat;
-      out.push({...best, shame, title: shame ? "Rage quit award" : "Most "+lc(st.label), sub: shame ? `Most ${lc(st.label)} in one game` : "In one game", value:String(best.v)});
+      const heal = st.key===g.healStat;
+      out.push({...best, shame, title: shame ? "Rage quit award" : heal ? "Healbot" : "Most "+lc(st.label), sub: shame ? `Most ${lc(st.label)} in one game` : heal ? `Most ${lc(st.label)} in one game` : "In one game", value:best.v.toLocaleString()});
     }
   }
   if(g.kda){
@@ -270,7 +292,54 @@ function records(g, ms){
     for(const m of ms) for(const e of m.entries||[]){ const v=kdaVal(g,e.stats||{}); if(!best||v>best.v) best={v,pid:e.pid,m,pick:e.pick}; }
     if(best && best.v>0) out.unshift({...best, title:"Best KDA", sub:"In one game", value:fmt1(best.v)});
   }
+  if(g.dmgStat){
+    const dk=g.dmgStat, de=g.kda?.d||g.shameStat;
+    let glass=null, paci=null;
+    for(const m of ms){
+      const es=m.entries||[]; if(!es.length) continue;
+      const top=es.reduce((a,b)=>(+(b.stats||{})[dk]||0)>(+(a.stats||{})[dk]||0)?b:a);
+      const maxD=Math.max(...es.map(e=>+(e.stats||{})[de]||0));
+      const v=+(top.stats||{})[dk]||0;
+      if(de && v>0 && maxD>0 && (+(top.stats||{})[de]||0)===maxD && (!glass||v>glass.v)) glass={v,pid:top.pid,m,pick:top.pick};
+      for(const e of es){ const d=+(e.stats||{})[dk]||0; if(d>0 && (!paci||d<paci.v)) paci={v:d,pid:e.pid,m,pick:e.pick}; }
+    }
+    if(glass) out.push({...glass, title:"Glass Cannon", sub:"Top damage and most deaths in the same game", value:glass.v.toLocaleString()});
+    if(paci) out.push({...paci, title:"Pacifist", sub:"Lowest damage in one game", value:paci.v.toLocaleString()});
+  }
+  if(g.pickLabel){
+    const seen={}; for(const m of ms) for(const e of m.entries||[]) if(e.pick){ (seen[e.pid] ??= new Set()).add(e.pick.trim().toLowerCase()); }
+    let best=null; for(const [pid,set] of Object.entries(seen)) if(!best||set.size>best.v) best={v:set.size,pid};
+    if(best && best.v>1){ const last=ms.find(m=>(m.entries||[]).some(e=>e.pid===best.pid)); out.push({...best, m:last, title:"Champion Roulette", sub:`Different ${lc(g.pickLabel)}s played`, value:String(best.v), noDate:true}); }
+  }
   const shame=out.filter(r=>r.shame); return out.filter(r=>!r.shame).concat(shame);
+}
+function augmentStats(ms){
+  const A={};
+  for(const m of ms) for(const e of m.entries||[]) for(const a of e.augments||[]){
+    const k=a.toLowerCase(); const x=A[k] ??= {name:a,games:0,wins:0}; x.games++; if(e.team===m.winner || +e.place===1) x.wins++;
+  }
+  return Object.values(A);
+}
+function pentas(ms){
+  const out=[]; for(const m of ms) for(const e of m.entries||[]){ const n=+(e.multi||{}).penta||0; if(n>0) out.push({pid:e.pid,pick:e.pick,m,n}); }
+  return out;
+}
+/* trophies: winner of each finished tournament, per game */
+function trophies(){
+  const T={};
+  for(const [gid,g] of Object.entries(S.games)){
+    const seasons=[...new Set(S.matches.filter(m=>m.game===gid).map(m=>m.season))].filter(se=>/^\d{4}$/.test(se) && se<YEAR);
+    for(const se of seasons){
+      const top=aggregate(g, S.matches.filter(m=>m.game===gid && m.season===se))[0];
+      if(top) (T[top.pid] ??= []).push({label:se, title:`${se} ${g.name} champion`});
+    }
+  }
+  for(const m of S.matches){ const g=S.games[m.game]; if(!g?.multikills) continue; for(const e of m.entries||[]) if(+(e.multi||{}).penta>0){ const t=(T[e.pid] ??= []); if(!t.some(x=>x.penta)) t.push({penta:true,label:"Penta",title:"Has a pentakill"}); } }
+  return T;
+}
+function badges(pid){
+  const t=(S._trophies||{})[pid]; if(!t) return "";
+  return t.map(x=>x.penta?`<span class="tag penta" title="${esc(x.title)}">Penta</span>`:`<span class="tag trophy" title="${esc(x.title)}">${TROPHY_ICON}${esc(x.label)}</span>`).join(" ");
 }
 
 /* ---------- people ---------- */
@@ -282,7 +351,7 @@ function avatar(pid, cls="av"){
   const t=((p?.tag||"?").trim()[0]||"?").toUpperCase();
   return `<span class="${cls} av-txt">${esc(t)}</span>`;
 }
-function plLink(pid){ return `<span class="pl">${avatar(pid)}<button data-act="view-player" data-pid="${esc(pid)}">${esc(pName(pid))}</button>${pid===myPlayer()?' <span class="tag you">You</span>':""}</span>`; }
+function plLink(pid){ return `<span class="pl">${avatar(pid)}<button data-act="view-player" data-pid="${esc(pid)}">${esc(pName(pid))}</button>${pid===myPlayer()?' <span class="tag you">You</span>':""}${badges(pid)?" "+badges(pid):""}</span>`; }
 function computeAccess(){
   const mine=myPlayer();
   S.canWrite = S.isAdmin || !!(mine && S.players[mine].approved);
@@ -292,6 +361,7 @@ function computeAccess(){
 function render(){
   const app=$("#app"); if(!app) return;
   const a=document.activeElement, aid=a&&a.id, sel=(a&&"selectionStart" in a)?[a.selectionStart,a.selectionEnd]:null;
+  S._trophies = S.ready ? trophies() : {};
   app.innerHTML = header() + body();
   if(aid){ const el=document.getElementById(aid); if(el){ el.focus({preventScroll:true}); if(sel && el.setSelectionRange){ try{ el.setSelectionRange(sel[0],sel[1]); }catch(e){} } } }
 }
@@ -321,7 +391,7 @@ function body(){
   else if(mine && !S.players[mine].approved && !S.isAdmin) banner=`<div class="banner"><span>You're on the roster. The organiser needs to approve you before you can log matches.</span></div>`;
   else if(S.isAdmin){ const n=Object.values(S.players).filter(p=>p.uid&&!p.approved).length; if(n && S.tab!=="players") banner=`<div class="banner"><span>${n} player${n===1?" is":"s are"} waiting for your approval.</span><button class="btn primary small" data-act="tab" data-id="players">Review</button></div>`; }
   const g=G();
-  if(!g && S.tab!=="games") return banner+`<div class="panel empty"><h2>No games set up yet</h2><p>Add the first game for this year's tournament.</p>${S.isAdmin?`<button class="btn primary" data-act="tpl" data-id="lol">Add League of Legends</button>`:""}</div>`;
+  if(!g && S.tab!=="games") return banner+`<div class="panel empty"><h2>No games set up yet</h2><p>Add the first game for this year's tournament.</p>${S.isAdmin?`<button class="btn primary" data-act="tpl" data-id="aram">Add ARAM Mayhem</button>`:""}</div>`;
   return banner + ({standings,matches:matchesTab,players:playersTab,games:gamesTab}[S.tab])();
 }
 
@@ -336,18 +406,27 @@ function standings(){
   const recs=records(g,ms);
   const p=g.points||{};
   const rules = ffa ? `Points by finishing place: ${(p.placements||[]).map((v,i)=>`${i+1}${["st","nd","rd"][i]||"th"} ${v}`).join(", ")}.` : `Win ${p.win??3} pts, loss ${p.loss??0}.`;
-  const mvpRule = g.mvpStat && p.mvp ? ` MVP (highest ${g.mvpStat==="kda"?"KDA":esc(statLabel(g,g.mvpStat))} in the match) gets +${p.mvp}.` : "";
+  const mvpRule = (g.mvpStat && p.mvp ? ` MVP (highest ${g.mvpStat==="kda"?"KDA":esc(statLabel(g,g.mvpStat))} in the match) gets +${p.mvp}.` : "")
+    + (g.multikills && p.multi ? ` Triple kill +${p.multi.triple||0}, quadra +${p.multi.quadra||0}, penta +${p.multi.penta||0}.` : "");
+  const ps = g.multikills ? pentas(ms) : [];
+  const hof = g.multikills ? `<section class="panel"><h2>Pentakill Hall of Fame</h2>${ps.length?`<div class="hof">${ps.map(x=>`<div class="line"><span class="who2">${plLink(x.pid)} ${x.pick?`<span class="pick">${esc(x.pick)}</span>`:""}${x.n>1?` <b>×${x.n}</b>`:""}</span><span class="muted">${esc(fmtDate(x.m.playedAt))}</span></div>`).join("")}</div>`:`<p class="muted" style="margin:0">No pentakills yet. Somebody get one.</p>`}</section>` : "";
+  const aug = g.augments ? augmentStats(ms) : [];
+  const augPanel = g.augments ? `<section class="panel"><h2>Augments</h2>${aug.length?(()=>{
+      const top=[...aug].sort((a,b)=>b.games-a.games||b.wins/b.games-a.wins/a.games).slice(0,8);
+      const cursed=aug.filter(a=>a.games>=2).sort((a,b)=>a.wins/a.games-b.wins/b.games||b.games-a.games)[0];
+      return `<div class="tbl-wrap"><table class="mini"><thead><tr><th class="l">Augment</th><th>Picked</th><th>Win %</th></tr></thead><tbody>${top.map(a=>`<tr><td class="l">${esc(a.name)}</td><td>${a.games}</td><td>${pct(a.wins,a.games)}</td></tr>`).join("")}</tbody></table></div>${cursed&&cursed.wins/cursed.games<.5?`<p style="margin:0"><span class="tag loss">Cursed</span> ${esc(cursed.name)} has won ${pct(cursed.wins,cursed.games)} of ${cursed.games} games.</p>`:""}`;
+    })():`<p class="muted" style="margin:0">Log augments with each match to see which ones win.</p>`}</section>` : "";
   return `<div class="grid2">
     <section class="panel"><div class="panel-head"><h2>${esc(g.name)} standings</h2><span class="muted num">${ms.length} match${ms.length===1?"":"es"} · ${esc(seasonTxt)}</span></div>${table}<p class="muted" style="margin:0;font-size:.85rem">${rules}${mvpRule}</p></section>
-    <section class="panel"><h2>Records</h2><div class="records">${recs.length?recs.map(r=>`<div class="rec${r.shame?" shame":""}"><span class="big num">${esc(r.value)}</span><span class="what"><b>${esc(r.title)}</b><span>${esc(pName(r.pid))}${r.pick?" · "+esc(r.pick):""} · ${esc(fmtDate(r.m.playedAt))}</span></span>${avatar(r.pid)}</div>`).join(""):`<p class="muted">Records appear once matches have stats.</p>`}</div></section>
-  </div>`;
+    <section class="panel"><h2>Records</h2><div class="records">${recs.length?recs.map(r=>`<div class="rec${r.shame?" shame":""}"><span class="big num">${esc(r.value)}</span><span class="what"><b>${esc(r.title)}</b><span>${esc(pName(r.pid))}${r.pick&&!r.noDate?" · "+esc(r.pick):""}${r.noDate?" · "+esc(r.sub):" · "+esc(fmtDate(r.m.playedAt))}</span></span>${avatar(r.pid)}</div>`).join(""):`<p class="muted">Records appear once matches have stats.</p>`}</div></section>
+  </div>${hof||augPanel?`<div class="grid2" style="margin-top:20px">${augPanel||"<div></div>"}${hof}</div>`:""}`;
 }
 const lc = l => l===l.toUpperCase() ? l : l.toLowerCase();
 function statLabel(g,key){ return (g.stats||[]).find(s=>s.key===key)?.label || key; }
 function statLine(g,s){
   s=s||{};
-  if(g.kda) { const rest=(g.stats||[]).filter(st=>![g.kda.k,g.kda.d,g.kda.a].includes(st.key)); return `${+s[g.kda.k]||0}/${+s[g.kda.d]||0}/${+s[g.kda.a]||0}`+rest.map(st=>` · ${+s[st.key]||0} ${esc(st.label)}`).join(""); }
-  return (g.stats||[]).map(st=>`${+s[st.key]||0} ${esc(st.label)}`).join(" · ");
+  if(g.kda) { const rest=(g.stats||[]).filter(st=>![g.kda.k,g.kda.d,g.kda.a].includes(st.key)); return `${+s[g.kda.k]||0}/${+s[g.kda.d]||0}/${+s[g.kda.a]||0}`+rest.map(st=>` · ${big(s[st.key])} ${esc(st.label)}`).join(""); }
+  return (g.stats||[]).map(st=>`${big(s[st.key])} ${esc(st.label)}`).join(" · ");
 }
 
 function matchesTab(){
@@ -358,7 +437,8 @@ function matchesTab(){
 }
 function matchCard(g,m){
   const mvp=mvpOf(g,m);
-  const entry = e => `<div class="line"><span class="who2">${plLink(e.pid)} ${e.pick?`<span class="pick">${esc(e.pick)}</span>`:""} ${mvp===e.pid&&g.mvpStat?'<span class="tag mvp">MVP</span>':""}</span><span class="num muted">${statLine(g,e.stats)}</span></div>`;
+  const mk = e => MULTI.filter(([k])=>+(e.multi||{})[k]>0).map(([k,l])=>` <span class="tag ${k==="penta"?"penta":"mvp"}">${l}${+e.multi[k]>1?" ×"+(+e.multi[k]):""}</span>`).join("");
+  const entry = e => `<div><div class="line"><span class="who2">${plLink(e.pid)} ${e.pick?`<span class="pick">${esc(e.pick)}</span>`:""} ${mvp===e.pid&&g.mvpStat?'<span class="tag mvp">MVP</span>':""}${mk(e)}</span><span class="num muted">${statLine(g,e.stats)}</span></div>${(e.augments||[]).length?`<div class="augs">${e.augments.map(esc).join(" · ")}</div>`:""}</div>`;
   let sides;
   if(g.format==="ffa"){
     const es=[...(m.entries||[])].sort((a,b)=>(+a.place||99)-(+b.place||99));
@@ -367,30 +447,42 @@ function matchCard(g,m){
     sides = `<div class="sides">${["A","B"].map(t=>`<div class="side"><h3>Team ${t} ${m.winner===t?'<span class="tag win">Won</span>':'<span class="tag loss">Lost</span>'}</h3>${(m.entries||[]).filter(e=>e.team===t).map(entry).join("")}</div>`).join("")}</div>`;
   }
   const del = S.canWrite ? (S.confirmDel===m.id ? `<span><button class="btn danger small" data-act="del-match" data-id="${esc(m.id)}">Delete match</button> <button class="btn small" data-act="cancel-del">Keep</button></span>` : `<button class="link" data-act="ask-del" data-id="${esc(m.id)}">Delete</button>`) : "";
-  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${sides}</article>`;
+  return `<article class="match"><div class="match-head"><span><b>${esc(fmtDate(m.playedAt))}</b>${m.note?` <span class="muted">· ${esc(m.note)}</span>`:""}</span>${del}</div>${sides}${talk(m)}</article>`;
+}
+function talkAuthor(uid){ const pid=Object.keys(S.players).find(id=>S.players[id].uid===uid); return pid; }
+function talk(m){
+  if(S.commentsOff) return "";
+  const cs=S.comments.filter(c=>c.match_id===m.id);
+  if(!cs.length && !S.canWrite) return "";
+  const lines=cs.map(c=>{ const pid=talkAuthor(c.author); const mine=S.me?.id===c.author;
+    return `<div class="talk-line">${pid?avatar(pid):'<span class="av av-txt">?</span>'}<span class="body"><b>${esc(pid?pName(pid):"Someone")}</b> ${esc(c.body)}</span>${mine||S.isAdmin?`<button class="link x" data-act="del-talk" data-id="${esc(c.id)}">Delete</button>`:""}</div>`; }).join("");
+  const form = S.canWrite ? `<div class="talk-form"><input id="c-${esc(m.id)}" data-bind="cdraft.${esc(m.id)}" value="${esc(S.cdraft[m.id]||"")}" maxlength="280" placeholder="Talk some trash…" aria-label="Comment on this match"><button class="btn small" data-act="post-talk" data-id="${esc(m.id)}">Post</button></div>` : "";
+  return `<div class="talk">${lines}${form}</div>`;
 }
 
 /* ---------- log form ---------- */
 function newForm(){
   const g=G(), n=Math.max(1,Math.min(20,+g.teamSize||5));
   const rows=[];
-  if(g.format==="ffa") for(let i=0;i<Math.min(n,8);i++) rows.push({side:"",pid:"",pick:"",place:String(i+1),stats:{}});
-  else for(const side of ["A","B"]) for(let i=0;i<n;i++) rows.push({side,pid:"",pick:"",place:"",stats:{}});
+  if(g.format==="ffa") for(let i=0;i<Math.min(n,8);i++) rows.push({side:"",pid:"",pick:"",place:String(i+1),stats:{},augments:"",multi:{}});
+  else for(const side of ["A","B"]) for(let i=0;i<n;i++) rows.push({side,pid:"",pick:"",place:"",stats:{},augments:"",multi:{}});
   const me=myPlayer(); if(me) rows[0].pid=me;
   return {game:S.gameId, season:S.season==="all"?YEAR:S.season, date:today(), winner:"A", note:"", rows};
 }
 function logForm(){
   const g=S.games[S.form.game]||G(), f=S.form;
   const opts = sel => `<option value="">Choose player…</option>`+Object.entries(S.players).sort((a,b)=>a[1].tag.localeCompare(b[1].tag)).map(([id,p])=>`<option value="${esc(id)}"${id===sel?" selected":""}>${esc(p.tag)}</option>`).join("");
-  const cols = `minmax(130px,1.6fr) ${g.pickLabel?"minmax(100px,1.2fr) ":""}${g.format==="ffa"?"64px ":""}${(g.stats||[]).map(()=>"minmax(54px,.6fr)").join(" ")}`;
-  const head = `<div class="roster-row roster-head" style="grid-template-columns:${cols}"><span>Player</span>${g.pickLabel?`<span>${esc(g.pickLabel)}</span>`:""}${g.format==="ffa"?"<span>Place</span>":""}${(g.stats||[]).map(s=>`<span>${esc(s.label)}</span>`).join("")}</div>`;
+  const cols = `minmax(130px,1.6fr) ${g.pickLabel?"minmax(100px,1.2fr) ":""}${g.format==="ffa"?"64px ":""}${(g.stats||[]).map(s=>s.key===g.dmgStat||s.key===g.healStat?"minmax(72px,.8fr)":"minmax(54px,.6fr)").join(" ")}${g.multikills?" 54px 54px 54px":""}${g.augments?" minmax(180px,2fr)":""}`;
+  const head = `<div class="roster-row roster-head" style="grid-template-columns:${cols}"><span>Player</span>${g.pickLabel?`<span>${esc(g.pickLabel)}</span>`:""}${g.format==="ffa"?"<span>Place</span>":""}${(g.stats||[]).map(s=>`<span>${esc(s.label)}</span>`).join("")}${g.multikills?MULTI.map(([,l])=>`<span>${l}</span>`).join(""):""}${g.augments?"<span>Augments (comma separated)</span>":""}</div>`;
   const rowHtml = (r,i) => `<div class="roster-row" style="grid-template-columns:${cols}">
       <select id="f-${i}-pid" data-bind="form.rows.${i}.pid" aria-label="Player">${opts(r.pid)}</select>
       ${g.pickLabel?`<input id="f-${i}-pick" data-bind="form.rows.${i}.pick" value="${esc(r.pick)}" placeholder="${esc(g.pickLabel)}" aria-label="${esc(g.pickLabel)}">`:""}
       ${g.format==="ffa"?`<input id="f-${i}-place" type="number" min="1" inputmode="numeric" data-bind="form.rows.${i}.place" value="${esc(r.place)}" aria-label="Place">`:""}
       ${(g.stats||[]).map(s=>`<input id="f-${i}-${esc(s.key)}" type="number" min="0" inputmode="numeric" data-bind="form.rows.${i}.stats.${esc(s.key)}" value="${esc(r.stats[s.key]??"")}" placeholder="0" aria-label="${esc(s.label)}">`).join("")}
+      ${g.multikills?MULTI.map(([k,l])=>`<input id="f-${i}-m-${k}" type="number" min="0" inputmode="numeric" data-bind="form.rows.${i}.multi.${k}" value="${esc(r.multi?.[k]??"")}" placeholder="0" aria-label="${l} kills">`).join(""):""}
+      ${g.augments?`<input id="f-${i}-aug" data-bind="form.rows.${i}.augments" value="${esc(r.augments||"")}" placeholder="e.g. Tank Engine, Goliath" aria-label="Augments">`:""}
     </div>`;
-  const rosterScroll = inner => `<div class="tbl-wrap"><div class="roster" style="min-width:${(g.pickLabel?240:130)+(g.format==="ffa"?70:0)+(g.stats||[]).length*62}px">${inner}</div></div>`;
+  const rosterScroll = inner => `<div class="tbl-wrap"><div class="roster" style="min-width:${(g.pickLabel?240:130)+(g.format==="ffa"?70:0)+(g.stats||[]).length*72+(g.multikills?180:0)+(g.augments?190:0)}px">${inner}</div></div>`;
   let roster;
   if(g.format==="ffa"){
     roster = `<div class="team-block">${rosterScroll(head+f.rows.map(rowHtml).join(""))}<div><button class="btn small" data-act="add-row" data-side="">Add player</button></div></div>`;
@@ -398,7 +490,7 @@ function logForm(){
     roster = ["A","B"].map(t=>`<div class="team-block${f.winner===t?" won":""}"><div class="panel-head"><h3>Team ${t}</h3><label class="radio"><input type="radio" name="winner" id="f-win-${t}" data-act="winner" value="${t}"${f.winner===t?" checked":""}> Won this match</label></div>
       ${rosterScroll(head+f.rows.map((r,i)=>r.side===t?rowHtml(r,i):"").join(""))}<div><button class="btn small" data-act="add-row" data-side="${t}">Add player</button></div></div>`).join("");
   }
-  return `<section class="panel logform"><div class="panel-head"><h2>Log a ${esc(g.name)} match</h2><button class="btn small" data-act="cancel-form">Cancel</button></div>
+  return `<section class="panel logform"><div class="panel-head"><h2>New ${esc(g.name)} match</h2><button class="btn small" data-act="cancel-form">Cancel</button></div>
     <div class="row-fields">
       <label class="field"><span class="label">Date played</span><input id="f-date" type="date" data-bind="form.date" value="${esc(f.date)}"></label>
       <label class="field"><span class="label">Tournament</span><input id="f-season" data-bind="form.season" value="${esc(f.season)}" style="width:7em"></label>
@@ -425,6 +517,8 @@ function buildMatch(){
     if(g.format==="ffa") e.place=+r.place; else e.team=r.side;
     if(r.pick && r.pick.trim()) e.pick=r.pick.trim().slice(0,40);
     for(const s of g.stats||[]) e.stats[s.key]=Math.max(0,Math.round(+r.stats[s.key]||0));
+    if(g.multikills){ const mu={}; for(const [k] of MULTI){ const v=Math.max(0,Math.round(+(r.multi||{})[k]||0)); if(v) mu[k]=v; } if(Object.keys(mu).length) e.multi=mu; }
+    if(g.augments && r.augments){ const a=r.augments.split(",").map(x=>x.trim().slice(0,40)).filter(Boolean).slice(0,6); if(a.length) e.augments=a; }
     return e;
   });
   const doc={game:f.game, season:f.season.trim().slice(0,20), playedAt:f.date+new Date().toISOString().slice(10), entries, loggedBy:S.me?.id||null, createdAt:new Date().toISOString()};
@@ -467,19 +561,24 @@ function playerDetail(g,pid){
   if(g.kda) tiles.push(["KDA",fmt1(r.kda)]);
   if(g.format==="ffa") tiles.push(["Avg place",fmt1(r.placeSum/r.games)]);
   if(g.mvpStat) tiles.push(["MVPs",r.mvps]);
+  if(g.multikills) tiles.push(["Pentakills",r.multi.penta||0]);
   for(const st of g.stats||[]) tiles.push(["Avg "+lc(st.label), fmt1(r.sums[st.key]/r.games)]);
   const picks=Object.values(r.picks).sort((a,b)=>b.games-a.games||b.wins-a.wins);
+  const augs=Object.values(r.augs).sort((a,b)=>b.games-a.games||b.wins-a.wins).slice(0,6);
+  const augTbl = g.augments && augs.length ? `<div><h3 style="margin-bottom:6px">Favourite augments</h3><div class="tbl-wrap"><table><thead><tr><th class="l">Augment</th><th>Picked</th><th>Win %</th></tr></thead><tbody>${augs.map(a=>`<tr><td class="l">${esc(a.name)}</td><td>${a.games}</td><td>${pct(a.wins,a.games)}</td></tr>`).join("")}</tbody></table></div></div>` : "";
+  const tro=(S._trophies||{})[pid]||[];
+  const cabinet = tro.length ? `<div class="row-fields" style="align-items:center"><span class="label">Trophy cabinet</span>${tro.map(x=>x.penta?`<span class="tag penta">Pentakill</span>`:`<span class="tag trophy">${TROPHY_ICON}${esc(x.title)}</span>`).join("")}</div>` : "";
   const picksTbl = g.pickLabel && picks.length ? `<div><h3 style="margin-bottom:6px">${esc(g.pickLabel)} pool</h3><div class="tbl-wrap"><table><thead><tr><th class="l">${esc(g.pickLabel)}</th><th>Played</th><th>W</th><th>Win %</th></tr></thead><tbody>${picks.map(k=>`<tr><td class="l">${esc(k.name)}</td><td>${k.games}</td><td>${k.wins}</td><td>${pct(k.wins,k.games)}</td></tr>`).join("")}</tbody></table></div></div>` : "";
   const hist = `<div><h3 style="margin-bottom:6px">Recent matches</h3><div class="tbl-wrap"><table><thead><tr><th class="l">Date</th><th class="l">Result</th>${g.pickLabel?`<th class="l">${esc(g.pickLabel)}</th>`:""}<th>Stats</th><th>Pts</th></tr></thead><tbody>${ms.slice(0,10).map(m=>{const e=m.entries.find(x=>x.pid===pid); const mvp=mvpOf(g,m); const w=isWin(g,m,e); return `<tr><td class="l">${esc(fmtDate(m.playedAt))}</td><td class="l"><span class="tag ${w?"win":"loss"}">${g.format==="ffa"?"#"+(+e.place||"–"):(w?"Win":"Loss")}</span>${mvp===pid&&g.mvpStat?' <span class="tag mvp">MVP</span>':""}</td>${g.pickLabel?`<td class="l">${esc(e.pick||"")}</td>`:""}<td>${statLine(g,e.stats)}</td><td>${entryPoints(g,m,e,mvp)}</td></tr>`;}).join("")}</tbody></table></div></div>`;
-  return `<section class="panel">${head}<div class="tiles">${tiles.map(([l,v])=>`<div class="tile"><span class="label">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>${picksTbl}${hist}</section>`;
+  return `<section class="panel">${head}<div class="tiles">${tiles.map(([l,v])=>`<div class="tile"><span class="label">${esc(l)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>${cabinet}${picksTbl}${augTbl}${hist}</section>`;
 }
 
 /* ---------- games ---------- */
 function gamesTab(){
   const list=Object.entries(S.games).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
-  const cards = list.length ? list.map(([id,g])=>{const p=g.points||{}; return `<div class="gamecard"><div class="panel-head"><h3>${esc(g.name)}</h3><span class="muted">${S.matches.filter(m=>m.game===id).length} matches logged</span></div>
+  const cards = list.length ? list.map(([id,g])=>{const p=g.points||{}; return `<div class="gamecard"><div class="panel-head"><h3>${esc(g.name)}</h3><span class="muted">${S.matches.filter(m=>m.game===id).length} matches logged${S.isAdmin&&!S.matches.some(m=>m.game===id)?(S.confirmGameDel===id?` · <button class="btn danger small" data-act="del-game" data-id="${esc(id)}">Remove game</button> <button class="btn small" data-act="cancel-game-del">Keep</button>`:` · <button class="link" data-act="ask-game-del" data-id="${esc(id)}">Remove</button>`):""}</span></div>
     <div class="kv"><span><b>Format:</b> ${g.format==="ffa"?`Free-for-all, up to ${+g.teamSize||8} players`:`Two teams of ${+g.teamSize||5}`}</span>${g.pickLabel?`<span><b>Pick:</b> ${esc(g.pickLabel)}</span>`:""}<span><b>Stats:</b> ${(g.stats||[]).map(s=>esc(s.label)).join(", ")||"none"}</span>
-    <span><b>Points:</b> ${g.format==="ffa"?esc((p.placements||[]).join(" / "))+" by place":`win ${p.win??3}, loss ${p.loss??0}`}${g.mvpStat&&p.mvp?`, MVP +${p.mvp} (${g.mvpStat==="kda"?"KDA":esc(statLabel(g,g.mvpStat))})`:""}</span>${g.shameStat?`<span><b>Rage quit award:</b> most ${esc(statLabel(g,g.shameStat).toLowerCase())}</span>`:""}</div></div>`;}).join("") : `<p class="muted">No games yet.</p>`;
+    <span><b>Points:</b> ${g.format==="ffa"?esc((p.placements||[]).join(" / "))+" by place":`win ${p.win??3}, loss ${p.loss??0}`}${g.mvpStat&&p.mvp?`, MVP +${p.mvp} (${g.mvpStat==="kda"?"KDA":esc(statLabel(g,g.mvpStat))})`:""}</span>${g.augments?`<span><b>Augments:</b> tracked</span>`:""}${g.multikills&&p.multi?`<span><b>Multikills:</b> triple +${p.multi.triple||0}, quadra +${p.multi.quadra||0}, penta +${p.multi.penta||0}</span>`:""}${g.shameStat?`<span><b>Rage quit award:</b> most ${esc(statLabel(g,g.shameStat).toLowerCase())}</span>`:""}</div></div>`;}).join("") : `<p class="muted">No games yet.</p>`;
   const missing=Object.entries(TEMPLATES).filter(([id,t])=>!Object.values(S.games).some(g=>g.name===t.name));
   const n=S.ng;
   const addForm = S.isAdmin ? `<section class="panel"><h2>Add another game</h2>
@@ -531,6 +630,7 @@ function setPath(path, val){
   for(let i=0;i<parts.length-1;i++){ o=o[parts[i]]; if(o==null) return; }
   o[parts[parts.length-1]]=val;
 }
+document.addEventListener("keydown", e=>{ const id=e.target.id||""; if(e.key==="Enter" && id.startsWith("c-")){ e.preventDefault(); document.querySelector(`[data-act="post-talk"][data-id="${CSS.escape(id.slice(2))}"]`)?.click(); } });
 document.addEventListener("input", e=>{ const b=e.target.dataset?.bind; if(b) setPath(b, e.target.value); });
 document.addEventListener("change", e=>{
   const t=e.target, b=t.dataset?.bind;
@@ -547,7 +647,7 @@ document.addEventListener("click", async e=>{
     case "view-player": S.viewPlayer=el.dataset.pid; S.tab="players"; S.editTag=null; render(); window.scrollTo({top:0,behavior:"smooth"}); break;
     case "new-match": S.form=newForm(); S.formErr=""; S.tab="matches"; render(); break;
     case "cancel-form": S.form=null; S.formErr=""; render(); break;
-    case "add-row": { const g=S.games[S.form.game]; const side=el.dataset.side; const r={side,pid:"",pick:"",place:g.format==="ffa"?String(S.form.rows.length+1):"",stats:{}};
+    case "add-row": { const g=S.games[S.form.game]; const side=el.dataset.side; const r={side,pid:"",pick:"",place:g.format==="ffa"?String(S.form.rows.length+1):"",stats:{},augments:"",multi:{}};
       let at=S.form.rows.length; if(side){ for(let i=S.form.rows.length-1;i>=0;i--) if(S.form.rows[i].side===side){ at=i+1; break; } }
       S.form.rows.splice(at,0,r); render(); break; }
     case "save-match": {
@@ -572,6 +672,12 @@ document.addEventListener("click", async e=>{
     case "edit-tag": S.editTag=S.players[myPlayer()].tag; render(); break;
     case "cancel-tag": S.editTag=null; render(); break;
     case "save-tag": { const t=(S.editTag||"").trim(); if(!t) break; try{ const {error}=await S.sb.from("players").update({tag:t.slice(0,32)}).eq("id",myPlayer()); if(error) throw error; S.editTag=null; await loadAll(); toast("Gamer tag updated"); }catch(err){ toast(writeError(err)); } break; }
+    case "post-talk": { const body=(S.cdraft[id]||"").trim(); if(!body) break;
+      try{ const {error}=await S.sb.from("comments").insert({match_id:id, body:body.slice(0,280), author:S.me.id}); if(error) throw error; S.cdraft[id]=""; await loadAll(); }catch(err){ toast(writeError(err)); } break; }
+    case "del-talk": try{ const {error}=await S.sb.from("comments").delete().eq("id",id); if(error) throw error; await loadAll(); }catch(err){ toast(writeError(err)); } break;
+    case "ask-game-del": S.confirmGameDel=id; render(); break;
+    case "cancel-game-del": S.confirmGameDel=null; render(); break;
+    case "del-game": try{ const {error}=await S.sb.from("games").delete().eq("id",id); if(error) throw error; S.confirmGameDel=null; if(S.gameId===id) S.gameId=null; await loadAll(); toast("Game removed"); }catch(err){ toast(writeError(err)); } break;
     case "tpl": if(await addGame(TEMPLATES[id])){ S.tab = S.tab==="games"?"games":"standings"; render(); } break;
     case "add-game": { const def=gameFromForm(); if(typeof def==="string"){ toast(def); break; } if(await addGame(def)){ S.ng={...S.ng,name:"",stats:"",shame:"",mvp:"",pickLabel:""}; render(); } break; }
   }
@@ -588,6 +694,7 @@ async function loadAll(){
   if(err){ toast("Couldn't load the scoreboard. Reload the page."); console.error(err); return; }
   S.games=Object.fromEntries(g.data.map(r=>[r.id,r.config||{}]));
   S.players=Object.fromEntries(p.data.map(r=>[r.id,{tag:r.tag,uid:r.user_id,approved:r.approved,avatar:r.avatar}]));
+  if(!S.commentsOff){ const c=await S.sb.from("comments").select("id,match_id,author,body,created_at").order("created_at",{ascending:true}).limit(5000); if(c.error) S.commentsOff=true; else S.comments=c.data; }
   S.matches=m.data.map(r=>({id:r.id,game:r.game,season:r.season,playedAt:r.played_at,winner:r.winner,note:r.note,entries:r.entries||[]}));
   if(!S.gameId || !S.games[S.gameId]){ const first=Object.entries(S.games).sort((a,b)=>(a[1].order||0)-(b[1].order||0))[0]; S.gameId=first?first[0]:null; }
   S.ready=true; computeAccess(); render();
@@ -622,6 +729,7 @@ render();
     .on("postgres_changes",{event:"*",schema:"public",table:"games"},refresh)
     .on("postgres_changes",{event:"*",schema:"public",table:"players"},refresh)
     .on("postgres_changes",{event:"*",schema:"public",table:"matches"},refresh)
+    .on("postgres_changes",{event:"*",schema:"public",table:"comments"},refresh)
     .subscribe();
 })();
 </script>

@@ -30,8 +30,13 @@ In this GitHub repo, open **Settings → Pages**, choose **Deploy from a branch*
 ### 6. Log in first
 The **first person to log in becomes the organiser**, so log in yourself before sharing the link. Then send the link to your friends. When they log in and join the roster, approve them on the **Players** tab; approved players can log and delete matches. Anyone can view the scores without logging in.
 
+## Adding trash talk to an existing database
+If you set the database up before trash talk existed, run `supabase/002_trash_talk.sql` once in the SQL Editor. New setups get it from `setup.sql` automatically.
+
 ## How scoring works
 - Win 3 points, loss 0, and +1 for the match MVP (highest KDA).
 - Each year is its own tournament; there is also an "All time" view.
-- The Rage Quit Award goes to the most deaths in a single game.
+- ARAM Mayhem also gives triple kill +1, quadra +2, penta +3, and tracks damage, healing and augments.
+- Awards: Rage Quit (most deaths in a game), Healbot, Glass Cannon (top damage and most deaths in the same game), Pacifist (lowest damage), Champion Roulette (most different champions).
+- The winner of each finished year gets a trophy badge next to their name, and anyone with a pentakill gets a Penta badge.
 - Scoring and stats are set per game and can be changed in the `games` table.
