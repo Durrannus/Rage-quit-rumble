@@ -408,9 +408,9 @@ tr.lead td{background:rgba(198,255,46,.07)}
 /* hall of shame tiles */
 .shame-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 @media (min-width:960px){ .shame-grid{grid-template-columns:repeat(6,minmax(0,1fr))} }
-.shame{all:unset;box-sizing:border-box;cursor:pointer;display:grid;justify-items:center;text-align:center;gap:6px;padding:18px 12px 14px;border-radius:14px;
+.shame-tile{all:unset;box-sizing:border-box;cursor:pointer;display:grid;justify-items:center;text-align:center;gap:6px;padding:18px 12px 14px;border-radius:14px;
   background:radial-gradient(120% 90% at 50% 0%,rgba(255,63,210,.16),rgba(11,5,22,.6) 70%);border:1px solid rgba(255,63,210,.3);transition:transform .2s,box-shadow .2s,border-color .2s}
-.shame:hover,.shame:focus-visible{transform:translateY(-3px);border-color:var(--accent2);box-shadow:0 0 22px rgba(255,63,210,.35)}
+.shame-tile:hover,.shame-tile:focus-visible{transform:translateY(-3px);border-color:var(--accent2);box-shadow:0 0 22px rgba(255,63,210,.35)}
 .s-ico{font-size:1.9rem;line-height:1;filter:drop-shadow(0 0 10px rgba(255,63,210,.5))}
 .s-ttl{font:400 .78rem/1.2 var(--title);letter-spacing:.04em;text-transform:uppercase;color:var(--flame);min-height:2.4em;display:grid;place-items:center}
 .s-val{font:700 2rem/1 var(--display);color:#fff;text-shadow:0 0 16px rgba(32,240,228,.55)}
@@ -419,6 +419,19 @@ tr.lead td{background:rgba(198,255,46,.07)}
 .s-who .av{width:22px;height:22px;font-size:.7rem}
 @media (max-width:560px){ .shame-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible} }
 .pid-cell{display:flex;gap:4px;min-width:0}.pid-cell select{flex:1 1 auto;min-width:0}.add-riot{flex:none;padding:4px 9px;font-size:1rem;line-height:1}
+
+/* ceremony as a framed window, not a takeover */
+.stage{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(6,2,14,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden}
+.stage:before{content:none}
+.stage-box{position:relative;width:min(900px,100%);height:min(760px,100%);display:grid;grid-template-rows:auto 1fr auto;border-radius:22px;overflow:hidden;
+  background:radial-gradient(70% 60% at 50% 40%,rgba(255,63,210,.20),transparent 70%),linear-gradient(180deg,#1b0c35,#0d0619);
+  border:1px solid rgba(255,63,210,.45);box-shadow:0 0 0 1px rgba(32,240,228,.1),0 0 50px rgba(255,63,210,.3),0 30px 80px rgba(0,0,0,.6)}
+.stage .confetti{z-index:3}
+.acard{clip-path:inset(0 round 14px)}
+.acard.big{clip-path:inset(0 round 20px)}
+.stage .acard:hover{transform:none;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.stage .acard .shine{display:none}
+.acard.big{height:min(470px,calc(100vh - 220px))}
 </style>
 </head>
 <body>
@@ -947,11 +960,11 @@ function ceremony(){
   }
   const last=i===slides.length-1;
   const confetti = sl.kind==="card" && sl.c.tone==="glory" && S._shown!==S.show.mid+":"+i ? `<div class="confetti">${Array.from({length:40},(_,k)=>`<i style="left:${(k*97)%100}%;background:${["#ffc857","#4fd8ff","#9b7bff","#ff6b7d","#3ee09a"][k%5]};animation-duration:${1.6+(k%7)*.25}s;animation-delay:${(k%10)*.06}s"></i>`).join("")}</div>` : "";
-  return `<div class="stage" role="dialog" aria-modal="true" aria-label="Awards ceremony">${confetti}
+  return `<div class="stage" data-act="show-close-bg"><div class="stage-box" role="dialog" aria-modal="true" aria-label="Awards ceremony">${confetti}
     <div class="stage-top"><span class="kicker">${esc(g.name)} · Awards ceremony</span><button class="btn small" data-act="show-close" aria-label="Close">✕ Close</button></div>
     <div class="stage-body" data-act="show-next">${inner}</div>
     <div class="stage-foot"><button class="btn" data-act="show-prev"${i===0?" disabled":""}>Back</button><span class="dots">${slides.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")}</span><button class="btn primary" data-act="${last?"show-close":"show-next"}">${last?"Done":"Next"}</button></div>
-  </div>`;
+  </div></div>`;
 }
 function showStep(d){
   if(!S.show) return;
@@ -998,7 +1011,7 @@ function shamePanel(ms){
   const fav=pid=>Object.entries(champs[pid]||{}).sort((a,b)=>b[1]-a[1])[0]?.[0]||"";
   const cards=SHAME.map(c=>{ const best=ids.map(id=>({id,v:c.calc(tot[id])})).sort((a,b)=>b.v-a.v)[0]; return best&&best.v>0?{tone:"shame",icon:c.icon,title:c.title,pid:best.id,pick:fav(best.id),num:best.v,fmt:c.fmt,unit:c.unit,quip:c.quip}:null; }).filter(Boolean);
   if(!cards.length) return "";
-  return `<section class="panel" style="margin-top:20px"><div class="panel-head"><h2>Hall of Shame</h2><span class="muted" style="font-size:.85rem">From uploaded replays</span></div><div class="shame-grid">${cards.map(c=>`<button class="shame" data-act="view-player" data-pid="${esc(c.pid)}" title="${esc(c.quip)}"><span class="s-ico" aria-hidden="true">${c.icon}</span><span class="s-ttl">${esc(c.title)}</span><span class="s-val num">${esc(fmtBig(c.num,c.fmt))}</span><span class="s-unit">${esc(c.unit)}</span><span class="s-who">${avatar(c.pid)}${esc(pName(c.pid))}</span></button>`).join("")}</div></section>`;
+  return `<section class="panel" style="margin-top:20px"><div class="panel-head"><h2>Hall of Shame</h2><span class="muted" style="font-size:.85rem">From uploaded replays</span></div><div class="shame-grid">${cards.map(c=>`<button class="shame-tile" data-act="view-player" data-pid="${esc(c.pid)}" title="${esc(c.quip)}"><span class="s-ico" aria-hidden="true">${c.icon}</span><span class="s-ttl">${esc(c.title)}</span><span class="s-val num">${esc(fmtBig(c.num,c.fmt))}</span><span class="s-unit">${esc(c.unit)}</span><span class="s-who">${avatar(c.pid)}${esc(pName(c.pid))}</span></button>`).join("")}</div></section>`;
 }
 
 /* ---------- replay import (.rofl) ---------- */
@@ -1204,6 +1217,7 @@ document.addEventListener("click", async e=>{
     case "show-next": showStep(1); break;
     case "show-prev": showStep(-1); break;
     case "show-close": closeShow(); break;
+    case "show-close-bg": if(e.target===el) closeShow(); break;
     case "cancel-form": S.form=null; S.formErr=""; render(); break;
     case "add-row": { const g=S.games[S.form.game]; const side=el.dataset.side; const r={side,pid:"",pick:"",place:g.format==="ffa"?String(S.form.rows.length+1):"",stats:{},augments:"",multi:{}};
       let at=S.form.rows.length; if(side){ for(let i=S.form.rows.length-1;i>=0;i--) if(S.form.rows[i].side===side){ at=i+1; break; } }
