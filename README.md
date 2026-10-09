@@ -49,7 +49,7 @@ The webhook is stored where only the organiser can read it, and the database doe
 ## Voice comms clips
 1. In Supabase > SQL Editor, paste all of `supabase/004_voice_clips.sql` and press Run (once).
 2. Record the call. The Craig bot for Discord gives one file per person, so each clip is tagged with who said it. A single recording of the whole call also works.
-3. On the match, press 🎙 and choose the file(s). The site listens for the loudest moments in your browser (nothing uploads yet), then shows up to 8 ten-second clips per file.
+3. On the match, press 🎙 (only the organiser sees it) and choose the file(s). The site listens for the loudest moments in your browser (nothing uploads yet), then shows up to 8 ten-second clips per file.
 4. Play them, add a caption, untick the duds, and press Save. Clips show on the match card and get their own slide in the awards ceremony.
 
 Everyone in the call should know it's being recorded.

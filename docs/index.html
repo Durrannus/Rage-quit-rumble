@@ -819,7 +819,7 @@ function matchCard(g,m){
   const secs=hasFun?Math.max(...es.map(e=>e.fun?.time||0)):0;
   const meta=[fmtDate(m.playedAt), secs?`${Math.floor(secs/60)}:${String(Math.round(secs%60)).padStart(2,"0")}`:"", m.note||""].filter(Boolean);
   const head=`<header class="mh"><div class="mh-l"><span class="mh-meta">${meta.map(esc).join('<i>•</i>')}</span>${headline(m)}</div>
-    <div class="mh-r">${!S.commentsOff&&S.canWrite?`<button class="icon-btn chat" data-act="talk-open" data-id="${esc(m.id)}" title="Talk trash" aria-label="Talk trash">💬${(()=>{const n=S.comments.filter(c=>c.match_id===m.id).length;return n?`<span>${n}</span>`:"";})()}</button>`:""}${S.canWrite&&!S.clipsOff?`<button class="icon-btn chat" data-act="clip-open" data-id="${esc(m.id)}" title="Add voice clips" aria-label="Add voice clips">🎙</button>`:""}${hasFun||clipsFor(m.id).length?`<button class="btn small primary" data-act="show" data-id="${esc(m.id)}">▶ Awards</button>`:""}
+    <div class="mh-r">${!S.commentsOff&&S.canWrite?`<button class="icon-btn chat" data-act="talk-open" data-id="${esc(m.id)}" title="Talk trash" aria-label="Talk trash">💬${(()=>{const n=S.comments.filter(c=>c.match_id===m.id).length;return n?`<span>${n}</span>`:"";})()}</button>`:""}${S.isAdmin&&!S.clipsOff?`<button class="icon-btn chat" data-act="clip-open" data-id="${esc(m.id)}" title="Add voice clips" aria-label="Add voice clips">🎙</button>`:""}${hasFun||clipsFor(m.id).length?`<button class="btn small primary" data-act="show" data-id="${esc(m.id)}">▶ Awards</button>`:""}
     ${hasFun||es.some(e=>(e.augments||[]).length)?`<button class="btn small" data-act="toggle-match" data-id="${esc(m.id)}" aria-expanded="${open}">${open?"Less":"More"}</button>`:""}${del}</div></header>`;
   if(g.format==="ffa"){
     const rows=[...es].sort((a,b)=>(+a.place||99)-(+b.place||99));
@@ -1733,7 +1733,7 @@ document.addEventListener("click", async e=>{
     case "card-close": S.card=null; render(); break;
     case "card-close-bg": if(e.target===el){ S.card=null; render(); } break;
     case "card-img": saveCardImage(); break;
-    case "clip-open": S.clipper={mid:id, files:[], cands:[], busy:false, msg:""}; render(); break;
+    case "clip-open": if(!S.isAdmin) break; S.clipper={mid:id, files:[], cands:[], busy:false, msg:""}; render(); break;
     case "clip-close": stopAudio(); S.clipper=null; render(); break;
     case "clip-close-bg": if(e.target===el && !S.clipper?.busy){ stopAudio(); S.clipper=null; render(); } break;
     case "clip-preview": { const c=S.clipper?.cands[+el.dataset.i]; if(c) playSamples(c.data,c.id); break; }

@@ -1,4 +1,4 @@
--- Rage Quit Rumble: voice comms clips.
+-- Rage Quit Rumble: voice comms clips. Only the organiser can add them; everyone can play them.
 -- Run once in Supabase > SQL Editor (paste the whole file, press Run). Safe to run again.
 
 -- Public bucket for short audio clips (max 2 MB each, WAV/WebM/Ogg/MP3 only).
@@ -8,10 +8,11 @@ on conflict (id) do update set public = true, file_size_limit = excluded.file_si
 
 drop policy if exists "clips are public" on storage.objects;
 drop policy if exists "approved upload clips" on storage.objects;
+drop policy if exists "organiser uploads clips" on storage.objects;
 drop policy if exists "owner or organiser deletes clips" on storage.objects;
 create policy "clips are public" on storage.objects for select using (bucket_id = 'clips');
-create policy "approved upload clips" on storage.objects for insert to authenticated
-  with check (bucket_id = 'clips' and public.is_approved());
+create policy "organiser uploads clips" on storage.objects for insert to authenticated
+  with check (bucket_id = 'clips' and public.is_admin());
 create policy "owner or organiser deletes clips" on storage.objects for delete to authenticated
   using (bucket_id = 'clips' and (owner = auth.uid() or public.is_admin()));
 
@@ -30,11 +31,12 @@ create table if not exists public.clips (
 alter table public.clips enable row level security;
 drop policy if exists "read clips" on public.clips;
 drop policy if exists "approved add clips" on public.clips;
+drop policy if exists "organiser adds clips" on public.clips;
 drop policy if exists "owner or organiser removes clips" on public.clips;
 drop policy if exists "owner or organiser edits clips" on public.clips;
 create policy "read clips" on public.clips for select using (true);
-create policy "approved add clips" on public.clips for insert to authenticated
-  with check (public.is_approved() and created_by = auth.uid());
+create policy "organiser adds clips" on public.clips for insert to authenticated
+  with check (public.is_admin() and created_by = auth.uid());
 create policy "owner or organiser edits clips" on public.clips for update to authenticated
   using (created_by = auth.uid() or public.is_admin()) with check (created_by = auth.uid() or public.is_admin());
 create policy "owner or organiser removes clips" on public.clips for delete to authenticated
