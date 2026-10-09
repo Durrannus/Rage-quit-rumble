@@ -317,7 +317,7 @@ function body(){
   let banner="";
   const mine=myPlayer();
   if(S.authReady && !S.me?.id) banner=`<div class="banner"><span>Log in with Discord to join the roster and log matches.</span><button class="btn discord small" data-act="login">${DISCORD_ICON}Log in with Discord</button></div>`;
-  else if(S.me?.id && !mine && !S.isAdmin && S.tab!=="players") banner=`<div class="banner"><span>You're not on the roster yet. Add your gamer tag so your matches count.</span><button class="btn primary small" data-act="tab" data-id="players">Join the roster</button></div>`;
+  else if(S.me?.id && !mine && !S.isAdmin && S.tab!=="players") banner=`<div class="banner"><span>You're not on the roster yet. Join with your Discord name so your matches count.</span><button class="btn primary small" data-act="tab" data-id="players">Join the roster</button></div>`;
   else if(mine && !S.players[mine].approved && !S.isAdmin) banner=`<div class="banner"><span>You're on the roster. The organiser needs to approve you before you can log matches.</span></div>`;
   else if(S.isAdmin){ const n=Object.values(S.players).filter(p=>p.uid&&!p.approved).length; if(n && S.tab!=="players") banner=`<div class="banner"><span>${n} player${n===1?" is":"s are"} waiting for your approval.</span><button class="btn primary small" data-act="tab" data-id="players">Review</button></div>`; }
   const g=G();
@@ -441,16 +441,16 @@ function playersTab(){
   let join="";
   if(S.me?.id && !mine){
     const unclaimed=ids.filter(id=>!S.players[id].uid);
-    join = `<section class="panel"><h2>Join the roster</h2><p class="muted" style="margin:0">Use the name your friends know you by in game.</p>
-      <div class="row-fields"><input id="join-tag" data-bind="join.tag" value="${esc(S.join.tag)}" placeholder="Your gamer tag" style="flex:1 1 200px"><button class="btn primary" data-act="join">Join as this player</button></div>
-      ${unclaimed.length?`<p style="margin:0" class="muted">Already added by someone else? Claim your name: ${unclaimed.map(id=>`<button class="btn small" data-act="claim" data-pid="${esc(id)}">I'm ${esc(S.players[id].tag)}</button>`).join(" ")}</p>`:""}
+    join = `<section class="panel"><h2>Join the roster</h2><p class="muted" style="margin:0">Your name on the scoreboard is your Discord name, and it updates if you change it on Discord.</p>
+      <div class="row-fields"><button class="btn primary" data-act="join">Join as ${esc(S.me.name)}</button></div>
+      ${unclaimed.length?`<p style="margin:0" class="muted">Already added by the organiser? Claim your spot: ${unclaimed.map(id=>`<button class="btn small" data-act="claim" data-pid="${esc(id)}">I'm ${esc(S.players[id].tag)}</button>`).join(" ")}</p>`:""}
     </section>`;
   }
   const pending = S.isAdmin ? ids.filter(id=>S.players[id].uid && !S.players[id].approved) : [];
   const approvals = pending.length ? `<section class="panel"><h2>Waiting for approval</h2><p class="muted" style="margin:0">Approved players can log and delete matches.</p>${pending.map(id=>`<div class="row-fields" style="align-items:center">${avatar(id)}<b style="flex:1 1 140px">${esc(S.players[id].tag)}</b><button class="btn small primary" data-act="approve" data-pid="${esc(id)}">Approve</button><button class="btn small danger" data-act="reject" data-pid="${esc(id)}">Remove</button></div>`).join("")}</section>` : "";
   const roster = `<section class="panel"><div class="panel-head"><h2>Roster</h2><span class="muted num">${ids.length} player${ids.length===1?"":"s"}</span></div>
     ${ids.length?`<div class="roster-list">${ids.map(id=>`<button class="pcard" data-act="view-player" data-pid="${esc(id)}" aria-pressed="${id===S.viewPlayer}">${avatar(id)}${esc(S.players[id].tag)}</button>`).join("")}</div>`:`<p class="muted">Nobody on the roster yet.</p>`}
-    ${S.canWrite?`<div class="row-fields"><input id="addp-tag" data-bind="addp.tag" value="${esc(S.addp.tag)}" placeholder="Friend's gamer tag" style="flex:1 1 200px"><button class="btn" data-act="add-player">Add a friend</button></div><p class="muted" style="margin:0;font-size:.85rem">Friends you add can claim their name when they log in with Discord.</p>`:""}
+    ${S.canWrite?`<div class="row-fields"><input id="addp-tag" data-bind="addp.tag" value="${esc(S.addp.tag)}" placeholder="Friend's Discord name" style="flex:1 1 200px"><button class="btn" data-act="add-player">Add a friend</button></div><p class="muted" style="margin:0;font-size:.85rem">When they log in with Discord they can claim their spot, and it switches to their Discord name.</p>`:""}
   </section>`;
   return approvals + join + (g && S.viewPlayer ? playerDetail(g, S.viewPlayer) : "") + roster;
 }
@@ -461,7 +461,7 @@ function playerDetail(g,pid){
   const p=S.players[pid], isMe=pid===myPlayer();
   const editing = S.editTag!==null && isMe;
   const head = `<div class="ph">${avatar(pid)}<div><h2>${esc(p.tag)}</h2><span class="muted">${p.uid?(isMe?"This is you":(p.approved?"Discord player":"Waiting for approval")):"Not claimed yet"}${rank?` · Rank ${rank} in ${esc(g.name)}`:""}</span></div>
-    ${isMe&&S.canWrite?(editing?`<span class="row-fields"><input id="edit-tag" data-bind="editTag" value="${esc(S.editTag)}"><button class="btn small primary" data-act="save-tag">Save</button><button class="btn small" data-act="cancel-tag">Cancel</button></span>`:`<button class="link" data-act="edit-tag">Change gamer tag</button>`):""}</div>`;
+    </div>`;
   if(!r) return `<section class="panel">${head}<p class="muted" style="margin:0">No ${esc(g.name)} matches ${S.season==="all"?"yet":"in the "+esc(S.season)+" tournament"}.</p></section>`;
   const tiles=[["Points",r.pts],["Record",`${r.wins}–${r.losses}`],["Win rate",pct(r.wins,r.games)]];
   if(g.kda) tiles.push(["KDA",fmt1(r.kda)]);
@@ -559,14 +559,14 @@ document.addEventListener("click", async e=>{
     case "ask-del": S.confirmDel=id; render(); break;
     case "cancel-del": S.confirmDel=null; render(); break;
     case "del-match": try{ const {error}=await S.sb.from("matches").delete().eq("id",id); if(error) throw error; await loadAll(); toast("Match deleted"); }catch(err){ toast(writeError(err)); } S.confirmDel=null; render(); break;
-    case "join": { const tag=S.join.tag.trim(); if(!tag){ toast("Type your gamer tag first."); break; }
+    case "join": { const tag=S.me.name;
       try{ const {data,error}=await S.sb.from("players").insert({tag:tag.slice(0,32), user_id:S.me.id, avatar:S.me.avatar||null}).select("id").single(); if(error) throw error; S.viewPlayer=data.id; S.join.tag=""; await loadAll(); toast("Welcome to the roster, "+tag); }catch(err){ toast(writeError(err)); } break; }
-    case "claim": try{ const {error}=await S.sb.from("players").update({user_id:S.me.id, avatar:S.me.avatar||null}).eq("id",el.dataset.pid); if(error) throw error; S.viewPlayer=el.dataset.pid; await loadAll(); toast("Name claimed"); }catch(err){ toast(writeError(err)); } break;
+    case "claim": try{ const {error}=await S.sb.from("players").update({user_id:S.me.id, tag:S.me.name.slice(0,32), avatar:S.me.avatar||null}).eq("id",el.dataset.pid); if(error) throw error; S.viewPlayer=el.dataset.pid; await loadAll(); toast("Name claimed"); }catch(err){ toast(writeError(err)); } break;
     case "approve": try{ const {error}=await S.sb.from("players").update({approved:true}).eq("id",el.dataset.pid); if(error) throw error; await loadAll(); toast(pName(el.dataset.pid)+" approved"); }catch(err){ toast(writeError(err)); } break;
     case "reject": try{ const {error}=await S.sb.from("players").update({user_id:null, avatar:null}).eq("id",el.dataset.pid); if(error) throw error; await loadAll(); toast("Removed from the approval list"); }catch(err){ toast(writeError(err)); } break;
     case "login": { const {error}=await S.sb.auth.signInWithOAuth({provider:"discord", options:{redirectTo:location.origin+location.pathname}}); if(error) toast("Couldn't start Discord login: "+error.message); break; }
     case "logout": await S.sb.auth.signOut(); break;
-    case "add-player": { const tag=S.addp.tag.trim(); if(!tag){ toast("Type your friend's gamer tag first."); break; }
+    case "add-player": { const tag=S.addp.tag.trim(); if(!tag){ toast("Type your friend's Discord name first."); break; }
       if(Object.values(S.players).some(p=>p.tag.toLowerCase()===tag.toLowerCase())){ toast(tag+" is already on the roster."); break; }
       try{ const {error}=await S.sb.from("players").insert({tag:tag.slice(0,32), user_id:null}); if(error) throw error; S.addp.tag=""; await loadAll(); toast(tag+" added"); }catch(err){ toast(writeError(err)); } break; }
     case "edit-tag": S.editTag=S.players[myPlayer()].tag; render(); break;
@@ -601,7 +601,12 @@ async function onAuth(session){
   } else { S.me=null; S.isAdmin=false; }
   S.authReady=true; computeAccess(); render();
   const mine=myPlayer();
-  if(mine && S.me.avatar && S.players[mine].avatar!==S.me.avatar) S.sb.from("players").update({avatar:S.me.avatar}).eq("id",mine).then(()=>{});
+  if(mine){
+    const tag=S.me.name.slice(0,32), patch={};
+    if(S.players[mine].tag!==tag) patch.tag=tag;
+    if(S.me.avatar && S.players[mine].avatar!==S.me.avatar) patch.avatar=S.me.avatar;
+    if(Object.keys(patch).length) S.sb.from("players").update(patch).eq("id",mine).then(()=>loadAll());
+  }
 }
 render();
 (async ()=>{
